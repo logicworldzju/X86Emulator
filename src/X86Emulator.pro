@@ -11,8 +11,14 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        gui/mainwindow.cpp
+        gui/mainwindow.cpp \
+    cpu/opcodetable.cpp
 
-HEADERS  += gui/mainwindow.h
+HEADERS  += gui/mainwindow.h \
+    cpu/instructionformat.h \
+    cpu/opcodetable.h
 
 FORMS    += gui/mainwindow.ui
+
+
+
