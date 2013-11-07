@@ -48,7 +48,9 @@ enum OperandType
     OT_VR,
     OT_W,
     OT_X,
-    OT_Y
+	OT_Y,
+	OT_ZERO, //special operand which is actually embedded in the opcode.
+	OT_ONE  //special operand which is actually embedded in the opcode.
 
 };
 enum OperandSize
@@ -71,7 +73,8 @@ enum OperandSize
     OS_w,
     OS_z,
     OS_slash_n,
-    OS_Mw_Rv//especially for MOV Mw/Rv,Sw
+	OS_Mw_Rv,//especially for MOV Mw/Rv,Sw
+	OS_d_q//for d/q
 };
 
 struct OpcodeTableEntry
