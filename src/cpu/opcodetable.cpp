@@ -1,5 +1,5 @@
 #include "opcodetable.h"
-//#include "instructionformat.h"
+
 OpcodeTableEntry opcodeTableGroup1_80[8]=
 {
     OpcodeTableEntry("ADD",NULL,OT_E,OS_b,OT_I,OS_b),//ModRM.reg=000

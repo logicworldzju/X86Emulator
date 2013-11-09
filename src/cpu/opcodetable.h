@@ -2,17 +2,19 @@
 #define OPCODETABLE_H
 
 #include <string>
-enum OperandType
+#include "type.h"
+
+enum OTOperandType
 {
     OT_NOT_EXISTS=0,
-    OT_RAX,
-    OT_RCX,
-    OT_RDX,
-    OT_RBX,
-    OT_RSP,
-    OT_RBP,
-    OT_RSI,
-    OT_RDI,
+    OT_RAX=1,
+    OT_RCX=2,
+    OT_RDX=3,
+    OT_RBX=4,
+    OT_RSP=5,
+    OT_RBP=6,
+    OT_RSI=7,
+    OT_RDI=8,
 /*    OperandType_R8,
     OperandType_R9,
     OperandType_R10,
@@ -21,88 +23,79 @@ enum OperandType
     OperandType_R13,
     OperandType_R14,
     OperandType_R15,*/
-    OT_ES,
-    OT_CS,
-    OT_SS,
-    OT_DS,
-    OT_FS,
-    OT_GS,
-
-
-    OT_A,
-    OT_C,
-    OT_D,
-    OT_E,
-    OT_F,
-    OT_G,
-    OT_I,
-    OT_J,
-    OT_M,
-    OT_O,
-    OT_P,
-    OT_PR,
-    OT_Q,
-    OT_R,
-    OT_S,
-    OT_V,
-    OT_VR,
-    OT_W,
-    OT_X,
-	OT_Y,
-	OT_ZERO, //special operand which is actually embedded in the opcode.
-	OT_ONE  //special operand which is actually embedded in the opcode.
-
+    OT_ES=9,
+    OT_CS=10,
+    OT_SS=11,
+    OT_DS=12,
+    OT_FS=13,
+    OT_GS=14,
+    OT_A=15,
+    OT_C=16,
+    OT_D=17,
+    OT_E=18,
+    OT_F=19,
+    OT_G=20,
+    OT_I=21,
+    OT_J=22,
+    OT_M=23,
+    OT_O=24,
+    OT_P=25,
+    OT_PR=26,
+    OT_Q=27,
+    OT_R=28,
+    OT_S=29,
+    OT_V=30,
+    OT_VR=31,
+    OT_W=32,
+    OT_X=33,
+    OT_Y=34,
+    OT_ZERO=35, //special operand which is actually embedded in the opcode.
+    OT_ONE=36  //special operand which is actually embedded in the opcode.
 };
-enum OperandSize
+enum OTOperandSize
 {
     OS_NOT_EXISTS=0,
-    OS_a,
-    OS_b,
-    OS_d,
-    OS_dq,
-    OS_p,
-    OS_pd,
-    OS_pi,
-    OS_ps,
-    OS_q,
-    OS_s,
-    OS_sd,
-    OS_si,
-    OS_ss,
-    OS_v,
-    OS_w,
-    OS_z,
-    OS_slash_n,
-	OS_Mw_Rv,//especially for MOV Mw/Rv,Sw
-	OS_d_q//for d/q
+    OS_a=1,
+    OS_b=2,
+    OS_d=3,
+    OS_dq=4,
+    OS_p=5,
+    OS_pd=6,
+    OS_pi=7,
+    OS_ps=8,
+    OS_q=9,
+    OS_s=10,
+    OS_sd=11,
+    OS_si=12,
+    OS_ss=13,
+    OS_v=14,
+    OS_w=15,
+    OS_z=16,
+    OS_slash_n=17,
+    OS_Mw_Rv=18,//especially for MOV Mw/Rv,Sw
+    OS_d_q=19//for d/q
 };
 
 struct OpcodeTableEntry
 {
     std::string name;
-    struct
+    struct OTOperand
     {
-        OperandType type;
-        OperandSize size;
-    }dest;
-    struct
-    {
-        OperandType type;
-        OperandSize size;
-    }src;
-    struct
-    {
-        OperandType type;
-        OperandSize size;
-    }src2;
+        OTOperandType type;
+        OTOperandSize size;
+    };
+    OTOperand dest;
+    OTOperand src;
+    OTOperand src2;
     void* execFunc;
+    u32 execCount;//used for statistics.
     OpcodeTableEntry(std::string name,void* execFunc=NULL,
-                     OperandType destType=OT_NOT_EXISTS,
-                     OperandSize destSize=OS_NOT_EXISTS,
-                     OperandType srcType=OT_NOT_EXISTS,
-                     OperandSize srcSize=OS_NOT_EXISTS,
-                     OperandType src2Type=OT_NOT_EXISTS,
-                     OperandSize src2Size=OS_NOT_EXISTS)
+                     OTOperandType destType=OT_NOT_EXISTS,
+                     OTOperandSize destSize=OS_NOT_EXISTS,
+                     OTOperandType srcType=OT_NOT_EXISTS,
+                     OTOperandSize srcSize=OS_NOT_EXISTS,
+                     OTOperandType src2Type=OT_NOT_EXISTS,
+                     OTOperandSize src2Size=OS_NOT_EXISTS)
     {
         this->name = name;
         this->execFunc = execFunc;
@@ -112,6 +105,8 @@ struct OpcodeTableEntry
         this->src.size=srcSize;
         this->src2.type=src2Type;
         this->src2.size=src2Size;
+
+        this->execCount=0;
     }
 };
 
