@@ -4,35 +4,14 @@
 #include <iostream>
 #include <stdlib.h>
 #include <assert.h>
-//------------------------------Legacy Prefix------------------------
-#define LEGACY_PREFIX_OPERAND_SIZE_OVERRIDE 0x66
-#define LEGACY_PREFIX_ADDRESS_SIZE_OVERRIDE 0x67
-
-#define LEGACY_PREFIX_SEGMENT_OVERRIDE_CS 0x2e
-#define LEGACY_PREFIX_SEGMENT_OVERRIDE_DS 0x3e
-#define LEGACY_PREFIX_SEGMENT_OVERRIDE_ES 0x26
-#define LEGACY_PREFIX_SEGMENT_OVERRIDE_SS 0x36
-#define LEGACY_PREFIX_SEGMENT_OVERRIDE_FS 0x64
-#define LEGACY_PREFIX_SEGMENT_OVERRIDE_GS 0x65
-
-#define LEGACY_PREFIX_REP_REPZ 0xf3
-#define LEGACY_PREFIX_REPNZ 0xf2
-#define LEGACY_PREFIX_LOCK 0xf0
-
-//-----------------------------Rex Prefix----------------------------
-#define REX_PREFIX_BASE 0x40
-//-----------------------------Opcode--------------------------------
-//--------------------Escape Opcode---------------------
-#define ESCAPE_OPCODE0 0x0f
-#define ESCAPE_OPCODE0_0 0x3a //used in SIMD
-#define ESCAPE_OPCODE0_1 0x38 //used in SIMD
+#include "cpu/instructioncode.h"
 
 InstructionDecoder::InstructionDecoder()
 {
 }
 
 bool InstructionDecoder::decode(InstructionStream &stream,
-                                InstructionHighLevelFormat::OperatingEnvironment env,
+                                OperatingEnvironment env,
                                 InstructionLowLevelFormat& lowFormat,
                                 InstructionHighLevelFormat& highFormat)
 {
@@ -40,15 +19,10 @@ bool InstructionDecoder::decode(InstructionStream &stream,
     highFormat.operatingEnvironment=env;
     //--------------------Legacy Prefix--------------------
     u8 lastCode;
-//    u8 instLen=0;
-//    lowFormat.opcodeLength=0;
     bool next=true;
     while(next)
     {
         u8 legacyPrefix = stream.get8Bits();
-//        lowFormat.opcode[lowFormat.opcodeLength]=legacyPrefix;
-//        lowFormat.opcodeLength++;
-//        instruction[instLen++]=legacyPrefix;
         lastCode=legacyPrefix;
         switch(legacyPrefix)
         {
@@ -124,7 +98,7 @@ bool InstructionDecoder::decode(InstructionStream &stream,
         }
     }
     //-----------------REX------------------------------
-    if(env==InstructionHighLevelFormat::BIT_64)
+    if(env==ENV_64_BITS)
     {
         u8 rexPrefix = lastCode;
         if(rexPrefix>=REX_PREFIX_BASE && rexPrefix<REX_PREFIX_BASE+0x10)
@@ -134,26 +108,26 @@ bool InstructionDecoder::decode(InstructionStream &stream,
             lowFormat.rex.x=(rexPrefix>>1)&0x01;
             lowFormat.rex.r=(rexPrefix>>2)&0x01;
             lowFormat.rex.w=(rexPrefix>>3)&0x01;
-//            lowFormat.opcode[lowFormat.opcodeLength++]=stream.get8Bits();
             lastCode=stream.get8Bits();
         }
     }
     //--------------Set HighLevel Prefix----------------
+    //Set OperandSize
     if(lowFormat.legacyPrefix.operandSizeOverride==1)
     {
         switch(env)
         {
-        case InstructionHighLevelFormat::BIT_16:
-            highFormat.effectiveOperandSize=InstructionHighLevelFormat::BIT_32;
+        case ENV_16_BITS:
+            highFormat.effectiveOperandSize=EFFECTIVE_32_BITS;
             break;
-        case InstructionHighLevelFormat::BIT_32:
-            highFormat.effectiveOperandSize=InstructionHighLevelFormat::BIT_16;
+        case ENV_32_BITS:
+            highFormat.effectiveOperandSize=EFFECTIVE_16_BITS;
             break;
-        case InstructionHighLevelFormat::BIT_64:
+        case ENV_64_BITS:
             if(lowFormat.rex.w)
-                highFormat.effectiveOperandSize=InstructionHighLevelFormat::BIT_64;
+                highFormat.effectiveOperandSize=EFFECTIVE_64_BITS;
             else
-                highFormat.effectiveOperandSize=InstructionHighLevelFormat::BIT_16;
+                highFormat.effectiveOperandSize=EFFECTIVE_16_BITS;
             break;
         }
     }
@@ -161,32 +135,33 @@ bool InstructionDecoder::decode(InstructionStream &stream,
     {
         switch(env)
         {
-        case InstructionHighLevelFormat::BIT_16:
-            highFormat.effectiveOperandSize=InstructionHighLevelFormat::BIT_16;
+        case ENV_16_BITS:
+            highFormat.effectiveOperandSize=EFFECTIVE_16_BITS;
             break;
-        case InstructionHighLevelFormat::BIT_32:
-            highFormat.effectiveOperandSize=InstructionHighLevelFormat::BIT_32;
+        case ENV_32_BITS:
+            highFormat.effectiveOperandSize=EFFECTIVE_32_BITS;
             break;
-        case InstructionHighLevelFormat::BIT_64:
+        case ENV_64_BITS:
             if(lowFormat.rex.w)
-                highFormat.effectiveOperandSize=InstructionHighLevelFormat::BIT_64;
+                highFormat.effectiveOperandSize=EFFECTIVE_64_BITS;
             else
-                highFormat.effectiveOperandSize=InstructionHighLevelFormat::BIT_32;
+                highFormat.effectiveOperandSize=EFFECTIVE_32_BITS;
             break;
         }
     }
+    //Set AddressSize
     if(lowFormat.legacyPrefix.addressSizeOverride==1)
     {
         switch(env)
         {
-        case InstructionHighLevelFormat::BIT_16:
-            highFormat.effectiveAddressSize=InstructionHighLevelFormat::BIT_32;
+        case ENV_16_BITS:
+            highFormat.effectiveAddressSize=EFFECTIVE_32_BITS;
             break;
-        case InstructionHighLevelFormat::BIT_32:
-            highFormat.effectiveAddressSize=InstructionHighLevelFormat::BIT_16;
+        case ENV_32_BITS:
+            highFormat.effectiveAddressSize=EFFECTIVE_16_BITS;
             break;
-        case InstructionHighLevelFormat::BIT_64:
-            highFormat.effectiveAddressSize=InstructionHighLevelFormat::BIT_32;
+        case ENV_64_BITS:
+            highFormat.effectiveAddressSize=EFFECTIVE_32_BITS;
             break;
         default:
             break;
@@ -196,21 +171,23 @@ bool InstructionDecoder::decode(InstructionStream &stream,
     {
         switch(env)
         {
-        case InstructionHighLevelFormat::BIT_16:
-            highFormat.effectiveAddressSize=InstructionHighLevelFormat::BIT_16;
+        case ENV_16_BITS:
+            highFormat.effectiveAddressSize=EFFECTIVE_16_BITS;
             break;
-        case InstructionHighLevelFormat::BIT_32:
-            highFormat.effectiveAddressSize=InstructionHighLevelFormat::BIT_32;
+        case ENV_32_BITS:
+            highFormat.effectiveAddressSize=EFFECTIVE_32_BITS;
             break;
-        case InstructionHighLevelFormat::BIT_64:
-            highFormat.effectiveAddressSize=InstructionHighLevelFormat::BIT_64;
+        case ENV_64_BITS:
+            highFormat.effectiveAddressSize=EFFECTIVE_64_BITS;
             break;
         default:
             break;
         }
     }
 
-    //Unable to set effectiveSegmentRegister;
+    //Unable to set effectiveSegmentRegister now
+
+    //Set rep_repz,repnz,lock prefix.
     highFormat.legacyPrefix.rep_repz=lowFormat.legacyPrefix.rep_repz;
     highFormat.legacyPrefix.repnz=lowFormat.legacyPrefix.repnz;
     highFormat.legacyPrefix.lock=lowFormat.legacyPrefix.lock;
@@ -226,12 +203,16 @@ bool InstructionDecoder::decode(InstructionStream &stream,
         lowFormat.opcode[lowFormat.opcodeLength++]=opcode;
         opcodeTable = opcodeTableTwoByte_0x0F;
     }
-//    bool isGetNextByte=false;
     if(opcodeTable[opcode].name.substr(0,5)=="Group")
     {
         OpcodeTableEntry* groupOpcodeTable=(OpcodeTableEntry*)opcodeTable[opcode].execFunc;
+        if(!groupOpcodeTable)
+        {
+            std::cerr<<"Error:"<<"Try to look into the group opcode but find NULL,opcode:"
+                       <<opcode<<std::endl;
+            exit(-1);
+        }
         lastCode = stream.get8Bits();
-//        isGetNextByte=true;
         lowFormat.hasModRM=true;
         lowFormat.modRM.rm=(lastCode>>0)&0x7;
         lowFormat.modRM.reg=(lastCode>>3)&0x7;
@@ -241,49 +222,26 @@ bool InstructionDecoder::decode(InstructionStream &stream,
     else
     {
         highFormat.opcode=&opcodeTable[opcode];
-//        lastCode = stream.get8Bits();
     }
     //--------------Read ModRM SIB DISP IMM---------
     //process dest
-    if(highFormat.opcode->dest.size==OS_Mw_Rv)
     {
-
-        (*OT_jumpTable[highFormat.opcode->dest.type])(stream,lowFormat,highFormat,
+        (*OS_jumpTable[highFormat.opcode->dest.size])(stream,lowFormat,highFormat,
                                                       highFormat.dest);
-        (*OS_jumpTable[highFormat.opcode->dest.size])(highFormat,highFormat.dest);
-    }
-    else
-    {
-        (*OS_jumpTable[highFormat.opcode->dest.size])(highFormat,highFormat.dest);
         (*OT_jumpTable[highFormat.opcode->dest.type])(stream,lowFormat,highFormat,
                                                       highFormat.dest);
     }
     //process src
-    if(highFormat.opcode->src.size==OS_Mw_Rv)
     {
-
-        (*OT_jumpTable[highFormat.opcode->src.type])(stream,lowFormat,highFormat,
-                                                      highFormat.src);
-        (*OS_jumpTable[highFormat.opcode->src.size])(highFormat,highFormat.src);
-    }
-    else
-    {
-        (*OS_jumpTable[highFormat.opcode->src.size])(highFormat,highFormat.src);
+        (*OS_jumpTable[highFormat.opcode->src.size])(stream,lowFormat,highFormat,
+                                                     highFormat.src);
         (*OT_jumpTable[highFormat.opcode->src.type])(stream,lowFormat,highFormat,
                                                       highFormat.src);
     }
-    return true;
     //process src2
-    if(highFormat.opcode->src2.size==OS_Mw_Rv)
     {
-
-        (*OT_jumpTable[highFormat.opcode->src2.type])(stream,lowFormat,highFormat,
+        (*OS_jumpTable[highFormat.opcode->src2.size])(stream,lowFormat,highFormat,
                                                       highFormat.src2);
-        (*OS_jumpTable[highFormat.opcode->src2.size])(highFormat,highFormat.src2);
-    }
-    else
-    {
-        (*OS_jumpTable[highFormat.opcode->src2.size])(highFormat,highFormat.src2);
         (*OT_jumpTable[highFormat.opcode->src2.type])(stream,lowFormat,highFormat,
                                                       highFormat.src2);
     }
@@ -319,12 +277,14 @@ void InstructionDecoder::OT_NOT_EXISTS_jump(InstructionStream& stream,
                         IFOperand& operand)
 {
     //do nothing.
+    operand.isExists=false;
 }
 void InstructionDecoder::OT_RAX_jump(InstructionStream& stream,
                  InstructionLowLevelFormat& lowFormat,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RAX;
 }
@@ -333,6 +293,7 @@ void InstructionDecoder::OT_RCX_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RCX;
 }
@@ -341,6 +302,7 @@ void InstructionDecoder::OT_RDX_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RDX;
 }
@@ -349,6 +311,7 @@ void InstructionDecoder::OT_RBX_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RBX;
 }
@@ -357,6 +320,7 @@ void InstructionDecoder::OT_RSP_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RSP;
 }
@@ -365,6 +329,7 @@ void InstructionDecoder::OT_RBP_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RBP;
 }
@@ -373,6 +338,7 @@ void InstructionDecoder::OT_RSI_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RSI;
 }
@@ -381,6 +347,7 @@ void InstructionDecoder::OT_RDI_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RDI;
 }
@@ -389,6 +356,7 @@ void InstructionDecoder::OT_ES_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
     operand.type = IFOperand::SEGMENT_REGISTER;
     operand.content.segmentRegister=ES;
 }
@@ -397,6 +365,7 @@ void InstructionDecoder::OT_CS_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
     operand.type = IFOperand::SEGMENT_REGISTER;
     operand.content.segmentRegister=CS;
 }
@@ -405,6 +374,7 @@ void InstructionDecoder::OT_SS_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
     operand.type = IFOperand::SEGMENT_REGISTER;
     operand.content.segmentRegister=SS;
 }
@@ -413,6 +383,7 @@ void InstructionDecoder::OT_DS_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
     operand.type = IFOperand::SEGMENT_REGISTER;
     operand.content.segmentRegister=DS;
 }
@@ -421,6 +392,7 @@ void InstructionDecoder::OT_FS_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
     operand.type = IFOperand::SEGMENT_REGISTER;
     operand.content.segmentRegister=FS;
 }
@@ -429,6 +401,7 @@ void InstructionDecoder::OT_GS_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
     operand.type = IFOperand::SEGMENT_REGISTER;
     operand.content.segmentRegister=GS;
 }
@@ -437,16 +410,20 @@ void InstructionDecoder::OT_A_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
-    operand.type = IFOperand::FAR_POINTER;
-    if(operand.size==IFOperand::WORD)
+    operand.isExists=true;
+
+    operand.type = IFOperand::IMMEDIATE;
+    if(operand.finalSize==DATA_SIZE_DWORD)
     {
-        operand.content.farPointer.immediate.immu16 = stream.get16Bits();
-        operand.content.farPointer.selector = stream.get16Bits();
+        u16 disp = stream.get16Bits();
+        u16 selector = stream.get16Bits();
+        operand.content.immediate.immu32=PACK_16_16_TO_32BITS(disp,selector);
     }
-    else if(operand.size==IFOperand::DWORD)
+    else if(operand.finalSize==DATA_SIZE_6BYTES)
     {
-        operand.content.farPointer.immediate.immu32 = stream.get32Bits();
-        operand.content.farPointer.selector = stream.get16Bits();
+        u32 disp = stream.get32Bits();
+        u16 selector = stream.get16Bits();
+        operand.content.immediate.immu48 = PACK_32_16_TO_48BITS(disp,selector);
     }
     else
     {
@@ -458,37 +435,42 @@ void InstructionDecoder::OT_C_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
-    //not implemented.
-//    assert(0);
-    std::cerr<<"Error:"<<"Operand Type OT_C is not implemented."<<std::endl;
-    ::exit(-1);
+    operand.isExists=true;
+
+    getModRM(stream,lowFormat);
+    operand.type=IFOperand::CONTROL_REGISTER;
+    operand.content.controlRegister=static_cast<ControlRegister>(lowFormat.modRM.reg);
+
 }
 void InstructionDecoder::OT_D_jump(InstructionStream& stream,
                  InstructionLowLevelFormat& lowFormat,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
-    //not implemented.
-//    assert(0);
-    std::cerr<<"Error:"<<"Operand Type OT_D is not implemented."<<std::endl;
-    ::exit(-1);
+    operand.isExists=true;
+
+    getModRM(stream,lowFormat);
+    operand.type=IFOperand::DEBUG_REGISTER;
+    operand.content.debugRegister=static_cast<DebugRegister>(lowFormat.modRM.reg);
 }
 void InstructionDecoder::OT_E_jump(InstructionStream& stream,
                  InstructionLowLevelFormat& lowFormat,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
+
     getModRM(stream,lowFormat);
     if(lowFormat.modRM.mod==0x3)//register.
     {
         operand.type=IFOperand::GP_REGISTER;
-        operand.content.gpregister=(lowFormat.rex.b<<3)|lowFormat.modRM.rm;
+        operand.content.gpregister=static_cast<GPRegister>((lowFormat.rex.b<<3)|lowFormat.modRM.rm);
     }
     else
     {
-        operand.type=IFOperand::MEMORY;
+        operand.type=IFOperand::MEMORY_MODRM;
         highFormat.effectiveSegmentRegister=lowFormat.legacyPrefix.segmentOverride;
-        if(highFormat.effectiveAddressSize==InstructionHighLevelFormat::BIT_16)
+        if(highFormat.effectiveAddressSize==EFFECTIVE_16_BITS)
         {
             operand.content.memory.bit16Mode.modRM.rm=lowFormat.modRM.rm;
             operand.content.memory.bit16Mode.modRM.mod=lowFormat.modRM.mod;
@@ -497,12 +479,14 @@ void InstructionDecoder::OT_E_jump(InstructionStream& stream,
             {
                 operand.content.memory.bit16Mode.disp.dispu16=stream.get16Bits();
                 lowFormat.hasDisplacement=true;
+                lowFormat.displacementSize=DATA_SIZE_WORD;
                 lowFormat.displacement.dispu16=operand.content.memory.bit16Mode.disp.dispu16;
             }
             else if(lowFormat.modRM.mod==0x1)
             {
                 operand.content.memory.bit16Mode.disp.dispu8=stream.get8Bits();
                 lowFormat.hasDisplacement=true;
+                lowFormat.displacementSize=DATA_SIZE_BYTE;
                 lowFormat.displacement.dispu8=operand.content.memory.bit16Mode.disp.dispu8;
             }
             if((lowFormat.modRM.mod==0&&(lowFormat.modRM.rm==2||lowFormat.modRM.rm==3))||
@@ -538,12 +522,14 @@ void InstructionDecoder::OT_E_jump(InstructionStream& stream,
             {
                 operand.content.memory.bit3264Mode.disp.dispu32=stream.get32Bits();
                 lowFormat.hasDisplacement=true;
+                lowFormat.displacementSize=DATA_SIZE_DWORD;
                 lowFormat.displacement.dispu32=operand.content.memory.bit3264Mode.disp.dispu32;
             }
             else if(lowFormat.modRM.mod==0x1)
             {
                 operand.content.memory.bit3264Mode.disp.dispu8=stream.get8Bits();
                 lowFormat.hasDisplacement=true;
+                lowFormat.displacementSize=DATA_SIZE_BYTE;
                 lowFormat.displacement.dispu8=operand.content.memory.bit3264Mode.disp.dispu8;
             }
             if(operand.content.memory.bit3264Mode.modRM.rm==RBP
@@ -560,49 +546,115 @@ void InstructionDecoder::OT_F_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
-    std::cerr<<"Error:"<<"Operand Type OT_F is not implemented."<<std::endl;
-    ::exit(-1);
+//    std::cerr<<"Error:"<<"Operand Type OT_F is not implemented."<<std::endl;
+//    ::exit(-1);
+    //do nothing. as it is embedded in the opcode.
+    operand.isExists=false;
 }
 void InstructionDecoder::OT_G_jump(InstructionStream& stream,
                  InstructionLowLevelFormat& lowFormat,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
+
     getModRM(stream,lowFormat);
     operand.type=IFOperand::GP_REGISTER;
-    operand.content.gpregister = (lowFormat.rex.r<<3)|lowFormat.modRM.reg;
+    operand.content.gpregister = static_cast<GPRegister>((lowFormat.rex.r<<3)|lowFormat.modRM.reg);
 }
 void InstructionDecoder::OT_I_jump(InstructionStream& stream,
                  InstructionLowLevelFormat& lowFormat,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists=true;
+
     operand.type=IFOperand::IMMEDIATE;
-    switch(operand.size)
+    if(!lowFormat.hasImmediate)
     {
-    case IFOperand::BYTE:
-        operand.content.immediate.immu8=stream.get8Bits();
-        lowFormat.hasImmediate=true;
-        lowFormat.immediate.immu8=operand.content.immediate.immu8;
-        break;
-    case IFOperand::WORD:
-        operand.content.immediate.immu16=stream.get16Bits();
-        lowFormat.hasImmediate=true;
-        lowFormat.immediate.immu16=operand.content.immediate.immu16;
-        break;
-    case IFOperand::DWORD:
-        operand.content.immediate.immu32=stream.get32Bits();
-        lowFormat.hasImmediate=true;
-        lowFormat.immediate.immu32=operand.content.immediate.immu32;
-        break;
-    case IFOperand::QWORD:
-        operand.content.immediate.immu64=stream.get64Bits();
-        lowFormat.hasImmediate=true;
-        lowFormat.immediate.immu64=operand.content.immediate.immu64;
-        break;
-    case IFOperand::NOT_ASSIGNED:
-        assert(0);
-        break;
+        switch(operand.finalSize)
+        {
+        case DATA_SIZE_BYTE:
+            operand.content.immediate.immu8=stream.get8Bits();
+            lowFormat.hasImmediate=true;
+            lowFormat.immediateSize=operand.finalSize;
+            lowFormat.immediate.immu8=operand.content.immediate.immu8;
+            break;
+        case DATA_SIZE_WORD:
+            operand.content.immediate.immu16=stream.get16Bits();
+            lowFormat.hasImmediate=true;
+            lowFormat.immediateSize=operand.finalSize;
+            lowFormat.immediate.immu16=operand.content.immediate.immu16;
+            break;
+        case DATA_SIZE_DWORD:
+            operand.content.immediate.immu32=stream.get32Bits();
+            lowFormat.hasImmediate=true;
+            lowFormat.immediateSize=operand.finalSize;
+            lowFormat.immediate.immu32=operand.content.immediate.immu32;
+            break;
+        case DATA_SIZE_6BYTES:
+        {
+            u32 lower32Bits=stream.get32Bits();
+            u16 higher16Bits=stream.get16Bits();
+            operand.content.immediate.immu48=PACK_32_16_TO_48BITS(lower32Bits,higher16Bits);
+            lowFormat.hasImmediate=true;
+            lowFormat.immediateSize=operand.finalSize;
+            lowFormat.immediate.immu48=operand.content.immediate.immu48;
+            break;
+        }
+        case DATA_SIZE_QWORD:
+            operand.content.immediate.immu64=stream.get64Bits();
+            lowFormat.hasImmediate=true;
+            lowFormat.immediateSize=operand.finalSize;
+            lowFormat.immediate.immu64=operand.content.immediate.immu64;
+            break;
+        default:
+            assert(0);
+            break;
+        }
+    }
+    else
+    {
+        switch(operand.finalSize)
+        {
+        case DATA_SIZE_BYTE:
+            operand.content.immediate.immu8=stream.get8Bits();
+            lowFormat.hasImmediate2=true;
+            lowFormat.immediate2Size=operand.finalSize;
+            lowFormat.immediate2.immu8=operand.content.immediate.immu8;
+            break;
+        case DATA_SIZE_WORD:
+            operand.content.immediate.immu16=stream.get16Bits();
+            lowFormat.hasImmediate2=true;
+            lowFormat.immediate2Size=operand.finalSize;
+            lowFormat.immediate2.immu16=operand.content.immediate.immu16;
+            break;
+        case DATA_SIZE_DWORD:
+            operand.content.immediate.immu32=stream.get32Bits();
+            lowFormat.hasImmediate2=true;
+            lowFormat.immediate2Size=operand.finalSize;
+            lowFormat.immediate2.immu32=operand.content.immediate.immu32;
+            break;
+        case DATA_SIZE_6BYTES:
+        {
+            u32 lower32Bits=stream.get32Bits();
+            u16 higher16Bits=stream.get16Bits();
+            operand.content.immediate.immu48=PACK_32_16_TO_48BITS(lower32Bits,higher16Bits);
+            lowFormat.hasImmediate2=true;
+            lowFormat.immediate2Size=operand.finalSize;
+            lowFormat.immediate2.immu48=operand.content.immediate.immu48;
+            break;
+        }
+        case DATA_SIZE_QWORD:
+            operand.content.immediate.immu64=stream.get64Bits();
+            lowFormat.hasImmediate2=true;
+            lowFormat.immediate2Size=operand.finalSize;
+            lowFormat.immediate2.immu64=operand.content.immediate.immu64;
+            break;
+        default:
+            assert(0);
+            break;
+        }
     }
 }
 void InstructionDecoder::OT_J_jump(InstructionStream& stream,
@@ -610,7 +662,36 @@ void InstructionDecoder::OT_J_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
-    OT_I_jump(stream,lowFormat,highFormat,operand);
+    operand.isExists=true;
+
+    operand.type = IFOperand::IMMEDIATE;
+
+    switch(operand.finalSize)
+    {
+    case DATA_SIZE_WORD:
+        operand.content.immediate.immu16=stream.get16Bits();
+        lowFormat.hasDisplacement=true;
+        lowFormat.displacementSize=operand.finalSize;
+        lowFormat.displacement.dispu16=operand.content.immediate.immu16;
+        break;
+    case DATA_SIZE_DWORD:
+        operand.content.immediate.immu32=stream.get32Bits();
+        lowFormat.hasDisplacement=true;
+        lowFormat.displacementSize=operand.finalSize;
+        lowFormat.displacement.dispu32=operand.content.immediate.immu32;
+        break;
+    case DATA_SIZE_QWORD:
+        operand.content.immediate.immu64=stream.get64Bits();
+        lowFormat.hasDisplacement=true;
+        lowFormat.displacementSize=operand.finalSize;
+        lowFormat.displacement.dispu64=operand.content.immediate.immu64;
+        break;
+    default:
+        assert(0);
+        break;
+    }
+
+
 }
 void InstructionDecoder::OT_M_jump(InstructionStream& stream,
                  InstructionLowLevelFormat& lowFormat,
@@ -625,8 +706,34 @@ void InstructionDecoder::OT_O_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
-    std::cerr<<"Error:"<<"Operand Type OT_O is not implemented."<<std::endl;
-    ::exit(-1);
+    operand.isExists=true;
+
+    highFormat.effectiveSegmentRegister=lowFormat.legacyPrefix.segmentOverride;
+
+    operand.type=IFOperand::MEMORY_OFFSETS;
+    switch(highFormat.effectiveAddressSize)
+    {
+    case EFFECTIVE_16_BITS:
+        lowFormat.hasDisplacement=true;
+        lowFormat.displacementSize=DATA_SIZE_WORD;
+        lowFormat.displacement.dispu16=stream.get16Bits();
+        operand.content.memory.moffsets.dispu16=lowFormat.displacement.dispu16;
+        break;
+    case EFFECTIVE_32_BITS:
+        lowFormat.hasDisplacement=true;
+        lowFormat.displacementSize=DATA_SIZE_DWORD;
+        lowFormat.displacement.dispu32=stream.get32Bits();
+        operand.content.memory.moffsets.dispu32=lowFormat.displacement.dispu32;
+        break;
+    case EFFECTIVE_64_BITS:
+        lowFormat.hasDisplacement=true;
+        lowFormat.displacementSize=DATA_SIZE_QWORD;
+        lowFormat.displacement.dispu64=stream.get64Bits();
+        operand.content.memory.moffsets.dispu64=lowFormat.displacement.dispu64;
+        break;
+    default:
+        assert(0);
+    }
 }
 void InstructionDecoder::OT_P_jump(InstructionStream& stream,
                  InstructionLowLevelFormat& lowFormat,
@@ -665,9 +772,11 @@ void InstructionDecoder::OT_S_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists = true;
+
     operand.type = IFOperand::SEGMENT_REGISTER;
     getModRM(stream,lowFormat);
-    operand.content.segmentRegister=lowFormat.modRM.reg;
+    operand.content.segmentRegister=static_cast<SegmentRegister>(lowFormat.modRM.reg);
 }
 void InstructionDecoder::OT_V_jump(InstructionStream& stream,
                  InstructionLowLevelFormat& lowFormat,
@@ -698,7 +807,8 @@ void InstructionDecoder::OT_X_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
-    OT_RSI_jump(stream,lowFormat,highFormat,operand);
+    operand.isExists=false;
+//    OT_RSI_jump(stream,lowFormat,highFormat,operand);
     highFormat.effectiveSegmentRegister=lowFormat.legacyPrefix.segmentOverride;
 }
 void InstructionDecoder::OT_Y_jump(InstructionStream& stream,
@@ -706,30 +816,36 @@ void InstructionDecoder::OT_Y_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
-    OT_RDI_jump(stream,lowFormat,highFormat,operand);
+    operand.isExists=false;
+//    OT_RDI_jump(stream,lowFormat,highFormat,operand);
 }
 void InstructionDecoder::OT_ZERO_jump(InstructionStream& stream,
                  InstructionLowLevelFormat& lowFormat,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists = true;
+
     operand.type=IFOperand::IMMEDIATE;
-    switch(operand.size)
+    switch(operand.finalSize)
     {
-    case IFOperand::BYTE:
+    case DATA_SIZE_BYTE:
         operand.content.immediate.immu8=0;
         break;
-    case IFOperand::WORD:
+    case DATA_SIZE_WORD:
         operand.content.immediate.immu16=0;
         break;
-    case IFOperand::DWORD:
+    case DATA_SIZE_DWORD:
         operand.content.immediate.immu32=0;
         break;
-    case IFOperand::QWORD:
+    case DATA_SIZE_QWORD:
         operand.content.immediate.immu64=0;
         break;
-    case IFOperand::NOT_ASSIGNED:
+    case DATA_SIZE_6BYTES:
+    case DATA_SIZE_DQWORD:
+    case DATA_SIZE_10BYTES:
         assert(0);
+        break;
     }
 }
 void InstructionDecoder::OT_ONE_jump(InstructionStream& stream,
@@ -737,177 +853,224 @@ void InstructionDecoder::OT_ONE_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+    operand.isExists = true;
+
     operand.type=IFOperand::IMMEDIATE;
-    switch(operand.size)
+    switch(operand.finalSize)
     {
-    case IFOperand::BYTE:
+    case DATA_SIZE_BYTE:
         operand.content.immediate.immu8=1;
         break;
-    case IFOperand::WORD:
+    case DATA_SIZE_WORD:
         operand.content.immediate.immu16=1;
         break;
-    case IFOperand::DWORD:
+    case DATA_SIZE_DWORD:
         operand.content.immediate.immu32=1;
         break;
-    case IFOperand::QWORD:
+    case DATA_SIZE_QWORD:
         operand.content.immediate.immu64=1;
         break;
-    case IFOperand::NOT_ASSIGNED:
+    case DATA_SIZE_6BYTES:
+    case DATA_SIZE_DQWORD:
+    case DATA_SIZE_10BYTES:
         assert(0);
+        break;
     }
 }
-void InstructionDecoder::OS_NOT_EXISTS_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_NOT_EXISTS_jump(InstructionStream& stream,
+                                            InstructionLowLevelFormat& lowFormat,
+                                            InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
     //do nothing.
 }
-void InstructionDecoder::OS_a_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_a_jump(InstructionStream& stream,
+                                   InstructionLowLevelFormat& lowFormat,
+                                   InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
     switch(highFormat.effectiveOperandSize)
     {
-    case InstructionHighLevelFormat::BIT_16:
-        operand.size=IFOperand::DWORD;
+    case EFFECTIVE_16_BITS:
+        operand.finalSize=DATA_SIZE_DWORD;
         break;
-    case InstructionHighLevelFormat::BIT_32:
-    case InstructionHighLevelFormat::BIT_64:
-        operand.size=IFOperand::QWORD;
+    case EFFECTIVE_32_BITS:
+    case EFFECTIVE_64_BITS:
+        operand.finalSize=DATA_SIZE_QWORD;
         break;
     }
 }
-void InstructionDecoder::OS_b_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_b_jump(InstructionStream& stream,
+                                   InstructionLowLevelFormat& lowFormat,
+                                   InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
-    operand.size=IFOperand::BYTE;
+    operand.finalSize=DATA_SIZE_BYTE;
 }
-void InstructionDecoder::OS_d_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_d_jump(InstructionStream& stream,
+                                   InstructionLowLevelFormat& lowFormat,
+                                   InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
-    operand.size=IFOperand::DWORD;
+    operand.finalSize=DATA_SIZE_DWORD;
 }
-void InstructionDecoder::OS_dq_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_dq_jump(InstructionStream& stream,
+                                    InstructionLowLevelFormat& lowFormat,
+                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
 //    operand.size=IFOperand::
-    std::cerr<<"Error:"<<"Operand Type OS_dq is not implemented."<<std::endl;
-    ::exit(-1);
+//    std::cerr<<"Error:"<<"Operand Type OS_dq is not implemented."<<std::endl;
+//    ::exit(-1);
+    operand.finalSize=DATA_SIZE_DQWORD;
 }
-void InstructionDecoder::OS_p_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_p_jump(InstructionStream& stream,
+                                   InstructionLowLevelFormat& lowFormat,
+                                   InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
     switch(highFormat.effectiveOperandSize)
     {
-    case InstructionHighLevelFormat::BIT_16:
-        operand.size=IFOperand::WORD;
+    case EFFECTIVE_16_BITS:
+        operand.finalSize=DATA_SIZE_DWORD;
         break;
-    case InstructionHighLevelFormat::BIT_32:
-    case InstructionHighLevelFormat::BIT_64:
-        operand.size=IFOperand::DWORD;
+    case EFFECTIVE_32_BITS:
+    case EFFECTIVE_64_BITS:
+        operand.finalSize=DATA_SIZE_6BYTES;
         break;
     }
 }
-void InstructionDecoder::OS_pd_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_pd_jump(InstructionStream& stream,
+                                    InstructionLowLevelFormat& lowFormat,
+                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
     std::cerr<<"Error:"<<"Operand Type OS_pd is not implemented."<<std::endl;
     ::exit(-1);
 }
-void InstructionDecoder::OS_pi_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_pi_jump(InstructionStream& stream,
+                                    InstructionLowLevelFormat& lowFormat,
+                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
     std::cerr<<"Error:"<<"Operand Type OS_pi is not implemented."<<std::endl;
     ::exit(-1);
 }
-void InstructionDecoder::OS_ps_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_ps_jump(InstructionStream& stream,
+                                    InstructionLowLevelFormat& lowFormat,
+                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
     std::cerr<<"Error:"<<"Operand Type OS_ps is not implemented."<<std::endl;
     ::exit(-1);
 }
-void InstructionDecoder::OS_q_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_q_jump(InstructionStream& stream,
+                                   InstructionLowLevelFormat& lowFormat,
+                                   InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
-    operand.size=IFOperand::QWORD;
+    operand.finalSize=DATA_SIZE_QWORD;
 }
-void InstructionDecoder::OS_s_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_s_jump(InstructionStream& stream,
+                                   InstructionLowLevelFormat& lowFormat,
+                                   InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
     std::cerr<<"Error:"<<"Operand Type OS_s is not implemented."<<std::endl;
     ::exit(-1);
 }
-void InstructionDecoder::OS_sd_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_sd_jump(InstructionStream& stream,
+                                    InstructionLowLevelFormat& lowFormat,
+                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
     std::cerr<<"Error:"<<"Operand Type OS_sd is not implemented."<<std::endl;
     ::exit(-1);
 }
-void InstructionDecoder::OS_si_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_si_jump(InstructionStream& stream,
+                                    InstructionLowLevelFormat& lowFormat,
+                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
     std::cerr<<"Error:"<<"Operand Type OS_si is not implemented."<<std::endl;
     ::exit(-1);
 }
-void InstructionDecoder::OS_ss_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_ss_jump(InstructionStream& stream,
+                                    InstructionLowLevelFormat& lowFormat,
+                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
     std::cerr<<"Error:"<<"Operand Type OS_ss is not implemented."<<std::endl;
     ::exit(-1);
 }
-void InstructionDecoder::OS_v_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_v_jump(InstructionStream& stream,
+                                   InstructionLowLevelFormat& lowFormat,
+                                   InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
     switch(highFormat.effectiveOperandSize)
     {
-    case InstructionHighLevelFormat::BIT_16:
-        operand.size=IFOperand::WORD;
+    case EFFECTIVE_16_BITS:
+        operand.finalSize=DATA_SIZE_WORD;
         break;
-    case InstructionHighLevelFormat::BIT_32:
-        operand.size=IFOperand::DWORD;
+    case EFFECTIVE_32_BITS:
+        operand.finalSize=DATA_SIZE_DWORD;
         break;
-    case InstructionHighLevelFormat::BIT_64:
-        operand.size=IFOperand::QWORD;
+    case EFFECTIVE_64_BITS:
+        operand.finalSize=DATA_SIZE_QWORD;
         break;
     }
 }
-void InstructionDecoder::OS_w_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_w_jump(InstructionStream& stream,
+                                   InstructionLowLevelFormat& lowFormat,
+                                   InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
-    operand.size=IFOperand::WORD;
+    operand.finalSize=DATA_SIZE_WORD;
 }
-void InstructionDecoder::OS_z_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_z_jump(InstructionStream& stream,
+                                   InstructionLowLevelFormat& lowFormat,
+                                   InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
     switch(highFormat.effectiveOperandSize)
     {
-    case InstructionHighLevelFormat::BIT_16:
-        operand.size=IFOperand::WORD;
+    case EFFECTIVE_16_BITS:
+        operand.finalSize=DATA_SIZE_WORD;
         break;
-    case InstructionHighLevelFormat::BIT_32:
-    case InstructionHighLevelFormat::BIT_64:
-        operand.size=IFOperand::DWORD;
+    case EFFECTIVE_32_BITS:
+    case EFFECTIVE_64_BITS:
+        operand.finalSize=DATA_SIZE_DWORD;
         break;
     }
 }
-void InstructionDecoder::OS_slash_n_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_slash_n_jump(InstructionStream& stream,
+                                         InstructionLowLevelFormat& lowFormat,
+                                         InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
     std::cerr<<"Error:"<<"Operand Type OS_slash_n is not implemented."<<std::endl;
     ::exit(-1);
 }
-//Note:It should be called after the corresping OT_E_jump function.
-void InstructionDecoder::OS_Mw_Rv_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_Mw_Rv_jump(InstructionStream& stream,
+                                       InstructionLowLevelFormat& lowFormat,
+                                       InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
-    if(operand.type==IFOperand::MEMORY)
+
+    getModRM(stream,lowFormat);
+    if(lowFormat.modRM.mod!=3)
     {
-        operand.size=IFOperand::WORD;
+        operand.finalSize=DATA_SIZE_WORD;
     }
     else
     {
-        OS_v_jump(highFormat,operand);
+        OS_v_jump(stream,lowFormat,highFormat,operand);
     }
 }
-void InstructionDecoder::OS_d_q_jump(InstructionHighLevelFormat& highFormat,
+void InstructionDecoder::OS_d_q_jump(InstructionStream& stream,
+                                     InstructionLowLevelFormat& lowFormat,
+                                     InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
     std::cerr<<"Error:"<<"Operand Type OS_d_q is not implemented."<<std::endl;

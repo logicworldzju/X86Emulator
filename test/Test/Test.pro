@@ -1,0 +1,61 @@
+#-------------------------------------------------
+#
+# Project created by QtCreator 2013-11-10T20:25:10
+#
+#-------------------------------------------------
+
+QT       += testlib
+
+QT       -= gui
+
+TARGET = tst_testtest
+CONFIG   += console
+CONFIG   -= app_bundle
+
+TEMPLATE = app
+
+INCLUDEPATH +=../../src
+
+SOURCES += tst_testtest.cpp \
+    ../../src/memory/memory.cpp \
+    ../../src/memory/debugmemory.cpp \
+    ../../src/cpu/opcodetable.cpp \
+    ../../src/cpu/decoder/instructiondecoder.cpp
+DEFINES += SRCDIR=\\\"$$PWD/\\\"
+
+HEADERS += \
+    ../../src/memory/memory.h \
+    ../../src/memory/debugmemory.h \
+    ../../src/io/ioportlist.h \
+    ../../src/io/ioport.h \
+    ../../src/interrupt/interrupt.h \
+    ../../src/cpu/opcodetable.h \
+    ../../src/cpu/instructionformat.h \
+    ../../src/cpu/cputype.h \
+    ../../src/cpu/decoder/instructionstreamfrommemory.h \
+    ../../src/cpu/decoder/instructionstreamfromfile.h \
+    ../../src/cpu/decoder/instructionstream.h \
+    ../../src/cpu/decoder/instructiondecoder.h \
+    ../../src/cpu/executer/operand/execwriteoperand.h \
+    ../../src/cpu/executer/operand/execsegmentregisteroperand.h \
+    ../../src/cpu/executer/operand/execreadwriteoperand.h \
+    ../../src/cpu/executer/operand/execreadoperand.h \
+    ../../src/cpu/executer/operand/execmemoryoperand.h \
+    ../../src/cpu/executer/operand/execimmediateoperand.h \
+    ../../src/cpu/executer/operand/execgpregisteroperand.h \
+    ../../src/cpu/register/registerfile.h \
+    ../../src/cpu/register/gpregister.h \
+    ../../src/cpu/register/flags.h \
+    ../../src/type.h
+
+
+
+
+
+
+
+
+
+
+
+

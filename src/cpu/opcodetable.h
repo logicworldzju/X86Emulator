@@ -15,20 +15,14 @@ enum OTOperandType
     OT_RBP=6,
     OT_RSI=7,
     OT_RDI=8,
-/*    OperandType_R8,
-    OperandType_R9,
-    OperandType_R10,
-    OperandType_R11,
-    OperandType_R12,
-    OperandType_R13,
-    OperandType_R14,
-    OperandType_R15,*/
+
     OT_ES=9,
     OT_CS=10,
     OT_SS=11,
     OT_DS=12,
     OT_FS=13,
     OT_GS=14,
+
     OT_A=15,
     OT_C=16,
     OT_D=17,

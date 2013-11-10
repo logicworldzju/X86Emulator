@@ -10,4 +10,7 @@ typedef unsigned int u32;
 typedef signed long long s64;
 typedef unsigned long long u64;
 
+typedef s64 s48;
+typedef u64 u48;
+
 #endif // TYPE_H_2013_11_8

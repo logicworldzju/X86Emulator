@@ -21,7 +21,7 @@ public:
     }
     void add2PortList(u16 portNumber,IOPort* ioPort)
     {
-        assert(!IOPortList[portNumber]);
+        assert(!_ioPortList[portNumber]);
         _ioPortList[portNumber]=ioPort;
     }
 public:

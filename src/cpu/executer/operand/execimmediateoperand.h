@@ -6,26 +6,28 @@
 class ExecImmediateOperand : public ExecReadWriteOperand
 {
 public:
-    ExecImmediateOperand(u64 value,IFOperand::IFOperandSize size)
-        :_size(size)
+    ExecImmediateOperand(u64 value,DataSize size)
     {
+        _size=size;
         switch(_size)
         {
-        case IFOperand::BYTE:
+        case DATA_SIZE_BYTE:
             _uValue=u8(value);
             _sValue=s8(value);
             break;
-        case IFOperand::WORD:
+        case DATA_SIZE_WORD:
             _uValue=u16(value);
             _sValue=s16(value);
             break;
-        case IFOperand::DWORD:
+        case DATA_SIZE_DWORD:
             _uValue=u32(value);
             _sValue=s32(value);
             break;
-        case IFOperand::QWORD:
+        case DATA_SIZE_QWORD:
             _uValue=u64(value);
             _sValue=s64(value);
+            break;
+        default:
             break;
         }
     }

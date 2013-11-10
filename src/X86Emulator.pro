@@ -15,7 +15,8 @@ SOURCES += main.cpp\
     cpu/opcodetable.cpp \
     memory/memory.cpp \
     memory/debugmemory.cpp \
-    cpu/decoder/instructiondecoder.cpp
+    cpu/decoder/instructiondecoder.cpp \
+    cpu/encoder/instructionencoder.cpp
 
 HEADERS  += gui/mainwindow.h \
     cpu/instructionformat.h \
@@ -35,7 +36,6 @@ HEADERS  += gui/mainwindow.h \
     cpu/executer/operand/execgpregisteroperand.h \
     cpu/executer/operand/execsegmentregisteroperand.h \
     cpu/executer/operand/execimmediateoperand.h \
-    cpu/executer/operand/execfarpointeroperand.h \
     cpu/instructionstream.h \
     cpu/instructionstreamfrommemory.h \
     cpu/register/registerfile.h \
@@ -45,9 +45,15 @@ HEADERS  += gui/mainwindow.h \
     cpu/decoder/instructionstream.h \
     cpu/decoder/instructiondecoder.h \
     cpu/decoder/instructionstreamfromfile.h \
-    cpu/cputype.h
+    cpu/cputype.h \
+    cpu/encoder/instructionencoder.h \
+    cpu/instructioncode.h
 
 FORMS    += gui/mainwindow.ui
+
+
+
+
 
 
 

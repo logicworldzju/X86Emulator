@@ -10,7 +10,7 @@ class InstructionDecoder
 public:
     InstructionDecoder();
     static bool decode(InstructionStream& stream,
-                       InstructionHighLevelFormat::OperatingEnvironment env,
+                       OperatingEnvironment env,
                        InstructionLowLevelFormat& lowFormat,
                        InstructionHighLevelFormat& highFormat);
 private:
@@ -172,47 +172,89 @@ private:
                             InstructionLowLevelFormat& lowFormat,
                             InstructionHighLevelFormat& highFormat,
                             IFOperand& operand);
-    typedef void (*OS_jump)(InstructionHighLevelFormat& highFormat,
+    typedef void (*OS_jump)(InstructionStream& stream,
+                            InstructionLowLevelFormat& lowFormat,
+                            InstructionHighLevelFormat& highFormat,
                                     IFOperand& operand);
-    static void OS_NOT_EXISTS_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_NOT_EXISTS_jump(InstructionStream& stream,
+                                   InstructionLowLevelFormat& lowFormat,
+                                   InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_a_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_a_jump(InstructionStream& stream,
+                          InstructionLowLevelFormat& lowFormat,
+                          InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_b_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_b_jump(InstructionStream& stream,
+                          InstructionLowLevelFormat& lowFormat,
+                          InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_d_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_d_jump(InstructionStream& stream,
+                          InstructionLowLevelFormat& lowFormat,
+                          InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_dq_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_dq_jump(InstructionStream& stream,
+                           InstructionLowLevelFormat& lowFormat,
+                           InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_p_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_p_jump(InstructionStream& stream,
+                          InstructionLowLevelFormat& lowFormat,
+                          InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_pd_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_pd_jump(InstructionStream& stream,
+                           InstructionLowLevelFormat& lowFormat,
+                           InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_pi_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_pi_jump(InstructionStream& stream,
+                           InstructionLowLevelFormat& lowFormat,
+                           InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_ps_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_ps_jump(InstructionStream& stream,
+                           InstructionLowLevelFormat& lowFormat,
+                           InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_q_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_q_jump(InstructionStream& stream,
+                          InstructionLowLevelFormat& lowFormat,
+                          InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_s_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_s_jump(InstructionStream& stream,
+                          InstructionLowLevelFormat& lowFormat,
+                          InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_sd_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_sd_jump(InstructionStream& stream,
+                           InstructionLowLevelFormat& lowFormat,
+                           InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_si_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_si_jump(InstructionStream& stream,
+                           InstructionLowLevelFormat& lowFormat,
+                           InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_ss_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_ss_jump(InstructionStream& stream,
+                           InstructionLowLevelFormat& lowFormat,
+                           InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_v_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_v_jump(InstructionStream& stream,
+                          InstructionLowLevelFormat& lowFormat,
+                          InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_w_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_w_jump(InstructionStream& stream,
+                          InstructionLowLevelFormat& lowFormat,
+                          InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_z_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_z_jump(InstructionStream& stream,
+                          InstructionLowLevelFormat& lowFormat,
+                          InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_slash_n_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_slash_n_jump(InstructionStream& stream,
+                                InstructionLowLevelFormat& lowFormat,
+                                InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_Mw_Rv_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_Mw_Rv_jump(InstructionStream& stream,
+                              InstructionLowLevelFormat& lowFormat,
+                              InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
-    static void OS_d_q_jump(InstructionHighLevelFormat& highFormat,
+    static void OS_d_q_jump(InstructionStream& stream,
+                            InstructionLowLevelFormat& lowFormat,
+                            InstructionHighLevelFormat& highFormat,
                                    IFOperand& operand);
     static OT_jump OT_jumpTable[];
     static OS_jump OS_jumpTable[];

@@ -141,7 +141,7 @@ public:
     //-------------------64-Bit Media Instructions-------------
     //----------------X87 Floating-point Instructions----------
 protected:
-    GPRegister _gpRegisters[16];
+    GPRegisterClass _gpRegisters[16];
     u16 _sementRegisters[6];
     u32 _ip;
     Flags _flags;

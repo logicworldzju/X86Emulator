@@ -16,6 +16,8 @@ union Displacement
     u16 dispu16;
     s32 disp32;
     u32 dispu32;
+    s48 disp48;
+    u48 dispu48;
     s64 disp64;
     u64 dispu64;
 };
@@ -27,6 +29,8 @@ union Immediate
     u16 immu16;
     s32 imm32;
     u32 immu32;
+    s48 imm48;
+    u48 immu48;
     s64 imm64;
     u64 immu64;
 };
@@ -41,7 +45,7 @@ struct InstructionLowLevelFormat
         u8 rep_repz:1;
         u8 repnz:1;
         u8 lock:1;
-        u8 segmentOverride;
+        SegmentRegister segmentOverride;
     }legacyPrefix;
     //-----------------------Rex Prefix----------------
     //It is not used now as it is used in x64 machine.
@@ -74,46 +78,56 @@ struct InstructionLowLevelFormat
     }sib;
     //-------------------Displacement------------------
     bool hasDisplacement;
+    DataSize displacementSize;
     Displacement displacement;
     //-------------------Immediate--------------------
     bool hasImmediate;
+    DataSize immediateSize;
     Immediate immediate;
+    //immediate2 used for some ill form like
+    //enter Iw,Ib;
+    bool hasImmediate2;
+    DataSize immediate2Size;
+    Immediate immediate2;
     InstructionLowLevelFormat()
     {
         ::memset(this,0,sizeof(InstructionLowLevelFormat));
         legacyPrefix.segmentOverride=DS;
     }
 };
-struct FarPointer
-{
-    u16 selector;
-    Immediate immediate;
-};
 struct IFOperand //Instruction Format Operand
 {
+    bool isExists;
+
+    DataSize finalSize;//the final size of the operand,take effective operand size
+            //and operand size requirement into consideration.
+
     enum IFOperandType
     {
-        FAR_POINTER,
         IMMEDIATE,
+
         SEGMENT_REGISTER,
         GP_REGISTER,
-        MEMORY
+        CONTROL_REGISTER,
+        DEBUG_REGISTER,
+        MMX_REGISTER,
+        XMM_REGISTER,
+
+        MEMORY_MODRM,
+        MEMORY_OFFSETS
     }type;
-    enum IFOperandSize
-    {
-        BYTE,
-        WORD,
-        DWORD,
-        QWORD,
-        NOT_ASSIGNED
-    }size;//the final size of the operand,take effective operand size
-            //and operand size requirement into consideration.
     union Content
     {
-        FarPointer farPointer;
+        //--------------Immediate-----------
         Immediate immediate;
-        u8 segmentRegister;
-        u8 gpregister;
+        //--------------Register------------
+        SegmentRegister segmentRegister;
+        GPRegister gpregister;
+        ControlRegister controlRegister;
+        DebugRegister debugRegister;
+        MMXRegister mmxRegister;
+        XMMRegister xmmRegister;
+        //--------------Memory-------------
         union Memory
         {
             struct Bit16Mode
@@ -140,26 +154,22 @@ struct IFOperand //Instruction Format Operand
                 }sib;
                 Displacement disp;
             }bit3264Mode;
+            Displacement moffsets;
         }memory;
     }content;
     IFOperand()
     {
         ::memset(this,0,sizeof(IFOperand));
+        isExists=false;
     }
 };
 struct InstructionHighLevelFormat
 {
-    enum OperatingEnvironment
-    {
-        BIT_16=0,
-        BIT_32,
-        BIT_64
-    };
     OperatingEnvironment operatingEnvironment;
     //----------------Prefix related-----------------
-    OperatingEnvironment effectiveOperandSize;
-    OperatingEnvironment effectiveAddressSize;
-    u8 effectiveSegmentRegister;
+    EffectiveSize effectiveOperandSize;
+    EffectiveSize effectiveAddressSize;
+    SegmentRegister effectiveSegmentRegister;
     struct LegacyPrefix
     {
         unsigned char rep_repz:1;
@@ -172,7 +182,11 @@ struct InstructionHighLevelFormat
     IFOperand dest;
     IFOperand src;
     IFOperand src2;
-
+    InstructionHighLevelFormat()
+    {
+        ::memset(this,0,sizeof(InstructionHighLevelFormat));
+        effectiveSegmentRegister=DS;
+    }
 };
 
 #endif // INSTRUCTIONFORMAT_H

@@ -2,10 +2,10 @@
 #define GPREGISTER_H
 #include "type.h"
 #include <string.h>
-class GPRegister
+class GPRegisterClass
 {
 public:
-    GPRegister()
+    GPRegisterClass()
     {
         ::memset(_reg,0,sizeof(_reg));
     }

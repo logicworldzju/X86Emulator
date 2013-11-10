@@ -1,14 +1,14 @@
 #ifndef EXECSEMENTREGISTEROPERAND_H
 #define EXECSEMENTREGISTEROPERAND_H
 #include "execreadwriteoperand.h"
-#include "cpu/registerfile.h"
+#include "cpu/register/registerfile.h"
 class ExecSegmentRegisterOperand:public ExecReadWriteOperand
 {
 public:
     ExecSegmentRegisterOperand(RegisterFile& file,u8 segmentRegister)
         :_file(file),_segmentRegister(segmentRegister)
     {
-        _size=IFOperand::WORD;
+        _size=DATA_SIZE_WORD;
     }
     virtual void prepareReadSigned()
     {

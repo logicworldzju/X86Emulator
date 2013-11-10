@@ -65,7 +65,8 @@ u8 DebugMemory::get8Bits(u32 address)
         _statisticMemoryDeviceDataGet[address]++;
         break;
     default:
-        assert(0);
+        //assert(0);
+        break;
     }
     return Memory::get8Bits(address);
 }

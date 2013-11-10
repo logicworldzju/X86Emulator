@@ -5,7 +5,7 @@
 class ExecReadOperand
 {
 public:
-    ExeReadOperand()
+    ExecReadOperand()
     {
         _uValue=0;
         _sValue=0;
@@ -25,6 +25,11 @@ public:
         prepareReadUnsigned();
         return u32(_uValue);
     }
+    u48 getU48()
+    {
+        prepareReadUnsigned();
+        return u48(_uValue);
+    }
     u64 getU64()
     {
         prepareReadUnsigned();
@@ -33,22 +38,27 @@ public:
     s8 getS8()
     {
         prepareReadSigned();
-        return s8(_uValue);
+        return s8(_sValue);
     }
     s16 getS16()
     {
         prepareReadSigned();
-        return s16(_uValue);
+        return s16(_sValue);
     }
     s32 getS32()
     {
         prepareReadSigned();
-        return s32(_uValue);
+        return s32(_sValue);
+    }
+    s48 getS48()
+    {
+        prepareReadUnsigned();
+        return s48(_sValue);
     }
     s64 getS64()
     {
         prepareReadSigned();
-        return s64(_uValue);
+        return s64(_sValue);
     }
 public:
     virtual void prepareReadSigned()=0;

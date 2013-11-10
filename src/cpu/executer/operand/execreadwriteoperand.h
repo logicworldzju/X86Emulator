@@ -4,7 +4,7 @@
 #include "execreadoperand.h"
 #include "execwriteoperand.h"
 
-class ExecReadWriteOperand :public ExecReadOperand,public ExecWriteOperand
+class ExecReadWriteOperand :public ExecWriteOperand,public ExecReadOperand
 {
 
 };

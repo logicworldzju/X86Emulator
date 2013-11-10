@@ -73,9 +73,10 @@ public:
         INST_ACCESS,
         CPU_DATA_ACCESS,
         DEVICE_DATA_ACCESS,
-        SYSTEM_INIT_ACCESS  //init system,like load bios rom code and
+        SYSTEM_INIT_ACCESS,  //init system,like load bios rom code and
                             //other rom code into specific memory
                             //address.
+        DEBUG_ACCESS
     };
     void startAccess(AccessMode accessMode)
     {

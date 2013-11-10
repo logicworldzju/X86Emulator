@@ -27,26 +27,25 @@ public:
     virtual u8 get8Bits()
     {
         u8 buf=0xcc;
-        _file.read(&buf,sizeof(buf));
-//        _file.readsome(&buf)
+        _file.read(reinterpret_cast<char*>(&buf),sizeof(buf));
         return buf;
     }
     virtual u16 get16Bits()
     {
-        u16 buf=0xcccc;
-        _file.read(&buf,sizeof(buf));
+        u16 buf=get8Bits();
+        buf=(static_cast<u16>(get8Bits())<<8)|buf;
         return buf;
     }
     virtual u32 get32Bits()
     {
-        u32 buf=0xcccccccc;
-        _file.read(&buf,sizeof(buf));
+        u32 buf=get16Bits();
+        buf=(static_cast<u32>(get16Bits())<<16)|buf;
         return buf;
     }
     virtual u64 get64Bits()
     {
-        u64 buf=0xcccccccccccccccc;
-        _file.read(&buf,sizeof(buf));
+        u64 buf=get32Bits();
+        buf=(static_cast<u64>(get32Bits())<<32)|buf;
         return buf;
     }
 protected:

@@ -7,8 +7,8 @@
 class InstructionStreamFromMemory : public InstructionStream
 {
 public:
-    InstructionStreamFromMemory(Memory& memory)
-        :_memory(memory)
+    InstructionStreamFromMemory(Memory& memory,bool isDisasm)
+        :_memory(memory),_isDisasm(isDisasm)
     {
     }
     void setIP(u32 ip)
@@ -22,7 +22,10 @@ public:
 public:
     virtual u8 get8Bits()
     {
-        _memory.startAccess(Memory::INST_ACCESS);
+        if(_isDisasm)
+            _memory.startAccess(Memory::DEBUG_ACCESS);
+        else
+            _memory.startAccess(Memory::INST_ACCESS);
         u8 ret=_memory.get8Bits(_ip);
         _memory.endAccess();
         _ip+=1;
@@ -30,7 +33,10 @@ public:
     }
     virtual u16 get16Bits()
     {
-        _memory.startAccess(Memory::INST_ACCESS);
+        if(_isDisasm)
+            _memory.startAccess(Memory::DEBUG_ACCESS);
+        else
+            _memory.startAccess(Memory::INST_ACCESS);
         u16 ret=_memory.get16Bits(_ip);
         _memory.endAccess();
         _ip+=2;
@@ -38,7 +44,10 @@ public:
     }
     virtual u32 get32Bits()
     {
-        _memory.startAccess(Memory::INST_ACCESS);
+        if(_isDisasm)
+            _memory.startAccess(Memory::DEBUG_ACCESS);
+        else
+            _memory.startAccess(Memory::INST_ACCESS);
         u32 ret=_memory.get32Bits(_ip);
         _memory.endAccess();
         _ip+=4;
@@ -46,7 +55,10 @@ public:
     }
     virtual u64 get64Bits()
     {
-        _memory.startAccess(Memory::INST_ACCESS);
+        if(_isDisasm)
+            _memory.startAccess(Memory::DEBUG_ACCESS);
+        else
+            _memory.startAccess(Memory::INST_ACCESS);
         u64 ret=_memory.get64Bits(_ip);
         _memory.endAccess();
         _ip+=8;
@@ -55,6 +67,7 @@ public:
 protected:
     Memory& _memory;
     u32 _ip;
+    bool _isDisasm;
 };
 
 #endif // INSTRUCTIONSTREAMFROMMEMORY_H
