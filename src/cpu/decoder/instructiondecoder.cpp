@@ -76,6 +76,7 @@ bool InstructionDecoder::decode(InstructionStream &stream,
         case LEGACY_PREFIX_SEGMENT_OVERRIDE_GS:
         {
             lowFormat.hasLegacyPrefix=true;
+            lowFormat.legacyPrefix.hasSegmentOverride=true;
             lowFormat.legacyPrefix.segmentOverride=GS;
             break;
         }
@@ -432,12 +433,20 @@ void InstructionDecoder::OT_A_jump(InstructionStream& stream,
         u16 disp = stream.get16Bits();
         u16 selector = stream.get16Bits();
         operand.content.immediate.valueU32=PACK_16_16_TO_32BITS(disp,selector);
+
+        lowFormat.hasImmediate=true;
+        lowFormat.immediateSize=operand.finalSize;
+        lowFormat.immediate.valueU32=operand.content.immediate.valueU32;
     }
     else if(operand.finalSize==DATA_SIZE_6BYTES)
     {
         u32 disp = stream.get32Bits();
         u16 selector = stream.get16Bits();
         operand.content.immediate.valueU48 = PACK_32_16_TO_48BITS(disp,selector);
+
+        lowFormat.hasImmediate=true;
+        lowFormat.immediateSize=operand.finalSize;
+        lowFormat.immediate.valueU48=operand.content.immediate.valueU48;
     }
     else
     {
@@ -690,6 +699,12 @@ void InstructionDecoder::OT_J_jump(InstructionStream& stream,
 
     switch(operand.finalSize)
     {
+    case DATA_SIZE_BYTE:
+        operand.content.immediate.valueU8=stream.get8Bits();
+        lowFormat.hasDisplacement=true;
+        lowFormat.displacementSize=operand.finalSize;
+        lowFormat.displacement.valueU8=operand.content.immediate.valueU8;
+        break;
     case DATA_SIZE_WORD:
         operand.content.immediate.valueU16=stream.get16Bits();
         lowFormat.hasDisplacement=true;

@@ -429,7 +429,7 @@ void InstructionToString::u64ToString(u64 value, std::string &str)
 {
     bool didnotSeeOne=true;
     u8 dataLength=8;
-    for(u8 i=2*dataLength-1; i>=0; i++)
+    for(int i=2*dataLength-1; i>=0; i--)
     {
         u8 asciiHex=u8((value>>(i*4))&0xf);
         if(didnotSeeOne==true && asciiHex==0)

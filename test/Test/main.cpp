@@ -30,4 +30,7 @@
 //QTEST_APPLESS_MAIN(TestRegisterFile)
 
 #include "testexecoperand.h"
-QTEST_APPLESS_MAIN(TestExecOperand)
+//QTEST_APPLESS_MAIN(TestExecOperand)
+
+#include "testdecoderencoder.h"
+QTEST_APPLESS_MAIN(TestDecoderEncoder)

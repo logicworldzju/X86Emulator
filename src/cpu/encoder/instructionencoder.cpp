@@ -6,56 +6,57 @@ InstructionEncoder::InstructionEncoder()
 }
 
 void InstructionEncoder::encode(const InstructionLowLevelFormat &lowFormat,
-                                u8 inst[], u8 &instLength)
+                                std::vector<u8>& inst)
 {
-    instLength=0;
     //---------------------Legacy Prefix-----------------------
     if(lowFormat.hasLegacyPrefix)
     {
+        if(lowFormat.legacyPrefix.rep_repz)
+        {
+            inst.push_back(LEGACY_PREFIX_REP_REPZ);
+        }
+        if(lowFormat.legacyPrefix.repnz)
+        {
+            inst.push_back(LEGACY_PREFIX_REPNZ);
+        }
+        if(lowFormat.legacyPrefix.lock)
+        {
+            inst.push_back(LEGACY_PREFIX_LOCK);
+        }
         if(lowFormat.legacyPrefix.addressSizeOverride)
         {
-            inst[instLength++]=LEGACY_PREFIX_ADDRESS_SIZE_OVERRIDE;
+            inst.push_back(LEGACY_PREFIX_ADDRESS_SIZE_OVERRIDE);
         }
         if(lowFormat.legacyPrefix.operandSizeOverride)
         {
-            inst[instLength++]=LEGACY_PREFIX_OPERAND_SIZE_OVERRIDE;
+            inst.push_back(LEGACY_PREFIX_OPERAND_SIZE_OVERRIDE);
         }
+
         if(lowFormat.legacyPrefix.hasSegmentOverride)
         {
             switch(lowFormat.legacyPrefix.segmentOverride)
             {
             case ES:
-                inst[instLength++]=LEGACY_PREFIX_SEGMENT_OVERRIDE_ES;
+                inst.push_back(LEGACY_PREFIX_SEGMENT_OVERRIDE_ES);
                 break;
             case CS:
-                inst[instLength++]=LEGACY_PREFIX_SEGMENT_OVERRIDE_CS;
+                inst.push_back(LEGACY_PREFIX_SEGMENT_OVERRIDE_CS);
                 break;
             case SS:
-                inst[instLength++]=LEGACY_PREFIX_SEGMENT_OVERRIDE_SS;
+                inst.push_back(LEGACY_PREFIX_SEGMENT_OVERRIDE_SS);
                 break;
             case FS:
-                inst[instLength++]=LEGACY_PREFIX_SEGMENT_OVERRIDE_FS;
+                inst.push_back(LEGACY_PREFIX_SEGMENT_OVERRIDE_FS);
                 break;
             case GS:
-                inst[instLength++]=LEGACY_PREFIX_SEGMENT_OVERRIDE_GS;
+                inst.push_back(LEGACY_PREFIX_SEGMENT_OVERRIDE_GS);
                 break;
             case DS:
-                inst[instLength++]=LEGACY_PREFIX_SEGMENT_OVERRIDE_DS;
+                inst.push_back(LEGACY_PREFIX_SEGMENT_OVERRIDE_DS);
                 break;
             }
         }
-        if(lowFormat.legacyPrefix.rep_repz)
-        {
-            inst[instLength++]=LEGACY_PREFIX_REP_REPZ;
-        }
-        if(lowFormat.legacyPrefix.repnz)
-        {
-            inst[instLength++]=LEGACY_PREFIX_REPNZ;
-        }
-        if(lowFormat.legacyPrefix.lock)
-        {
-            inst[instLength++]=LEGACY_PREFIX_LOCK;
-        }
+
     }
     //---------------------Rex Prefix-----------------------
     if(lowFormat.hasRexPrefix)
@@ -65,13 +66,13 @@ void InstructionEncoder::encode(const InstructionLowLevelFormat &lowFormat,
         u8 x:1;
         u8 r:1;
         u8 w:1;*/
-        inst[instLength++]=REX_PREFIX_BASE|(lowFormat.rex.w<<3)|
-                (lowFormat.rex.r<<2)|(lowFormat.rex.x<<1)|(lowFormat.rex.b<<0);
+        inst.push_back(REX_PREFIX_BASE|(lowFormat.rex.w<<3)|
+                (lowFormat.rex.r<<2)|(lowFormat.rex.x<<1)|(lowFormat.rex.b<<0));
     }
     //-----------------------Opcode------------------------
     for(u8 i=0; i<lowFormat.opcodeLength; i++)
     {
-        inst[instLength++]=lowFormat.opcode[i];
+        inst.push_back(lowFormat.opcode[i]);
     }
     //----------------------ModRM--------------------------
     if(lowFormat.hasModRM)
@@ -84,8 +85,8 @@ void InstructionEncoder::encode(const InstructionLowLevelFormat &lowFormat,
             u8 mod:2;
         }modRM;
         */
-        inst[instLength++]=(lowFormat.modRM.mod<<6)|(lowFormat.modRM.reg<<3)|
-                (lowFormat.modRM.rm<<0);
+        inst.push_back((lowFormat.modRM.mod<<6)|(lowFormat.modRM.reg<<3)|
+                (lowFormat.modRM.rm<<0));
     }
     //-----------------------SIB---------------------------
     if(lowFormat.hasSIB)
@@ -98,31 +99,30 @@ void InstructionEncoder::encode(const InstructionLowLevelFormat &lowFormat,
             u8 scale:2;
         }sib;
         */
-        inst[instLength++]=(lowFormat.sib.scale<<6)|(lowFormat.sib.index<<3)
-                |(lowFormat.sib.base<<0);
+        inst.push_back((lowFormat.sib.scale<<6)|(lowFormat.sib.index<<3)
+                |(lowFormat.sib.base<<0));
     }
     //-------------------Displacement---------------------
     if(lowFormat.hasDisplacement)
     {
         writeDispToInst(lowFormat.displacementSize,lowFormat.displacement,
-                        inst,instLength);
+                        inst);
     }
     //------------------Immediate------------------------
     if(lowFormat.hasImmediate)
     {
         writeImmToInst(lowFormat.immediateSize,lowFormat.immediate,
-                       inst,instLength);
+                       inst);
     }
     if(lowFormat.hasImmediate2)
     {
         writeImmToInst(lowFormat.immediate2Size,lowFormat.immediate2,
-                       inst,instLength);
+                       inst);
     }
 
 }
 
-void InstructionEncoder::writeImmToInst(DataSize size, DispImm imm, u8 inst[],
-                                          u8 &instLength)
+void InstructionEncoder::writeImmToInst(DataSize size, DispImm imm,std::vector<u8>& inst)
 {
     u64 value;
     u8 writeLength=0;
@@ -155,13 +155,13 @@ void InstructionEncoder::writeImmToInst(DataSize size, DispImm imm, u8 inst[],
     }
     for(u8 i=0; i<writeLength; i++)
     {
-        inst[instLength++]=u8(value&0xff);
+        inst.push_back(u8(value&0xff));
         value>>=8;
     }
 }
 
 void InstructionEncoder::writeDispToInst(DataSize size, DispImm disp,
-                                         u8 inst[], u8 &instLength)
+                                         std::vector<u8>& inst)
 {
     u64 value;
     u8 writeLength=0;
@@ -194,7 +194,7 @@ void InstructionEncoder::writeDispToInst(DataSize size, DispImm disp,
     }
     for(u8 i=0; i<writeLength; i++)
     {
-        inst[instLength++]=u8(value&0xff);
+        inst.push_back(u8(value&0xff));
         value>>=8;
     }
 }

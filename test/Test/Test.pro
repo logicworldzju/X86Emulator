@@ -28,7 +28,8 @@ SOURCES += \
     testioportlist.cpp \
     testinstructionstream.cpp \
     testregisterfile.cpp \
-    testexecoperand.cpp
+    testexecoperand.cpp \
+    testdecoderencoder.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 HEADERS += \
@@ -61,7 +62,10 @@ HEADERS += \
     testioportlist.h \
     testinstructionstream.h \
     testregisterfile.h \
-    testexecoperand.h
+    testexecoperand.h \
+    testdecoderencoder.h
+
+
 
 
 
