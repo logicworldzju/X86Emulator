@@ -37,7 +37,7 @@ the layout and contents of the first Meg of memory[1][2]:
 class Memory
 {
 public:
-    Memory(u32 memorySize=(1<<16));
+    Memory(u32 memorySize=((1<<20)+(1<<16)));
     ~Memory();
     u8* getMemoryAddress()
     {

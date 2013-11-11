@@ -75,7 +75,7 @@ public:
     virtual void setU8(u8 value)
     {
         _memory.startAccess(Memory::CPU_DATA_ACCESS);
-        assert(value==DATA_SIZE_BYTE);
+        assert(_size==DATA_SIZE_BYTE);
         _memory.set8Bits(_address,value);
         _memory.endAccess();
 
@@ -83,21 +83,21 @@ public:
     virtual void setU16(u16 value)
     {
         _memory.startAccess(Memory::CPU_DATA_ACCESS);
-        assert(value==DATA_SIZE_WORD);
+        assert(_size==DATA_SIZE_WORD);
         _memory.set16Bits(_address,value);
         _memory.endAccess();
     }
     virtual void setU32(u32 value)
     {
         _memory.startAccess(Memory::CPU_DATA_ACCESS);
-        assert(value==DATA_SIZE_DWORD);
+        assert(_size==DATA_SIZE_DWORD);
         _memory.set32Bits(_address,value);
         _memory.endAccess();
     }
     virtual void setU64(u64 value)
     {
         _memory.startAccess(Memory::CPU_DATA_ACCESS);
-        assert(value==DATA_SIZE_QWORD);
+        assert(_size==DATA_SIZE_QWORD);
         _memory.set64Bits(_address,value);
         _memory.endAccess();
     }

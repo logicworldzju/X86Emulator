@@ -85,6 +85,7 @@ void DebugMemory::set8Bits(u32 address, u8 value)
         _statisticMemoryDeviceDataSet[address]++;
         break;
     case SYSTEM_INIT_ACCESS:
+    case DEBUG_ACCESS:
         break;
     default:
         assert(0);

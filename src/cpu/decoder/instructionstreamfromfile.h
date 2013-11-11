@@ -28,6 +28,7 @@ public:
     {
         u8 buf=0xcc;
         _file.read(reinterpret_cast<char*>(&buf),sizeof(buf));
+        _inst.push_back(buf);
         return buf;
     }
     virtual u16 get16Bits()
@@ -48,9 +49,22 @@ public:
         buf=(static_cast<u64>(get32Bits())<<32)|buf;
         return buf;
     }
+    virtual void startReadOneInstruction()
+    {
+        _inst.clear();
+    }
+    virtual void endReadOneInstruction()
+    {
+        //do nothing.
+    }
+    virtual std::vector<u8> readLastInstruction()
+    {
+        return _inst;
+    }
 protected:
     std::string _fileName;
     std::ifstream _file;
+    std::vector<u8> _inst;
 };
 
 #endif // INSTRUCTIONSTREAMFROMFILE_H

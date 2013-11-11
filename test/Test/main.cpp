@@ -16,27 +16,18 @@
 #include "io/ioportlist.h"
 #include "memory/debugmemory.h"
 
-class TestTest : public QObject
-{
-    Q_OBJECT
+#include "testmemory.h"
 
-public:
-    TestTest();
+//QTEST_APPLESS_MAIN(TestMemory);
 
-private Q_SLOTS:
-    void testCase1();
-};
+#include "testioportlist.h"
+//QTEST_APPLESS_MAIN(TestIOPortList);
 
-TestTest::TestTest()
-{
-}
+#include "testinstructionstream.h"
+//QTEST_APPLESS_MAIN(TestInstructionStream)
 
-void TestTest::testCase1()
-{
-    //QVERIFY2(true, "Failure");
+#include "testregisterfile.h"
+//QTEST_APPLESS_MAIN(TestRegisterFile)
 
-}
-
-QTEST_APPLESS_MAIN(TestTest);
-
-#include "tst_testtest.moc"
+#include "testexecoperand.h"
+QTEST_APPLESS_MAIN(TestExecOperand)

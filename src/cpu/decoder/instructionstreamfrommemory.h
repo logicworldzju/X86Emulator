@@ -3,11 +3,12 @@
 
 #include "instructionstream.h"
 #include "memory/memory.h"
+#include <assert.h>
 
 class InstructionStreamFromMemory : public InstructionStream
 {
 public:
-    InstructionStreamFromMemory(Memory& memory,bool isDisasm)
+    InstructionStreamFromMemory(Memory& memory,bool isDisasm=false)
         :_memory(memory),_isDisasm(isDisasm)
     {
     }
@@ -64,10 +65,32 @@ public:
         _ip+=8;
         return ret;
     }
+    virtual void startReadOneInstruction()
+    {
+        _startIP=_ip;
+        _inst.clear();
+    }
+    virtual void endReadOneInstruction()
+    {
+        assert(_startIP<_ip);
+        _memory.startAccess(Memory::DEBUG_ACCESS);
+        for(u32 i=_startIP; i<_ip; i++)
+        {
+            _inst.push_back(_memory.get8Bits(i));
+        }
+        _memory.endAccess();
+    }
+    virtual std::vector<u8> readLastInstruction()
+    {
+        return _inst;
+    }
 protected:
     Memory& _memory;
     u32 _ip;
     bool _isDisasm;
+    u32 _startIP;
+
+    std::vector<u8> _inst;
 };
 
 #endif // INSTRUCTIONSTREAMFROMMEMORY_H

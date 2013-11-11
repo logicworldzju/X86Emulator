@@ -16,13 +16,19 @@ TEMPLATE = app
 
 INCLUDEPATH +=../../src
 
-SOURCES += tst_testtest.cpp \
+SOURCES += \
     ../../src/memory/memory.cpp \
     ../../src/memory/debugmemory.cpp \
     ../../src/cpu/opcodetable.cpp \
     ../../src/cpu/decoder/instructiondecoder.cpp \
     ../../src/cpu/tostring/instructiontostring.cpp \
-    ../../src/cpu/encoder/instructionencoder.cpp
+    ../../src/cpu/encoder/instructionencoder.cpp \
+    testmemory.cpp \
+    main.cpp \
+    testioportlist.cpp \
+    testinstructionstream.cpp \
+    testregisterfile.cpp \
+    testexecoperand.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 HEADERS += \
@@ -50,7 +56,24 @@ HEADERS += \
     ../../src/cpu/register/flags.h \
     ../../src/type.h \
     ../../src/cpu/tostring/instructiontostring.h \
-    ../../src/cpu/encoder/instructionencoder.h
+    ../../src/cpu/encoder/instructionencoder.h \
+    testmemory.h \
+    testioportlist.h \
+    testinstructionstream.h \
+    testregisterfile.h \
+    testexecoperand.h
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

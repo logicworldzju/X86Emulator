@@ -5,7 +5,7 @@
 class DebugMemory : public Memory
 {
 public:
-    DebugMemory(u32 memorySize=(1<<16));
+    DebugMemory(u32 memorySize=((1<<20)+(1<<16)));
     ~DebugMemory();
     void resetStatisticMemoryCPUDataSet();
     void resetStatisticMemoryCPUDataGet();

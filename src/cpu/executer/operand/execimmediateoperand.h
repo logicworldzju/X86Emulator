@@ -2,6 +2,7 @@
 #define EXECIMMEDIATEOPERAND_H
 
 #include "execreadwriteoperand.h"
+#include <assert.h>
 
 class ExecImmediateOperand : public ExecReadWriteOperand
 {

@@ -37,7 +37,7 @@ public:
     }
     virtual u16 get16Bits()
     {
-        return (_reg[1]<<8)+(_reg[0]<<1);
+        return (_reg[1]<<8)+(_reg[0]<<0);
     }
     virtual void set16Bits(u16 value)
     {
@@ -49,7 +49,7 @@ public:
     }
     virtual u32 get32Bits()
     {
-        return (_reg[3]<<24)+(_reg[2]<<16)+(_reg[1]<<8)+(_reg[0]<<1);
+        return (_reg[3]<<24)+(_reg[2]<<16)+(_reg[1]<<8)+(_reg[0]<<0);
     }
     virtual void set32Bits(u32 value)
     {
