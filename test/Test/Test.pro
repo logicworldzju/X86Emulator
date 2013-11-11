@@ -20,7 +20,9 @@ SOURCES += tst_testtest.cpp \
     ../../src/memory/memory.cpp \
     ../../src/memory/debugmemory.cpp \
     ../../src/cpu/opcodetable.cpp \
-    ../../src/cpu/decoder/instructiondecoder.cpp
+    ../../src/cpu/decoder/instructiondecoder.cpp \
+    ../../src/cpu/tostring/instructiontostring.cpp \
+    ../../src/cpu/encoder/instructionencoder.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 HEADERS += \
@@ -46,7 +48,13 @@ HEADERS += \
     ../../src/cpu/register/registerfile.h \
     ../../src/cpu/register/gpregister.h \
     ../../src/cpu/register/flags.h \
-    ../../src/type.h
+    ../../src/type.h \
+    ../../src/cpu/tostring/instructiontostring.h \
+    ../../src/cpu/encoder/instructionencoder.h
+
+
+
+
 
 
 

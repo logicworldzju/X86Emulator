@@ -8,31 +8,18 @@
 #define MAX_OPCODE_LENGTH 5
 
 
-union Displacement
+union DispImm
 {
-    s8 disp8;
-    u8 dispu8;
-    s16 disp16;
-    u16 dispu16;
-    s32 disp32;
-    u32 dispu32;
-    s48 disp48;
-    u48 dispu48;
-    s64 disp64;
-    u64 dispu64;
-};
-union Immediate
-{
-    s8 imm8;
-    u8 immu8;
-    s16 imm16;
-    u16 immu16;
-    s32 imm32;
-    u32 immu32;
-    s48 imm48;
-    u48 immu48;
-    s64 imm64;
-    u64 immu64;
+    s8 valueS8;
+    u8 valueU8;
+    s16 valueS16;
+    u16 valueU16;
+    s32 valueS32;
+    u32 valueU32;
+    s48 valueS48;
+    u48 valueU48;
+    s64 valueS64;
+    u64 valueU64;
 };
 struct InstructionLowLevelFormat
 {
@@ -45,6 +32,7 @@ struct InstructionLowLevelFormat
         u8 rep_repz:1;
         u8 repnz:1;
         u8 lock:1;
+        bool hasSegmentOverride;
         SegmentRegister segmentOverride;
     }legacyPrefix;
     //-----------------------Rex Prefix----------------
@@ -79,16 +67,16 @@ struct InstructionLowLevelFormat
     //-------------------Displacement------------------
     bool hasDisplacement;
     DataSize displacementSize;
-    Displacement displacement;
+    DispImm displacement;
     //-------------------Immediate--------------------
     bool hasImmediate;
     DataSize immediateSize;
-    Immediate immediate;
+    DispImm immediate;
     //immediate2 used for some ill form like
     //enter Iw,Ib;
     bool hasImmediate2;
     DataSize immediate2Size;
-    Immediate immediate2;
+    DispImm immediate2;
     InstructionLowLevelFormat()
     {
         ::memset(this,0,sizeof(InstructionLowLevelFormat));
@@ -119,7 +107,7 @@ struct IFOperand //Instruction Format Operand
     union Content
     {
         //--------------Immediate-----------
-        Immediate immediate;
+        DispImm immediate;
         //--------------Register------------
         SegmentRegister segmentRegister;
         GPRegister gpregister;
@@ -128,6 +116,8 @@ struct IFOperand //Instruction Format Operand
         MMXRegister mmxRegister;
         XMMRegister xmmRegister;
         //--------------Memory-------------
+        SegmentRegister finalMemorySegmentRegister;
+        SegmentRegister defaultMemorySegmentRegister;
         union Memory
         {
             struct Bit16Mode
@@ -137,7 +127,7 @@ struct IFOperand //Instruction Format Operand
                     u8 rm:3;
                     u8 mod:2;
                 }modRM;
-                Displacement disp;
+                DispImm disp;
             }bit16Mode;
             struct Bit3264Mode
             {
@@ -152,9 +142,9 @@ struct IFOperand //Instruction Format Operand
                     u8 index:4;//add the REX.X in the most significant bit.
                     u8 scale:2;
                 }sib;
-                Displacement disp;
+                DispImm disp;
             }bit3264Mode;
-            Displacement moffsets;
+            DispImm moffsets;
         }memory;
     }content;
     IFOperand()
@@ -176,6 +166,7 @@ struct InstructionHighLevelFormat
         unsigned char repnz:1;
         unsigned char lock:1;
     }legacyPrefix;
+    bool hasRexPrefix;
     //------------Opcode related--------------------
     OpcodeTableEntry* opcode;
     //------------Operand related-------------------

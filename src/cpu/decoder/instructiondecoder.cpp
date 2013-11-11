@@ -41,30 +41,35 @@ bool InstructionDecoder::decode(InstructionStream &stream,
         case LEGACY_PREFIX_SEGMENT_OVERRIDE_CS:
         {
             lowFormat.hasLegacyPrefix=true;
+            lowFormat.legacyPrefix.hasSegmentOverride=true;
             lowFormat.legacyPrefix.segmentOverride=CS;
             break;
         }
         case LEGACY_PREFIX_SEGMENT_OVERRIDE_DS:
         {
             lowFormat.hasLegacyPrefix=true;
+            lowFormat.legacyPrefix.hasSegmentOverride=true;
             lowFormat.legacyPrefix.segmentOverride=DS;
             break;
         }
         case LEGACY_PREFIX_SEGMENT_OVERRIDE_ES:
         {
             lowFormat.hasLegacyPrefix=true;
+            lowFormat.legacyPrefix.hasSegmentOverride=true;
             lowFormat.legacyPrefix.segmentOverride=ES;
             break;
         }
         case LEGACY_PREFIX_SEGMENT_OVERRIDE_SS:
         {
             lowFormat.hasLegacyPrefix=true;
+            lowFormat.legacyPrefix.hasSegmentOverride=true;
             lowFormat.legacyPrefix.segmentOverride=SS;
             break;
         }
         case LEGACY_PREFIX_SEGMENT_OVERRIDE_FS:
         {
             lowFormat.hasLegacyPrefix=true;
+            lowFormat.legacyPrefix.hasSegmentOverride=true;
             lowFormat.legacyPrefix.segmentOverride=FS;
             break;
         }
@@ -109,6 +114,7 @@ bool InstructionDecoder::decode(InstructionStream &stream,
             lowFormat.rex.r=(rexPrefix>>2)&0x01;
             lowFormat.rex.w=(rexPrefix>>3)&0x01;
             lastCode=stream.get8Bits();
+            highFormat.hasRexPrefix=true;
         }
     }
     //--------------Set HighLevel Prefix----------------
@@ -185,7 +191,15 @@ bool InstructionDecoder::decode(InstructionStream &stream,
         }
     }
 
-    //Unable to set effectiveSegmentRegister now
+    //set effectiveSegmentRegister
+    if(lowFormat.legacyPrefix.hasSegmentOverride)
+    {
+        highFormat.effectiveSegmentRegister=lowFormat.legacyPrefix.segmentOverride;
+    }
+    else
+    {
+        highFormat.effectiveSegmentRegister=DS;
+    }
 
     //Set rep_repz,repnz,lock prefix.
     highFormat.legacyPrefix.rep_repz=lowFormat.legacyPrefix.rep_repz;
@@ -417,13 +431,13 @@ void InstructionDecoder::OT_A_jump(InstructionStream& stream,
     {
         u16 disp = stream.get16Bits();
         u16 selector = stream.get16Bits();
-        operand.content.immediate.immu32=PACK_16_16_TO_32BITS(disp,selector);
+        operand.content.immediate.valueU32=PACK_16_16_TO_32BITS(disp,selector);
     }
     else if(operand.finalSize==DATA_SIZE_6BYTES)
     {
         u32 disp = stream.get32Bits();
         u16 selector = stream.get16Bits();
-        operand.content.immediate.immu48 = PACK_32_16_TO_48BITS(disp,selector);
+        operand.content.immediate.valueU48 = PACK_32_16_TO_48BITS(disp,selector);
     }
     else
     {
@@ -469,7 +483,9 @@ void InstructionDecoder::OT_E_jump(InstructionStream& stream,
     else
     {
         operand.type=IFOperand::MEMORY_MODRM;
-        highFormat.effectiveSegmentRegister=lowFormat.legacyPrefix.segmentOverride;
+//        highFormat.effectiveSegmentRegister=lowFormat.legacyPrefix.segmentOverride;
+        operand.content.finalMemorySegmentRegister=lowFormat.legacyPrefix.segmentOverride;
+        operand.content.defaultMemorySegmentRegister=DS;
         if(highFormat.effectiveAddressSize==EFFECTIVE_16_BITS)
         {
             operand.content.memory.bit16Mode.modRM.rm=lowFormat.modRM.rm;
@@ -477,17 +493,17 @@ void InstructionDecoder::OT_E_jump(InstructionStream& stream,
             if(lowFormat.modRM.mod==0x2 || (lowFormat.modRM.mod==0x0 &&
                                             lowFormat.modRM.rm==0x6))
             {
-                operand.content.memory.bit16Mode.disp.dispu16=stream.get16Bits();
+                operand.content.memory.bit16Mode.disp.valueU16=stream.get16Bits();
                 lowFormat.hasDisplacement=true;
                 lowFormat.displacementSize=DATA_SIZE_WORD;
-                lowFormat.displacement.dispu16=operand.content.memory.bit16Mode.disp.dispu16;
+                lowFormat.displacement.valueU16=operand.content.memory.bit16Mode.disp.valueU16;
             }
             else if(lowFormat.modRM.mod==0x1)
             {
-                operand.content.memory.bit16Mode.disp.dispu8=stream.get8Bits();
+                operand.content.memory.bit16Mode.disp.valueU8=stream.get8Bits();
                 lowFormat.hasDisplacement=true;
                 lowFormat.displacementSize=DATA_SIZE_BYTE;
-                lowFormat.displacement.dispu8=operand.content.memory.bit16Mode.disp.dispu8;
+                lowFormat.displacement.valueU8=operand.content.memory.bit16Mode.disp.valueU8;
             }
             if((lowFormat.modRM.mod==0&&(lowFormat.modRM.rm==2||lowFormat.modRM.rm==3))||
                     (lowFormat.modRM.mod==1&&(lowFormat.modRM.rm==2 || lowFormat.modRM.rm==3 ||
@@ -495,7 +511,9 @@ void InstructionDecoder::OT_E_jump(InstructionStream& stream,
                     (lowFormat.modRM.mod==2 &&(lowFormat.modRM.rm==2 || lowFormat.modRM.rm==3 ||
                                                lowFormat.modRM.rm==6)))
             {
-                highFormat.effectiveSegmentRegister=SS;
+//                highFormat.effectiveSegmentRegister=SS;
+                operand.content.finalMemorySegmentRegister=SS;
+                operand.content.defaultMemorySegmentRegister=SS;
             }
         }
         else
@@ -512,7 +530,9 @@ void InstructionDecoder::OT_E_jump(InstructionStream& stream,
                 if(operand.content.memory.bit3264Mode.sib.base==RSP ||
                         operand.content.memory.bit3264Mode.sib.base==RBP)
                 {
-                    highFormat.effectiveSegmentRegister=SS;
+//                    highFormat.effectiveSegmentRegister=SS;
+                    operand.content.finalMemorySegmentRegister=SS;
+                    operand.content.defaultMemorySegmentRegister=SS;
                 }
             }
 
@@ -520,22 +540,24 @@ void InstructionDecoder::OT_E_jump(InstructionStream& stream,
             if(lowFormat.modRM.mod==0x2 || (lowFormat.modRM.mod==0x0 &&
                                             lowFormat.modRM.rm==0x5))
             {
-                operand.content.memory.bit3264Mode.disp.dispu32=stream.get32Bits();
+                operand.content.memory.bit3264Mode.disp.valueU32=stream.get32Bits();
                 lowFormat.hasDisplacement=true;
                 lowFormat.displacementSize=DATA_SIZE_DWORD;
-                lowFormat.displacement.dispu32=operand.content.memory.bit3264Mode.disp.dispu32;
+                lowFormat.displacement.valueU32=operand.content.memory.bit3264Mode.disp.valueU32;
             }
             else if(lowFormat.modRM.mod==0x1)
             {
-                operand.content.memory.bit3264Mode.disp.dispu8=stream.get8Bits();
+                operand.content.memory.bit3264Mode.disp.valueU8=stream.get8Bits();
                 lowFormat.hasDisplacement=true;
                 lowFormat.displacementSize=DATA_SIZE_BYTE;
-                lowFormat.displacement.dispu8=operand.content.memory.bit3264Mode.disp.dispu8;
+                lowFormat.displacement.valueU8=operand.content.memory.bit3264Mode.disp.valueU8;
             }
             if(operand.content.memory.bit3264Mode.modRM.rm==RBP
                     &&(lowFormat.modRM.mod==1||lowFormat.modRM.mod==2))
             {
-                highFormat.effectiveSegmentRegister=SS;
+//                highFormat.effectiveSegmentRegister=SS;
+                operand.content.finalMemorySegmentRegister=SS;
+                operand.content.defaultMemorySegmentRegister=SS;
             }
         }
     }
@@ -575,38 +597,38 @@ void InstructionDecoder::OT_I_jump(InstructionStream& stream,
         switch(operand.finalSize)
         {
         case DATA_SIZE_BYTE:
-            operand.content.immediate.immu8=stream.get8Bits();
+            operand.content.immediate.valueU8=stream.get8Bits();
             lowFormat.hasImmediate=true;
             lowFormat.immediateSize=operand.finalSize;
-            lowFormat.immediate.immu8=operand.content.immediate.immu8;
+            lowFormat.immediate.valueU8=operand.content.immediate.valueU8;
             break;
         case DATA_SIZE_WORD:
-            operand.content.immediate.immu16=stream.get16Bits();
+            operand.content.immediate.valueU16=stream.get16Bits();
             lowFormat.hasImmediate=true;
             lowFormat.immediateSize=operand.finalSize;
-            lowFormat.immediate.immu16=operand.content.immediate.immu16;
+            lowFormat.immediate.valueU16=operand.content.immediate.valueU16;
             break;
         case DATA_SIZE_DWORD:
-            operand.content.immediate.immu32=stream.get32Bits();
+            operand.content.immediate.valueU32=stream.get32Bits();
             lowFormat.hasImmediate=true;
             lowFormat.immediateSize=operand.finalSize;
-            lowFormat.immediate.immu32=operand.content.immediate.immu32;
+            lowFormat.immediate.valueU32=operand.content.immediate.valueU32;
             break;
         case DATA_SIZE_6BYTES:
         {
             u32 lower32Bits=stream.get32Bits();
             u16 higher16Bits=stream.get16Bits();
-            operand.content.immediate.immu48=PACK_32_16_TO_48BITS(lower32Bits,higher16Bits);
+            operand.content.immediate.valueU48=PACK_32_16_TO_48BITS(lower32Bits,higher16Bits);
             lowFormat.hasImmediate=true;
             lowFormat.immediateSize=operand.finalSize;
-            lowFormat.immediate.immu48=operand.content.immediate.immu48;
+            lowFormat.immediate.valueU48=operand.content.immediate.valueU48;
             break;
         }
         case DATA_SIZE_QWORD:
-            operand.content.immediate.immu64=stream.get64Bits();
+            operand.content.immediate.valueU64=stream.get64Bits();
             lowFormat.hasImmediate=true;
             lowFormat.immediateSize=operand.finalSize;
-            lowFormat.immediate.immu64=operand.content.immediate.immu64;
+            lowFormat.immediate.valueU64=operand.content.immediate.valueU64;
             break;
         default:
             assert(0);
@@ -618,38 +640,38 @@ void InstructionDecoder::OT_I_jump(InstructionStream& stream,
         switch(operand.finalSize)
         {
         case DATA_SIZE_BYTE:
-            operand.content.immediate.immu8=stream.get8Bits();
+            operand.content.immediate.valueU8=stream.get8Bits();
             lowFormat.hasImmediate2=true;
             lowFormat.immediate2Size=operand.finalSize;
-            lowFormat.immediate2.immu8=operand.content.immediate.immu8;
+            lowFormat.immediate2.valueU8=operand.content.immediate.valueU8;
             break;
         case DATA_SIZE_WORD:
-            operand.content.immediate.immu16=stream.get16Bits();
+            operand.content.immediate.valueU16=stream.get16Bits();
             lowFormat.hasImmediate2=true;
             lowFormat.immediate2Size=operand.finalSize;
-            lowFormat.immediate2.immu16=operand.content.immediate.immu16;
+            lowFormat.immediate2.valueU16=operand.content.immediate.valueU16;
             break;
         case DATA_SIZE_DWORD:
-            operand.content.immediate.immu32=stream.get32Bits();
+            operand.content.immediate.valueU32=stream.get32Bits();
             lowFormat.hasImmediate2=true;
             lowFormat.immediate2Size=operand.finalSize;
-            lowFormat.immediate2.immu32=operand.content.immediate.immu32;
+            lowFormat.immediate2.valueU32=operand.content.immediate.valueU32;
             break;
         case DATA_SIZE_6BYTES:
         {
             u32 lower32Bits=stream.get32Bits();
             u16 higher16Bits=stream.get16Bits();
-            operand.content.immediate.immu48=PACK_32_16_TO_48BITS(lower32Bits,higher16Bits);
+            operand.content.immediate.valueU48=PACK_32_16_TO_48BITS(lower32Bits,higher16Bits);
             lowFormat.hasImmediate2=true;
             lowFormat.immediate2Size=operand.finalSize;
-            lowFormat.immediate2.immu48=operand.content.immediate.immu48;
+            lowFormat.immediate2.valueU48=operand.content.immediate.valueU48;
             break;
         }
         case DATA_SIZE_QWORD:
-            operand.content.immediate.immu64=stream.get64Bits();
+            operand.content.immediate.valueU64=stream.get64Bits();
             lowFormat.hasImmediate2=true;
             lowFormat.immediate2Size=operand.finalSize;
-            lowFormat.immediate2.immu64=operand.content.immediate.immu64;
+            lowFormat.immediate2.valueU64=operand.content.immediate.valueU64;
             break;
         default:
             assert(0);
@@ -669,22 +691,22 @@ void InstructionDecoder::OT_J_jump(InstructionStream& stream,
     switch(operand.finalSize)
     {
     case DATA_SIZE_WORD:
-        operand.content.immediate.immu16=stream.get16Bits();
+        operand.content.immediate.valueU16=stream.get16Bits();
         lowFormat.hasDisplacement=true;
         lowFormat.displacementSize=operand.finalSize;
-        lowFormat.displacement.dispu16=operand.content.immediate.immu16;
+        lowFormat.displacement.valueU16=operand.content.immediate.valueU16;
         break;
     case DATA_SIZE_DWORD:
-        operand.content.immediate.immu32=stream.get32Bits();
+        operand.content.immediate.valueU32=stream.get32Bits();
         lowFormat.hasDisplacement=true;
         lowFormat.displacementSize=operand.finalSize;
-        lowFormat.displacement.dispu32=operand.content.immediate.immu32;
+        lowFormat.displacement.valueU32=operand.content.immediate.valueU32;
         break;
     case DATA_SIZE_QWORD:
-        operand.content.immediate.immu64=stream.get64Bits();
+        operand.content.immediate.valueU64=stream.get64Bits();
         lowFormat.hasDisplacement=true;
         lowFormat.displacementSize=operand.finalSize;
-        lowFormat.displacement.dispu64=operand.content.immediate.immu64;
+        lowFormat.displacement.valueU64=operand.content.immediate.valueU64;
         break;
     default:
         assert(0);
@@ -701,6 +723,10 @@ void InstructionDecoder::OT_M_jump(InstructionStream& stream,
     OT_E_jump(stream,lowFormat,highFormat,operand);
     assert(lowFormat.modRM.mod!=0x3);
 }
+/*
+  @note A problem maybe here.Whether I should put the absolute displacement address into the
+  displacement part.
+*/
 void InstructionDecoder::OT_O_jump(InstructionStream& stream,
                  InstructionLowLevelFormat& lowFormat,
                  InstructionHighLevelFormat& highFormat,
@@ -708,7 +734,9 @@ void InstructionDecoder::OT_O_jump(InstructionStream& stream,
 {
     operand.isExists=true;
 
-    highFormat.effectiveSegmentRegister=lowFormat.legacyPrefix.segmentOverride;
+//    highFormat.effectiveSegmentRegister=lowFormat.legacyPrefix.segmentOverride;
+    operand.content.finalMemorySegmentRegister=lowFormat.legacyPrefix.segmentOverride;
+    operand.content.defaultMemorySegmentRegister=DS;
 
     operand.type=IFOperand::MEMORY_OFFSETS;
     switch(highFormat.effectiveAddressSize)
@@ -716,20 +744,20 @@ void InstructionDecoder::OT_O_jump(InstructionStream& stream,
     case EFFECTIVE_16_BITS:
         lowFormat.hasDisplacement=true;
         lowFormat.displacementSize=DATA_SIZE_WORD;
-        lowFormat.displacement.dispu16=stream.get16Bits();
-        operand.content.memory.moffsets.dispu16=lowFormat.displacement.dispu16;
+        lowFormat.displacement.valueU16=stream.get16Bits();
+        operand.content.memory.moffsets.valueU16=lowFormat.displacement.valueU16;
         break;
     case EFFECTIVE_32_BITS:
         lowFormat.hasDisplacement=true;
         lowFormat.displacementSize=DATA_SIZE_DWORD;
-        lowFormat.displacement.dispu32=stream.get32Bits();
-        operand.content.memory.moffsets.dispu32=lowFormat.displacement.dispu32;
+        lowFormat.displacement.valueU32=stream.get32Bits();
+        operand.content.memory.moffsets.valueU32=lowFormat.displacement.valueU32;
         break;
     case EFFECTIVE_64_BITS:
         lowFormat.hasDisplacement=true;
         lowFormat.displacementSize=DATA_SIZE_QWORD;
-        lowFormat.displacement.dispu64=stream.get64Bits();
-        operand.content.memory.moffsets.dispu64=lowFormat.displacement.dispu64;
+        lowFormat.displacement.valueU64=stream.get64Bits();
+        operand.content.memory.moffsets.valueU64=lowFormat.displacement.valueU64;
         break;
     default:
         assert(0);
@@ -807,16 +835,43 @@ void InstructionDecoder::OT_X_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
-    operand.isExists=false;
+    operand.isExists=true;
 //    OT_RSI_jump(stream,lowFormat,highFormat,operand);
-    highFormat.effectiveSegmentRegister=lowFormat.legacyPrefix.segmentOverride;
+//    highFormat.effectiveSegmentRegister=lowFormat.legacyPrefix.segmentOverride;
+    operand.type=IFOperand::MEMORY_MODRM;
+    if(highFormat.effectiveAddressSize==EFFECTIVE_16_BITS)
+    {
+        operand.content.memory.bit16Mode.modRM.mod=0;
+        operand.content.memory.bit16Mode.modRM.rm=4;
+    }
+    else
+    {
+        operand.content.memory.bit3264Mode.modRM.mod=0;
+        operand.content.memory.bit3264Mode.modRM.rm=6;
+    }
+    operand.content.finalMemorySegmentRegister=lowFormat.legacyPrefix.segmentOverride;
+    operand.content.defaultMemorySegmentRegister=DS;
 }
 void InstructionDecoder::OT_Y_jump(InstructionStream& stream,
                  InstructionLowLevelFormat& lowFormat,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
-    operand.isExists=false;
+    operand.isExists=true;
+
+    operand.type=IFOperand::MEMORY_MODRM;
+    if(highFormat.effectiveAddressSize==EFFECTIVE_16_BITS)
+    {
+        operand.content.memory.bit16Mode.modRM.mod=0;
+        operand.content.memory.bit16Mode.modRM.rm=5;
+    }
+    else
+    {
+        operand.content.memory.bit3264Mode.modRM.mod=0;
+        operand.content.memory.bit3264Mode.modRM.rm=7;
+    }
+    operand.content.finalMemorySegmentRegister=ES;
+    operand.content.defaultMemorySegmentRegister=ES;
 //    OT_RDI_jump(stream,lowFormat,highFormat,operand);
 }
 void InstructionDecoder::OT_ZERO_jump(InstructionStream& stream,
@@ -830,16 +885,16 @@ void InstructionDecoder::OT_ZERO_jump(InstructionStream& stream,
     switch(operand.finalSize)
     {
     case DATA_SIZE_BYTE:
-        operand.content.immediate.immu8=0;
+        operand.content.immediate.valueU8=0;
         break;
     case DATA_SIZE_WORD:
-        operand.content.immediate.immu16=0;
+        operand.content.immediate.valueU16=0;
         break;
     case DATA_SIZE_DWORD:
-        operand.content.immediate.immu32=0;
+        operand.content.immediate.valueU32=0;
         break;
     case DATA_SIZE_QWORD:
-        operand.content.immediate.immu64=0;
+        operand.content.immediate.valueU64=0;
         break;
     case DATA_SIZE_6BYTES:
     case DATA_SIZE_DQWORD:
@@ -859,16 +914,16 @@ void InstructionDecoder::OT_ONE_jump(InstructionStream& stream,
     switch(operand.finalSize)
     {
     case DATA_SIZE_BYTE:
-        operand.content.immediate.immu8=1;
+        operand.content.immediate.valueU8=1;
         break;
     case DATA_SIZE_WORD:
-        operand.content.immediate.immu16=1;
+        operand.content.immediate.valueU16=1;
         break;
     case DATA_SIZE_DWORD:
-        operand.content.immediate.immu32=1;
+        operand.content.immediate.valueU32=1;
         break;
     case DATA_SIZE_QWORD:
-        operand.content.immediate.immu64=1;
+        operand.content.immediate.valueU64=1;
         break;
     case DATA_SIZE_6BYTES:
     case DATA_SIZE_DQWORD:

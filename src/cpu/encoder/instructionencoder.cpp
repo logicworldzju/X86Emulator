@@ -20,7 +20,7 @@ void InstructionEncoder::encode(const InstructionLowLevelFormat &lowFormat,
         {
             inst[instLength++]=LEGACY_PREFIX_OPERAND_SIZE_OVERRIDE;
         }
-        if(lowFormat.legacyPrefix.segmentOverride!=DS)
+        if(lowFormat.legacyPrefix.hasSegmentOverride)
         {
             switch(lowFormat.legacyPrefix.segmentOverride)
             {
@@ -40,6 +40,7 @@ void InstructionEncoder::encode(const InstructionLowLevelFormat &lowFormat,
                 inst[instLength++]=LEGACY_PREFIX_SEGMENT_OVERRIDE_GS;
                 break;
             case DS:
+                inst[instLength++]=LEGACY_PREFIX_SEGMENT_OVERRIDE_DS;
                 break;
             }
         }
@@ -120,7 +121,7 @@ void InstructionEncoder::encode(const InstructionLowLevelFormat &lowFormat,
 
 }
 
-void InstructionEncoder::writeImmToInst(DataSize size, Immediate imm, u8 inst[],
+void InstructionEncoder::writeImmToInst(DataSize size, DispImm imm, u8 inst[],
                                           u8 &instLength)
 {
     u64 value;
@@ -128,25 +129,26 @@ void InstructionEncoder::writeImmToInst(DataSize size, Immediate imm, u8 inst[],
     switch(size)
     {
     case DATA_SIZE_BYTE:
-        value=imm.immu8;
+        value=imm.valueU8;
         writeLength=1;
         break;
     case DATA_SIZE_WORD:
-        value=imm.immu16;
+        value=imm.valueU16;
         writeLength=2;
         break;
     case DATA_SIZE_DWORD:
-        value=imm.immu32;
+        value=imm.valueU32;
         writeLength=4;
         break;
     case DATA_SIZE_6BYTES:
-        value=imm.immu48;
+        value=imm.valueU48;
         writeLength=6;
         break;
     case DATA_SIZE_QWORD:
-        value=imm.immu64;
+        value=imm.valueU64;
         writeLength=8;
         break;
+    case DATA_SIZE_DQWORD:
     case DATA_SIZE_10BYTES:
         assert(0);
         break;
@@ -158,7 +160,7 @@ void InstructionEncoder::writeImmToInst(DataSize size, Immediate imm, u8 inst[],
     }
 }
 
-void InstructionEncoder::writeDispToInst(DataSize size, Displacement disp,
+void InstructionEncoder::writeDispToInst(DataSize size, DispImm disp,
                                          u8 inst[], u8 &instLength)
 {
     u64 value;
@@ -166,25 +168,26 @@ void InstructionEncoder::writeDispToInst(DataSize size, Displacement disp,
     switch(size)
     {
     case DATA_SIZE_BYTE:
-        value=disp.dispu8;
+        value=disp.valueU8;
         writeLength=1;
         break;
     case DATA_SIZE_WORD:
-        value=disp.dispu16;
+        value=disp.valueU16;
         writeLength=2;
         break;
     case DATA_SIZE_DWORD:
-        value=disp.dispu32;
+        value=disp.valueU32;
         writeLength=4;
         break;
     case DATA_SIZE_6BYTES:
-        value=disp.dispu48;
+        value=disp.valueU48;
         writeLength=6;
         break;
     case DATA_SIZE_QWORD:
-        value=disp.dispu64;
+        value=disp.valueU64;
         writeLength=8;
         break;
+    case DATA_SIZE_DQWORD:
     case DATA_SIZE_10BYTES:
         assert(0);
         break;

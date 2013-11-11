@@ -16,7 +16,8 @@ SOURCES += main.cpp\
     memory/memory.cpp \
     memory/debugmemory.cpp \
     cpu/decoder/instructiondecoder.cpp \
-    cpu/encoder/instructionencoder.cpp
+    cpu/encoder/instructionencoder.cpp \
+    cpu/tostring/instructiontostring.cpp
 
 HEADERS  += gui/mainwindow.h \
     cpu/instructionformat.h \
@@ -47,9 +48,12 @@ HEADERS  += gui/mainwindow.h \
     cpu/decoder/instructionstreamfromfile.h \
     cpu/cputype.h \
     cpu/encoder/instructionencoder.h \
-    cpu/instructioncode.h
+    cpu/instructioncode.h \
+    cpu/tostring/instructiontostring.h
 
 FORMS    += gui/mainwindow.ui
+
+
 
 
 
