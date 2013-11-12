@@ -493,26 +493,27 @@ void InstructionDecoder::OT_E_jump(InstructionStream& stream,
     {
         operand.type=IFOperand::MEMORY_MODRM;
 //        highFormat.effectiveSegmentRegister=lowFormat.legacyPrefix.segmentOverride;
-        operand.content.finalMemorySegmentRegister=lowFormat.legacyPrefix.segmentOverride;
-        operand.content.defaultMemorySegmentRegister=DS;
+//        operand.content.finalMemorySegmentRegister=lowFormat.legacyPrefix.segmentOverride;
+        operand.content.memory.finalMemorySegmentRegister=highFormat.effectiveSegmentRegister;
+        operand.content.memory.defaultMemorySegmentRegister=DS;
         if(highFormat.effectiveAddressSize==EFFECTIVE_16_BITS)
         {
-            operand.content.memory.bit16Mode.modRM.rm=lowFormat.modRM.rm;
-            operand.content.memory.bit16Mode.modRM.mod=lowFormat.modRM.mod;
+            operand.content.memory.memoryMode.bit16Mode.modRM.rm=lowFormat.modRM.rm;
+            operand.content.memory.memoryMode.bit16Mode.modRM.mod=lowFormat.modRM.mod;
             if(lowFormat.modRM.mod==0x2 || (lowFormat.modRM.mod==0x0 &&
                                             lowFormat.modRM.rm==0x6))
             {
-                operand.content.memory.bit16Mode.disp.valueU16=stream.get16Bits();
+                operand.content.memory.memoryMode.bit16Mode.disp.valueU16=stream.get16Bits();
                 lowFormat.hasDisplacement=true;
                 lowFormat.displacementSize=DATA_SIZE_WORD;
-                lowFormat.displacement.valueU16=operand.content.memory.bit16Mode.disp.valueU16;
+                lowFormat.displacement.valueU16=operand.content.memory.memoryMode.bit16Mode.disp.valueU16;
             }
             else if(lowFormat.modRM.mod==0x1)
             {
-                operand.content.memory.bit16Mode.disp.valueU8=stream.get8Bits();
+                operand.content.memory.memoryMode.bit16Mode.disp.valueU8=stream.get8Bits();
                 lowFormat.hasDisplacement=true;
                 lowFormat.displacementSize=DATA_SIZE_BYTE;
-                lowFormat.displacement.valueU8=operand.content.memory.bit16Mode.disp.valueU8;
+                lowFormat.displacement.valueU8=operand.content.memory.memoryMode.bit16Mode.disp.valueU8;
             }
             if((lowFormat.modRM.mod==0&&(lowFormat.modRM.rm==2||lowFormat.modRM.rm==3))||
                     (lowFormat.modRM.mod==1&&(lowFormat.modRM.rm==2 || lowFormat.modRM.rm==3 ||
@@ -521,27 +522,27 @@ void InstructionDecoder::OT_E_jump(InstructionStream& stream,
                                                lowFormat.modRM.rm==6)))
             {
 //                highFormat.effectiveSegmentRegister=SS;
-                operand.content.finalMemorySegmentRegister=SS;
-                operand.content.defaultMemorySegmentRegister=SS;
+                operand.content.memory.finalMemorySegmentRegister=SS;
+                operand.content.memory.defaultMemorySegmentRegister=SS;
             }
         }
         else
         {
-            operand.content.memory.bit3264Mode.modRM.rm=(lowFormat.rex.b<<3)|lowFormat.modRM.rm;
-            operand.content.memory.bit3264Mode.modRM.mod=lowFormat.modRM.mod;
+            operand.content.memory.memoryMode.bit3264Mode.modRM.rm=(lowFormat.rex.b<<3)|lowFormat.modRM.rm;
+            operand.content.memory.memoryMode.bit3264Mode.modRM.mod=lowFormat.modRM.mod;
             //read sib if exists
             if(lowFormat.modRM.rm==0x4)
             {
                 getSIB(stream,lowFormat);
-                operand.content.memory.bit3264Mode.sib.base=(lowFormat.rex.b<<3)|lowFormat.sib.base;
-                operand.content.memory.bit3264Mode.sib.index=(lowFormat.rex.x<<3)|lowFormat.sib.index;
-                operand.content.memory.bit3264Mode.sib.scale=lowFormat.sib.scale;
-                if(operand.content.memory.bit3264Mode.sib.base==RSP ||
-                        operand.content.memory.bit3264Mode.sib.base==RBP)
+                operand.content.memory.memoryMode.bit3264Mode.sib.base=(lowFormat.rex.b<<3)|lowFormat.sib.base;
+                operand.content.memory.memoryMode.bit3264Mode.sib.index=(lowFormat.rex.x<<3)|lowFormat.sib.index;
+                operand.content.memory.memoryMode.bit3264Mode.sib.scale=lowFormat.sib.scale;
+                if(operand.content.memory.memoryMode.bit3264Mode.sib.base==RSP ||
+                        operand.content.memory.memoryMode.bit3264Mode.sib.base==RBP)
                 {
 //                    highFormat.effectiveSegmentRegister=SS;
-                    operand.content.finalMemorySegmentRegister=SS;
-                    operand.content.defaultMemorySegmentRegister=SS;
+                    operand.content.memory.finalMemorySegmentRegister=SS;
+                    operand.content.memory.defaultMemorySegmentRegister=SS;
                 }
             }
 
@@ -549,24 +550,24 @@ void InstructionDecoder::OT_E_jump(InstructionStream& stream,
             if(lowFormat.modRM.mod==0x2 || (lowFormat.modRM.mod==0x0 &&
                                             lowFormat.modRM.rm==0x5))
             {
-                operand.content.memory.bit3264Mode.disp.valueU32=stream.get32Bits();
+                operand.content.memory.memoryMode.bit3264Mode.disp.valueU32=stream.get32Bits();
                 lowFormat.hasDisplacement=true;
                 lowFormat.displacementSize=DATA_SIZE_DWORD;
-                lowFormat.displacement.valueU32=operand.content.memory.bit3264Mode.disp.valueU32;
+                lowFormat.displacement.valueU32=operand.content.memory.memoryMode.bit3264Mode.disp.valueU32;
             }
             else if(lowFormat.modRM.mod==0x1)
             {
-                operand.content.memory.bit3264Mode.disp.valueU8=stream.get8Bits();
+                operand.content.memory.memoryMode.bit3264Mode.disp.valueU8=stream.get8Bits();
                 lowFormat.hasDisplacement=true;
                 lowFormat.displacementSize=DATA_SIZE_BYTE;
-                lowFormat.displacement.valueU8=operand.content.memory.bit3264Mode.disp.valueU8;
+                lowFormat.displacement.valueU8=operand.content.memory.memoryMode.bit3264Mode.disp.valueU8;
             }
-            if(operand.content.memory.bit3264Mode.modRM.rm==RBP
+            if(operand.content.memory.memoryMode.bit3264Mode.modRM.rm==RBP
                     &&(lowFormat.modRM.mod==1||lowFormat.modRM.mod==2))
             {
 //                highFormat.effectiveSegmentRegister=SS;
-                operand.content.finalMemorySegmentRegister=SS;
-                operand.content.defaultMemorySegmentRegister=SS;
+                operand.content.memory.finalMemorySegmentRegister=SS;
+                operand.content.memory.defaultMemorySegmentRegister=SS;
             }
         }
     }
@@ -750,8 +751,8 @@ void InstructionDecoder::OT_O_jump(InstructionStream& stream,
     operand.isExists=true;
 
 //    highFormat.effectiveSegmentRegister=lowFormat.legacyPrefix.segmentOverride;
-    operand.content.finalMemorySegmentRegister=lowFormat.legacyPrefix.segmentOverride;
-    operand.content.defaultMemorySegmentRegister=DS;
+    operand.content.memory.finalMemorySegmentRegister=lowFormat.legacyPrefix.segmentOverride;
+    operand.content.memory.defaultMemorySegmentRegister=DS;
 
     operand.type=IFOperand::MEMORY_OFFSETS;
     switch(highFormat.effectiveAddressSize)
@@ -760,19 +761,19 @@ void InstructionDecoder::OT_O_jump(InstructionStream& stream,
         lowFormat.hasDisplacement=true;
         lowFormat.displacementSize=DATA_SIZE_WORD;
         lowFormat.displacement.valueU16=stream.get16Bits();
-        operand.content.memory.moffsets.valueU16=lowFormat.displacement.valueU16;
+        operand.content.memory.memoryMode.moffsets.valueU16=lowFormat.displacement.valueU16;
         break;
     case EFFECTIVE_32_BITS:
         lowFormat.hasDisplacement=true;
         lowFormat.displacementSize=DATA_SIZE_DWORD;
         lowFormat.displacement.valueU32=stream.get32Bits();
-        operand.content.memory.moffsets.valueU32=lowFormat.displacement.valueU32;
+        operand.content.memory.memoryMode.moffsets.valueU32=lowFormat.displacement.valueU32;
         break;
     case EFFECTIVE_64_BITS:
         lowFormat.hasDisplacement=true;
         lowFormat.displacementSize=DATA_SIZE_QWORD;
         lowFormat.displacement.valueU64=stream.get64Bits();
-        operand.content.memory.moffsets.valueU64=lowFormat.displacement.valueU64;
+        operand.content.memory.memoryMode.moffsets.valueU64=lowFormat.displacement.valueU64;
         break;
     default:
         assert(0);
@@ -856,16 +857,16 @@ void InstructionDecoder::OT_X_jump(InstructionStream& stream,
     operand.type=IFOperand::MEMORY_MODRM;
     if(highFormat.effectiveAddressSize==EFFECTIVE_16_BITS)
     {
-        operand.content.memory.bit16Mode.modRM.mod=0;
-        operand.content.memory.bit16Mode.modRM.rm=4;
+        operand.content.memory.memoryMode.bit16Mode.modRM.mod=0;
+        operand.content.memory.memoryMode.bit16Mode.modRM.rm=4;
     }
     else
     {
-        operand.content.memory.bit3264Mode.modRM.mod=0;
-        operand.content.memory.bit3264Mode.modRM.rm=6;
+        operand.content.memory.memoryMode.bit3264Mode.modRM.mod=0;
+        operand.content.memory.memoryMode.bit3264Mode.modRM.rm=6;
     }
-    operand.content.finalMemorySegmentRegister=lowFormat.legacyPrefix.segmentOverride;
-    operand.content.defaultMemorySegmentRegister=DS;
+    operand.content.memory.finalMemorySegmentRegister=lowFormat.legacyPrefix.segmentOverride;
+    operand.content.memory.defaultMemorySegmentRegister=DS;
 }
 void InstructionDecoder::OT_Y_jump(InstructionStream& stream,
                  InstructionLowLevelFormat& lowFormat,
@@ -877,16 +878,16 @@ void InstructionDecoder::OT_Y_jump(InstructionStream& stream,
     operand.type=IFOperand::MEMORY_MODRM;
     if(highFormat.effectiveAddressSize==EFFECTIVE_16_BITS)
     {
-        operand.content.memory.bit16Mode.modRM.mod=0;
-        operand.content.memory.bit16Mode.modRM.rm=5;
+        operand.content.memory.memoryMode.bit16Mode.modRM.mod=0;
+        operand.content.memory.memoryMode.bit16Mode.modRM.rm=5;
     }
     else
     {
-        operand.content.memory.bit3264Mode.modRM.mod=0;
-        operand.content.memory.bit3264Mode.modRM.rm=7;
+        operand.content.memory.memoryMode.bit3264Mode.modRM.mod=0;
+        operand.content.memory.memoryMode.bit3264Mode.modRM.rm=7;
     }
-    operand.content.finalMemorySegmentRegister=ES;
-    operand.content.defaultMemorySegmentRegister=ES;
+    operand.content.memory.finalMemorySegmentRegister=ES;
+    operand.content.memory.defaultMemorySegmentRegister=ES;
 //    OT_RDI_jump(stream,lowFormat,highFormat,operand);
 }
 void InstructionDecoder::OT_ZERO_jump(InstructionStream& stream,

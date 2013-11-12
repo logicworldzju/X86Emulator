@@ -116,35 +116,38 @@ struct IFOperand //Instruction Format Operand
         MMXRegister mmxRegister;
         XMMRegister xmmRegister;
         //--------------Memory-------------
-        SegmentRegister finalMemorySegmentRegister;
-        SegmentRegister defaultMemorySegmentRegister;
-        union Memory
+        struct Memory
         {
-            struct Bit16Mode
+            SegmentRegister finalMemorySegmentRegister;
+            SegmentRegister defaultMemorySegmentRegister;
+            union MemoryMode
             {
-                struct ModRM
+                struct Bit16Mode
                 {
-                    u8 rm:3;
-                    u8 mod:2;
-                }modRM;
-                DispImm disp;
-            }bit16Mode;
-            struct Bit3264Mode
-            {
-                struct ModRM
+                    struct ModRM
+                    {
+                        u8 rm:3;
+                        u8 mod:2;
+                    }modRM;
+                    DispImm disp;
+                }bit16Mode;
+                struct Bit3264Mode
                 {
-                    u8 rm:4; //add the REX.B in the most significant bit.
-                    u8 mod:2;
-                }modRM;
-                struct SIB
-                {
-                    u8 base:4;//add the REX.B in the most significant bit.
-                    u8 index:4;//add the REX.X in the most significant bit.
-                    u8 scale:2;
-                }sib;
-                DispImm disp;
-            }bit3264Mode;
-            DispImm moffsets;
+                    struct ModRM
+                    {
+                        u8 rm:4; //add the REX.B in the most significant bit.
+                        u8 mod:2;
+                    }modRM;
+                    struct SIB
+                    {
+                        u8 base:4;//add the REX.B in the most significant bit.
+                        u8 index:4;//add the REX.X in the most significant bit.
+                        u8 scale:2;
+                    }sib;
+                    DispImm disp;
+                }bit3264Mode;
+                DispImm moffsets;
+            }memoryMode;
         }memory;
     }content;
     IFOperand()

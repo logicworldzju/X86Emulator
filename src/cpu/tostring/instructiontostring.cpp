@@ -157,6 +157,7 @@ void InstructionToString::immediateToString(InstructionHighLevelFormat &highForm
             assert(0);
             break;
         }
+        inst+=relativeString;
         break;
     }
     default:
@@ -237,11 +238,12 @@ void InstructionToString::memoryModRMToString(InstructionHighLevelFormat &highFo
     }
     //------------Segment Register Prefix---------------
     inst+="[";
-    if(operand.content.finalMemorySegmentRegister!=operand.content.defaultMemorySegmentRegister)
+    if(operand.content.memory.finalMemorySegmentRegister
+            !=operand.content.memory.defaultMemorySegmentRegister)
     {
-        u8 index=static_cast<u8>(operand.content.finalMemorySegmentRegister);
+        u8 index=static_cast<u8>(operand.content.memory.finalMemorySegmentRegister);
         assert(index<6);
-        inst+=_dataSizeString[index];
+        inst+=_segmentRegisterString[index];
         inst+=":";
     }
     if(highFormat.effectiveAddressSize==EFFECTIVE_16_BITS)
@@ -275,16 +277,17 @@ void InstructionToString::moffsetsToString(InstructionHighLevelFormat &highForma
         moffsetSize=DATA_SIZE_QWORD;
         break;
     }
-    dispImmUnsignedToString(operand.content.memory.moffsets,moffsetSize,
+    dispImmUnsignedToString(operand.content.memory.memoryMode.moffsets,moffsetSize,
                          dispString);
     {
         u8 index = static_cast<u8>(operand.finalSize);
         assert(index<7);
         inst+=_dataSizeString[index];
     }
-    if(operand.content.finalMemorySegmentRegister!=operand.content.defaultMemorySegmentRegister)
+    if(operand.content.memory.finalMemorySegmentRegister
+            !=operand.content.memory.defaultMemorySegmentRegister)
     {
-        u8 index = static_cast<u8>(operand.content.finalMemorySegmentRegister);
+        u8 index = static_cast<u8>(operand.content.memory.finalMemorySegmentRegister);
         assert(index<6);
         inst=inst+"["+_segmentRegisterString[index]+":"+dispString+"]";
     }
@@ -322,17 +325,17 @@ const char* InstructionToString::_gpRegister8BitsString[8]=
 };
 const char* InstructionToString::_gpRegister16BitsString[16]=
 {
-    "ax","cx","dx","bx","sp","bp","si","bi","r8w","r9w","r10w","r11w","r12w"
+    "ax","cx","dx","bx","sp","bp","si","di","r8w","r9w","r10w","r11w","r12w"
     ,"r13w","r14w","r15w"
 };
 const char* InstructionToString::_gpRegister32BitsString[16]=
 {
-    "eax","ecx","edx","ebx","esp","ebp","esi","ebi","r8d","r9d","r10d","r11d",
+    "eax","ecx","edx","ebx","esp","ebp","esi","edi","r8d","r9d","r10d","r11d",
     "r12d","r13d","r14d","r15d"
 };
 const char* InstructionToString::_gpRegister64BitsString[16]=
 {
-    "rax","rcx","rdx","rbx","rsp","rbp","rsi","rbi","r8","r9","r10","r11","r12"
+    "rax","rcx","rdx","rbx","rsp","rbp","rsi","rdi","r8","r9","r10","r11","r12"
     ,"r13","r14","r15"
 };
 /*
@@ -517,7 +520,8 @@ void InstructionToString::memoryModRM16BitsToString(InstructionHighLevelFormat &
     assert(operand.type==IFOperand::MEMORY_MODRM);
     assert(highFormat.effectiveAddressSize==EFFECTIVE_16_BITS);
 
-    IFOperand::Content::Memory::Bit16Mode& bit16Mode=operand.content.memory.bit16Mode;
+    IFOperand::Content::Memory::MemoryMode::Bit16Mode&
+            bit16Mode=operand.content.memory.memoryMode.bit16Mode;
 
     assert(bit16Mode.modRM.mod!=3);
     inst+=_modrm16BitsString[bit16Mode.modRM.mod][bit16Mode.modRM.rm];
@@ -560,8 +564,8 @@ void InstructionToString::memoryModRM3264BitsToString(
         gpRegister3264BitsString=_gpRegister64BitsString;
     }
 
-    IFOperand::Content::Memory::Bit3264Mode& bit3264Mode=
-            operand.content.memory.bit3264Mode;
+    IFOperand::Content::Memory::MemoryMode::Bit3264Mode& bit3264Mode=
+            operand.content.memory.memoryMode.bit3264Mode;
     u8 mod = bit3264Mode.modRM.mod;
     u8 rm = bit3264Mode.modRM.rm;
     u8 rm3Bits=rm&0x7;
@@ -593,11 +597,11 @@ void InstructionToString::memoryModRM3264BitsToString(
     std::string dispString;
     if(mod==2)
     {
-        s64ToString(bit3264Mode.disp.valueS32,dispString);
+        s64ToString(bit3264Mode.disp.valueS32,dispString,true);
     }
     if(mod==1)
     {
-        s64ToString(bit3264Mode.disp.valueS8,dispString);
+        s64ToString(bit3264Mode.disp.valueS8,dispString,true);
     }
     if(mod==0 && rm3Bits==5)
     {
@@ -607,7 +611,7 @@ void InstructionToString::memoryModRM3264BitsToString(
         }
         else
         {
-            s64ToString(bit3264Mode.disp.valueS32,dispString);
+            s64ToString(bit3264Mode.disp.valueS32,dispString,false);
         }
     }
     inst+=dispString;

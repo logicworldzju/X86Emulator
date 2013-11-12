@@ -136,8 +136,8 @@ OpcodeTableEntry opcodeTableGroup3_f6[8]=
 };
 OpcodeTableEntry opcodeTableGroup3_f7[8]=
 {
-	OpcodeTableEntry("TEST",NULL,OT_E,OS_v,OT_I,OS_b),//ModRM.reg=000
-	OpcodeTableEntry("TEST",NULL,OT_E,OS_v,OT_I,OS_b),//ModRM.reg=001
+        OpcodeTableEntry("TEST",NULL,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=000
+        OpcodeTableEntry("TEST",NULL,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=001
 	OpcodeTableEntry("NOT",NULL,OT_E,OS_v),//ModRM.reg=010
 	OpcodeTableEntry("NEG",NULL,OT_E,OS_v),//ModRM.reg=011
 	OpcodeTableEntry("MUL",NULL,OT_E,OS_v),//ModRM.reg=100
@@ -161,9 +161,9 @@ OpcodeTableEntry opcodeTableGroup5_ff[8]=
 	OpcodeTableEntry("INC",NULL,OT_E,OS_v),
 	OpcodeTableEntry("DEC",NULL,OT_E,OS_v),
 	OpcodeTableEntry("CALL",NULL,OT_E,OS_v),
-	OpcodeTableEntry("CALL",NULL,OT_M,OS_p),
+        OpcodeTableEntry("CALL far",NULL,OT_M,OS_p),
 	OpcodeTableEntry("JMP",NULL,OT_E,OS_v),
-	OpcodeTableEntry("JMP",NULL,OT_M,OS_p),
+        OpcodeTableEntry("JMP far",NULL,OT_M,OS_p),
 	OpcodeTableEntry("PUSH",NULL,OT_E,OS_v),
 	OpcodeTableEntry("invalid")
 };
@@ -414,7 +414,7 @@ OpcodeTableEntry opcodeTableOneByte[256]=
     OpcodeTableEntry("TEST",NULL,OT_E,OS_b,OT_G,OS_b),//0x84
     OpcodeTableEntry("TEST",NULL,OT_E,OS_v,OT_G,OS_v),//0x85
     OpcodeTableEntry("XCHG",NULL,OT_E,OS_b,OT_G,OS_b),//0x86
-    OpcodeTableEntry("XCHG",NULL,OT_E,OS_v,OT_G,OS_b),//0x87
+    OpcodeTableEntry("XCHG",NULL,OT_E,OS_v,OT_G,OS_v),//0x87
     OpcodeTableEntry("MOV",NULL,OT_E,OS_b,OT_G,OS_b),//0x88
     OpcodeTableEntry("MOV",NULL,OT_E,OS_v,OT_G,OS_v),//0x89
     OpcodeTableEntry("MOV",NULL,OT_G,OS_b,OT_E,OS_b),//0x8a
