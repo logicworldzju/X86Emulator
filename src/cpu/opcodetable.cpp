@@ -491,8 +491,8 @@ OpcodeTableEntry opcodeTableOneByte[256]=
 	OpcodeTableEntry("Group 2",opcodeTableGroup2_d1),//0xd1
 	OpcodeTableEntry("Group 2",opcodeTableGroup2_d2),//0xd2
 	OpcodeTableEntry("Group 2",opcodeTableGroup2_d3),//0xd3
-	OpcodeTableEntry("AAM",NULL),//0xd4
-	OpcodeTableEntry("AAD",NULL),//0xd5
+        OpcodeTableEntry("AAM",NULL,OT_I,OS_b),//0xd4
+        OpcodeTableEntry("AAD",NULL,OT_I,OS_b),//0xd5
 	OpcodeTableEntry("SALC",NULL),//0xd6
 	OpcodeTableEntry("XLAT",NULL),//0xd7
 	OpcodeTableEntry("x87",NULL),//0xd8
