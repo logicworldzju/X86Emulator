@@ -292,6 +292,7 @@ void InstructionDecoder::OT_NOT_EXISTS_jump(InstructionStream& stream,
                         IFOperand& operand)
 {
     //do nothing.
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
     operand.isExists=false;
 }
 void InstructionDecoder::OT_RAX_jump(InstructionStream& stream,
@@ -299,6 +300,7 @@ void InstructionDecoder::OT_RAX_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
     operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RAX;
@@ -308,6 +310,8 @@ void InstructionDecoder::OT_RCX_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RCX;
@@ -317,6 +321,8 @@ void InstructionDecoder::OT_RDX_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RDX;
@@ -326,6 +332,8 @@ void InstructionDecoder::OT_RBX_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RBX;
@@ -335,6 +343,8 @@ void InstructionDecoder::OT_RSP_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RSP;
@@ -344,6 +354,8 @@ void InstructionDecoder::OT_RBP_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RBP;
@@ -353,6 +365,8 @@ void InstructionDecoder::OT_RSI_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RSI;
@@ -362,6 +376,8 @@ void InstructionDecoder::OT_RDI_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
     operand.type = IFOperand::GP_REGISTER;
     operand.content.gpregister=RDI;
@@ -371,6 +387,8 @@ void InstructionDecoder::OT_ES_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
     operand.type = IFOperand::SEGMENT_REGISTER;
     operand.content.segmentRegister=ES;
@@ -380,6 +398,8 @@ void InstructionDecoder::OT_CS_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
     operand.type = IFOperand::SEGMENT_REGISTER;
     operand.content.segmentRegister=CS;
@@ -389,6 +409,8 @@ void InstructionDecoder::OT_SS_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
     operand.type = IFOperand::SEGMENT_REGISTER;
     operand.content.segmentRegister=SS;
@@ -398,6 +420,8 @@ void InstructionDecoder::OT_DS_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
     operand.type = IFOperand::SEGMENT_REGISTER;
     operand.content.segmentRegister=DS;
@@ -407,6 +431,8 @@ void InstructionDecoder::OT_FS_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
     operand.type = IFOperand::SEGMENT_REGISTER;
     operand.content.segmentRegister=FS;
@@ -416,6 +442,8 @@ void InstructionDecoder::OT_GS_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
     operand.type = IFOperand::SEGMENT_REGISTER;
     operand.content.segmentRegister=GS;
@@ -425,6 +453,8 @@ void InstructionDecoder::OT_A_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
 
     operand.type = IFOperand::IMMEDIATE;
@@ -458,6 +488,8 @@ void InstructionDecoder::OT_C_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
 
     getModRM(stream,lowFormat);
@@ -470,6 +502,8 @@ void InstructionDecoder::OT_D_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
 
     getModRM(stream,lowFormat);
@@ -481,6 +515,8 @@ void InstructionDecoder::OT_E_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
 
     getModRM(stream,lowFormat);
@@ -578,6 +614,8 @@ void InstructionDecoder::OT_F_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
 //    std::cerr<<"Error:"<<"Operand Type OT_F is not implemented."<<std::endl;
 //    ::exit(-1);
     //do nothing. as it is embedded in the opcode.
@@ -588,6 +626,8 @@ void InstructionDecoder::OT_G_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
 
     getModRM(stream,lowFormat);
@@ -599,6 +639,8 @@ void InstructionDecoder::OT_I_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
 
     operand.type=IFOperand::IMMEDIATE;
@@ -694,6 +736,8 @@ void InstructionDecoder::OT_J_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
 
     operand.type = IFOperand::IMMEDIATE;
@@ -736,6 +780,8 @@ void InstructionDecoder::OT_M_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     OT_E_jump(stream,lowFormat,highFormat,operand);
     assert(lowFormat.modRM.mod!=0x3);
 }
@@ -748,6 +794,8 @@ void InstructionDecoder::OT_O_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
 
 //    highFormat.effectiveSegmentRegister=lowFormat.legacyPrefix.segmentOverride;
@@ -784,6 +832,8 @@ void InstructionDecoder::OT_P_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OT_P is not implemented."<<std::endl;
     ::exit(-1);
 }
@@ -792,6 +842,8 @@ void InstructionDecoder::OT_PR_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OT_PR is not implemented."<<std::endl;
     ::exit(-1);
 }
@@ -800,6 +852,8 @@ void InstructionDecoder::OT_Q_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OT_Q is not implemented."<<std::endl;
     ::exit(-1);
 }
@@ -808,6 +862,8 @@ void InstructionDecoder::OT_R_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     OT_E_jump(stream,lowFormat,highFormat,operand);
     assert(lowFormat.modRM.mod==0x3);
 }
@@ -816,6 +872,8 @@ void InstructionDecoder::OT_S_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists = true;
 
     operand.type = IFOperand::SEGMENT_REGISTER;
@@ -827,6 +885,8 @@ void InstructionDecoder::OT_V_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OT_V is not implemented."<<std::endl;
     ::exit(-1);
 }
@@ -835,6 +895,8 @@ void InstructionDecoder::OT_VR_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OT_VR is not implemented."<<std::endl;
     ::exit(-1);
 }
@@ -843,6 +905,8 @@ void InstructionDecoder::OT_W_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OT_W is not implemented."<<std::endl;
     ::exit(-1);
 }
@@ -851,6 +915,8 @@ void InstructionDecoder::OT_X_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
 //    OT_RSI_jump(stream,lowFormat,highFormat,operand);
 //    highFormat.effectiveSegmentRegister=lowFormat.legacyPrefix.segmentOverride;
@@ -873,6 +939,8 @@ void InstructionDecoder::OT_Y_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists=true;
 
     operand.type=IFOperand::MEMORY_MODRM;
@@ -895,6 +963,8 @@ void InstructionDecoder::OT_ZERO_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists = true;
 
     operand.type=IFOperand::IMMEDIATE;
@@ -924,6 +994,8 @@ void InstructionDecoder::OT_ONE_jump(InstructionStream& stream,
                  InstructionHighLevelFormat& highFormat,
                  IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.isExists = true;
 
     operand.type=IFOperand::IMMEDIATE;
@@ -953,6 +1025,8 @@ void InstructionDecoder::OS_NOT_EXISTS_jump(InstructionStream& stream,
                                             InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     //do nothing.
 }
 void InstructionDecoder::OS_a_jump(InstructionStream& stream,
@@ -960,6 +1034,8 @@ void InstructionDecoder::OS_a_jump(InstructionStream& stream,
                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     switch(highFormat.effectiveOperandSize)
     {
     case EFFECTIVE_16_BITS:
@@ -976,6 +1052,8 @@ void InstructionDecoder::OS_b_jump(InstructionStream& stream,
                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.finalSize=DATA_SIZE_BYTE;
 }
 void InstructionDecoder::OS_d_jump(InstructionStream& stream,
@@ -983,6 +1061,8 @@ void InstructionDecoder::OS_d_jump(InstructionStream& stream,
                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.finalSize=DATA_SIZE_DWORD;
 }
 void InstructionDecoder::OS_dq_jump(InstructionStream& stream,
@@ -990,6 +1070,7 @@ void InstructionDecoder::OS_dq_jump(InstructionStream& stream,
                                     InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
 //    operand.size=IFOperand::
 //    std::cerr<<"Error:"<<"Operand Type OS_dq is not implemented."<<std::endl;
 //    ::exit(-1);
@@ -1000,6 +1081,8 @@ void InstructionDecoder::OS_p_jump(InstructionStream& stream,
                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     switch(highFormat.effectiveOperandSize)
     {
     case EFFECTIVE_16_BITS:
@@ -1016,6 +1099,8 @@ void InstructionDecoder::OS_pd_jump(InstructionStream& stream,
                                     InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OS_pd is not implemented."<<std::endl;
     ::exit(-1);
 }
@@ -1024,6 +1109,8 @@ void InstructionDecoder::OS_pi_jump(InstructionStream& stream,
                                     InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OS_pi is not implemented."<<std::endl;
     ::exit(-1);
 }
@@ -1032,6 +1119,8 @@ void InstructionDecoder::OS_ps_jump(InstructionStream& stream,
                                     InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OS_ps is not implemented."<<std::endl;
     ::exit(-1);
 }
@@ -1040,6 +1129,8 @@ void InstructionDecoder::OS_q_jump(InstructionStream& stream,
                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.finalSize=DATA_SIZE_QWORD;
 }
 void InstructionDecoder::OS_s_jump(InstructionStream& stream,
@@ -1047,6 +1138,8 @@ void InstructionDecoder::OS_s_jump(InstructionStream& stream,
                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OS_s is not implemented."<<std::endl;
     ::exit(-1);
 }
@@ -1055,6 +1148,8 @@ void InstructionDecoder::OS_sd_jump(InstructionStream& stream,
                                     InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OS_sd is not implemented."<<std::endl;
     ::exit(-1);
 }
@@ -1063,6 +1158,8 @@ void InstructionDecoder::OS_si_jump(InstructionStream& stream,
                                     InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OS_si is not implemented."<<std::endl;
     ::exit(-1);
 }
@@ -1071,6 +1168,8 @@ void InstructionDecoder::OS_ss_jump(InstructionStream& stream,
                                     InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OS_ss is not implemented."<<std::endl;
     ::exit(-1);
 }
@@ -1079,6 +1178,8 @@ void InstructionDecoder::OS_v_jump(InstructionStream& stream,
                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     switch(highFormat.effectiveOperandSize)
     {
     case EFFECTIVE_16_BITS:
@@ -1097,6 +1198,8 @@ void InstructionDecoder::OS_w_jump(InstructionStream& stream,
                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     operand.finalSize=DATA_SIZE_WORD;
 }
 void InstructionDecoder::OS_z_jump(InstructionStream& stream,
@@ -1104,6 +1207,8 @@ void InstructionDecoder::OS_z_jump(InstructionStream& stream,
                                    InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     switch(highFormat.effectiveOperandSize)
     {
     case EFFECTIVE_16_BITS:
@@ -1120,6 +1225,8 @@ void InstructionDecoder::OS_slash_n_jump(InstructionStream& stream,
                                          InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OS_slash_n is not implemented."<<std::endl;
     ::exit(-1);
 }
@@ -1128,6 +1235,7 @@ void InstructionDecoder::OS_Mw_Rv_jump(InstructionStream& stream,
                                        InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
 
     getModRM(stream,lowFormat);
     if(lowFormat.modRM.mod!=3)
@@ -1144,6 +1252,8 @@ void InstructionDecoder::OS_d_q_jump(InstructionStream& stream,
                                      InstructionHighLevelFormat& highFormat,
                         IFOperand& operand)
 {
+	(void)stream;(void)lowFormat;(void)highFormat;(void)operand;
+
     std::cerr<<"Error:"<<"Operand Type OS_d_q is not implemented."<<std::endl;
     ::exit(-1);
 }

@@ -176,6 +176,8 @@ void InstructionToString::immediateToString(InstructionHighLevelFormat &highForm
 void InstructionToString::segementRegisterToString(InstructionHighLevelFormat &highFormat,
                                                    std::string &inst, IFOperand &operand)
 {
+	(void)highFormat;
+
     assert(operand.isExists);
     assert(operand.type==IFOperand::SEGMENT_REGISTER);
 

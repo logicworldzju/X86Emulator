@@ -10,6 +10,9 @@ public:
         _uValue=0;
         _sValue=0;
     }
+	virtual ~ExecReadOperand()
+	{
+	}
     u8 getU8()
     {
         prepareReadUnsigned();

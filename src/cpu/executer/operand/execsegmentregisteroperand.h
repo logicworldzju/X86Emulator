@@ -20,6 +20,7 @@ public:
     }
     virtual void setU8(u8 value)
     {
+		(void)value;
         assert(0);
     }
     virtual void setU16(u16 value)
@@ -28,10 +29,12 @@ public:
     }
     virtual void setU32(u32 value)
     {
+		(void)value;
         assert(0);
     }
     virtual void setU64(u64 value)
     {
+		(void)value;
         assert(0);
     }
 protected:

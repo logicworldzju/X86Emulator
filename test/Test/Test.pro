@@ -1,23 +1,14 @@
-#-------------------------------------------------
-#
+# -------------------------------------------------
 # Project created by QtCreator 2013-11-10T20:25:10
-#
-#-------------------------------------------------
-
-QT       += testlib
-
-QT       -= gui
-
+# -------------------------------------------------
+QT += testlib
+QT -= gui
 TARGET = tst_testtest
-CONFIG   += console
-CONFIG   -= app_bundle
-
+CONFIG += console
+CONFIG -= app_bundle
 TEMPLATE = app
-
-INCLUDEPATH +=../../src
-
-SOURCES += \
-    ../../src/memory/memory.cpp \
+INCLUDEPATH += ../../src
+SOURCES += ../../src/memory/memory.cpp \
     ../../src/memory/debugmemory.cpp \
     ../../src/cpu/opcodetable.cpp \
     ../../src/cpu/decoder/instructiondecoder.cpp \
@@ -29,11 +20,10 @@ SOURCES += \
     testinstructionstream.cpp \
     testregisterfile.cpp \
     testexecoperand.cpp \
-    testdecoderencoder.cpp
+    testdecoderencoder.cpp \
+    ../../src/cpu/executer/instructionexecuter.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
-
-HEADERS += \
-    ../../src/memory/memory.h \
+HEADERS += ../../src/memory/memory.h \
     ../../src/memory/debugmemory.h \
     ../../src/io/ioportlist.h \
     ../../src/io/ioport.h \
@@ -63,34 +53,6 @@ HEADERS += \
     testinstructionstream.h \
     testregisterfile.h \
     testexecoperand.h \
-    testdecoderencoder.h
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    testdecoderencoder.h \
+    ../../src/cpu/executer/instructionexecuter.h \
+    ../../src/cpu/executer/operand/execoperands.h

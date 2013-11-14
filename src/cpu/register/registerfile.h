@@ -102,6 +102,17 @@ public:
         assert(index<6);
         _sementRegisters[index]=value;
     }
+	//segment shadow register.
+	u32 getSSR(u8 index)
+	{
+		assert(index<6);
+		return _segmentShadowRegisters[index];
+	}
+	void setSSR(u8 index,u32 base)
+	{
+		assert(index<6);
+		_segmentShadowRegisters[index]=base;
+	}
     //-------------------------System Instructions-------------
     //-------------------PC-------------------
     u32 getIP()
@@ -143,6 +154,7 @@ public:
 protected:
     GPRegisterClass _gpRegisters[16];
     u16 _sementRegisters[6];
+	u32 _segmentShadowRegisters[6];
     u32 _ip;
     Flags _flags;
 };

@@ -7,6 +7,9 @@
 class ExecWriteOperand
 {
 public:
+	virtual ~ExecWriteOperand()
+	{
+	}
     virtual void setU8(u8 value)=0;
     virtual void setU16(u16 value)=0;
     virtual void setU32(u32 value)=0;

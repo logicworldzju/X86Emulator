@@ -7,6 +7,8 @@ public:
     virtual void write2Port(u32 value,Memory& memory,
                             RegisterFile& registerFile)
     {
+		(void)registerFile;
+
         memory.startAccess(Memory::DEVICE_DATA_ACCESS);
         memory.set32Bits(0x200,value);
         memory.endAccess();
@@ -14,6 +16,8 @@ public:
     virtual u32 readFromPort(Memory& memory,
                              RegisterFile& registerFile)
     {
+		(void)registerFile;
+
         memory.startAccess(Memory::DEVICE_DATA_ACCESS);
         u32 ret=memory.get32Bits(0x200);
         memory.endAccess();
