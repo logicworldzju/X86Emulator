@@ -1,5 +1,5 @@
-#include <QtGui/QApplication>
-#include "gui/mainwindow.h"
+#include "mainwindow.h"
+#include <QApplication>
 
 int main(int argc, char *argv[])
 {
@@ -9,3 +9,4 @@ int main(int argc, char *argv[])
 
     return a.exec();
 }
+
