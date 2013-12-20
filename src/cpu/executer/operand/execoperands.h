@@ -18,15 +18,15 @@ public:
 		if(_src2)	delete _src2;
 	}
 public:
-	ExecReadWriteOperand* getDest()
+    ExecReadWriteOperand* getDest()
 	{
 		return _dest;
 	}
-	ExecReadOperand* getSrc()
+    ExecReadOperand* getSrc()
 	{
 		return _src;
 	}
-	ExecReadOperand* getSrc2()
+    ExecReadOperand* getSrc2()
 	{
 		return _src2;
 	}

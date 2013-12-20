@@ -149,7 +149,8 @@ struct IFOperand //Instruction Format Operand
                 DispImm moffsets;
             }memoryMode;
         }memory;
-    }content;
+    };
+    Content content;
     IFOperand()
     {
         ::memset(this,0,sizeof(IFOperand));
