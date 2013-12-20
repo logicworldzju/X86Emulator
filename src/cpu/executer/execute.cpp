@@ -91,7 +91,7 @@ inline void setSignFlag(FlagsBits& flags,u8 msbResult)
 }
 inline void setOverflowFlag(FlagsBits& flags,u8 msbOpt1,u8 msbOpt2,bool isPlus,u8 msbResult)
 {
-    if(!isPlus) msbOpt2=~msbOpt2;
+    if(!isPlus) msbOpt2=(msbOpt2==0?1:0);
     if(msbOpt1==msbOpt2)
     {
         if(msbResult==msbOpt1)
@@ -386,12 +386,166 @@ EXECUTE_FUNC(executeOR)
 EXECUTE_FUNC(executeADC)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("ADC");
+//    INSTRUCTION_NOT_IMPLEMENT("ADC");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        s8 opt1=dest->getS8();
+        s8 opt2=src->getS8();
+        s8 result=opt1+opt2+s8(registerFile.getFlagsBits().CF);
+        dest->setU8(result);
+
+        u8 msbOpt1=u8((opt1>>7)&1);
+        u8 msbOpt2=u8((opt2>>7)&1);
+        u8 msbResult=u8((result>>7)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),true,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        s16 opt1=dest->getS16();
+        s16 opt2=src->getS16();
+        s16 result=opt1+opt2+s16(registerFile.getFlagsBits().CF);
+        dest->setU16(result);
+
+        u8 msbOpt1=u8((opt1>>15)&1);
+        u8 msbOpt2=u8((opt2>>15)&1);
+        u8 msbResult=u8((result>>15)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),true,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        s32 opt1=dest->getS32();
+        s32 opt2=src->getS32();
+        s32 result=opt1+opt2+s32(registerFile.getFlagsBits().CF);
+        dest->setU32(result);
+
+        u8 msbOpt1=u8((opt1>>31)&1);
+        u8 msbOpt2=u8((opt2>>31)&1);
+        u8 msbResult=u8((result>>31)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),true,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        s64 opt1=dest->getS64();
+        s64 opt2=src->getS64();
+        s64 result=opt1+opt2+s64(registerFile.getFlagsBits().CF);
+        dest->setU64(result);
+
+        u8 msbOpt1=u8((opt1>>63)&1);
+        u8 msbOpt2=u8((opt2>>63)&1);
+        u8 msbResult=u8((result>>63)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),true,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
 EXECUTE_FUNC(executeSBB)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("SBB");
+//    INSTRUCTION_NOT_IMPLEMENT("SBB");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        s8 opt1=dest->getS8();
+        s8 opt2=src->getS8();
+        s8 result=opt1-opt2-s8(registerFile.getFlagsBits().CF);
+        dest->setU8(result);
+
+        u8 msbOpt1=u8((opt1>>7)&1);
+        u8 msbOpt2=u8((opt2>>7)&1);
+        u8 msbResult=u8((result>>7)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        s16 opt1=dest->getS16();
+        s16 opt2=src->getS16();
+        s16 result=opt1-opt2-s16(registerFile.getFlagsBits().CF);
+        dest->setU16(result);
+
+        u8 msbOpt1=u8((opt1>>15)&1);
+        u8 msbOpt2=u8((opt2>>15)&1);
+        u8 msbResult=u8((result>>15)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        s32 opt1=dest->getS32();
+        s32 opt2=src->getS32();
+        s32 result=opt1-opt2-s32(registerFile.getFlagsBits().CF);
+        dest->setU32(result);
+
+        u8 msbOpt1=u8((opt1>>31)&1);
+        u8 msbOpt2=u8((opt2>>31)&1);
+        u8 msbResult=u8((result>>31)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        s64 opt1=dest->getS64();
+        s64 opt2=src->getS64();
+        s64 result=opt1-opt2-s64(registerFile.getFlagsBits().CF);
+        dest->setU64(result);
+
+        u8 msbOpt1=u8((opt1>>63)&1);
+        u8 msbOpt2=u8((opt2>>63)&1);
+        u8 msbResult=u8((result>>63)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
 //0x2
 EXECUTE_FUNC(executeAND)
@@ -476,7 +630,84 @@ EXECUTE_FUNC(executeDAA)
 EXECUTE_FUNC(executeSUB)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("SUB");
+//    INSTRUCTION_NOT_IMPLEMENT("SUB");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        s8 opt1=dest->getS8();
+        s8 opt2=src->getS8();
+        s8 result=opt1-opt2;
+        dest->setU8(result);
+
+        u8 msbOpt1=u8((opt1>>7)&1);
+        u8 msbOpt2=u8((opt2>>7)&1);
+        u8 msbResult=u8((result>>7)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        s16 opt1=dest->getS16();
+        s16 opt2=src->getS16();
+        s16 result=opt1-opt2;
+        dest->setU16(result);
+
+        u8 msbOpt1=u8((opt1>>15)&1);
+        u8 msbOpt2=u8((opt2>>15)&1);
+        u8 msbResult=u8((result>>15)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        s32 opt1=dest->getS32();
+        s32 opt2=src->getS32();
+        s32 result=opt1-opt2;
+        dest->setU32(result);
+
+        u8 msbOpt1=u8((opt1>>31)&1);
+        u8 msbOpt2=u8((opt2>>31)&1);
+        u8 msbResult=u8((result>>31)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        s64 opt1=dest->getS64();
+        s64 opt2=src->getS64();
+        s64 result=opt1-opt2;
+        dest->setU64(result);
+
+        u8 msbOpt1=u8((opt1>>63)&1);
+        u8 msbOpt2=u8((opt2>>63)&1);
+        u8 msbResult=u8((result>>63)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
 EXECUTE_FUNC(executeDAS)
 {
@@ -567,7 +798,84 @@ EXECUTE_FUNC(executeAAA)
 EXECUTE_FUNC(executeCMP)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("CMP");
+//    INSTRUCTION_NOT_IMPLEMENT("CMP");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        s8 opt1=dest->getS8();
+        s8 opt2=src->getS8();
+        s8 result=opt1-opt2;
+//        dest->setU8(result);
+
+        u8 msbOpt1=u8((opt1>>7)&1);
+        u8 msbOpt2=u8((opt2>>7)&1);
+        u8 msbResult=u8((result>>7)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        s16 opt1=dest->getS16();
+        s16 opt2=src->getS16();
+        s16 result=opt1-opt2;
+//        dest->setU16(result);
+
+        u8 msbOpt1=u8((opt1>>15)&1);
+        u8 msbOpt2=u8((opt2>>15)&1);
+        u8 msbResult=u8((result>>15)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        s32 opt1=dest->getS32();
+        s32 opt2=src->getS32();
+        s32 result=opt1-opt2;
+//        dest->setU32(result);
+
+        u8 msbOpt1=u8((opt1>>31)&1);
+        u8 msbOpt2=u8((opt2>>31)&1);
+        u8 msbResult=u8((result>>31)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        s64 opt1=dest->getS64();
+        s64 opt2=src->getS64();
+        s64 result=opt1-opt2;
+//        dest->setU64(result);
+
+        u8 msbOpt1=u8((opt1>>63)&1);
+        u8 msbOpt2=u8((opt2>>63)&1);
+        u8 msbResult=u8((result>>63)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
 EXECUTE_FUNC(executeAAS)
 {
@@ -578,12 +886,167 @@ EXECUTE_FUNC(executeAAS)
 EXECUTE_FUNC(executeINC)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("INC");
+//    INSTRUCTION_NOT_IMPLEMENT("INC");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        s8 opt1=dest->getS8();
+        s8 opt2=1;
+        s8 result=opt1+opt2;
+        dest->setU8(result);
+
+        u8 msbOpt1=u8((opt1>>7)&1);
+        u8 msbOpt2=u8((opt2>>7)&1);
+        u8 msbResult=u8((result>>7)&1);
+//        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),true,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        s16 opt1=dest->getS16();
+        s16 opt2=1;
+        s16 result=opt1+opt2;
+        dest->setU16(result);
+
+        u8 msbOpt1=u8((opt1>>15)&1);
+        u8 msbOpt2=u8((opt2>>15)&1);
+        u8 msbResult=u8((result>>15)&1);
+//        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),true,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        s32 opt1=dest->getS32();
+        s32 opt2=1;
+        s32 result=opt1+opt2;
+        dest->setU32(result);
+
+        u8 msbOpt1=u8((opt1>>31)&1);
+        u8 msbOpt2=u8((opt2>>31)&1);
+        u8 msbResult=u8((result>>31)&1);
+//        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),true,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        s64 opt1=dest->getS64();
+        s64 opt2=1;
+        s64 result=opt1+opt2;
+        dest->setU64(result);
+
+        u8 msbOpt1=u8((opt1>>63)&1);
+        u8 msbOpt2=u8((opt2>>63)&1);
+        u8 msbResult=u8((result>>63)&1);
+//        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),true,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,true,msbResult);
+        break;
+    }
+    default:
+        assert(0);
+    }
+
 }
 EXECUTE_FUNC(executeDEC)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("DEC");
+//    INSTRUCTION_NOT_IMPLEMENT("DEC");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        s8 opt1=dest->getS8();
+        s8 opt2=1;
+        s8 result=opt1-opt2;
+        dest->setU8(result);
+
+        u8 msbOpt1=u8((opt1>>7)&1);
+        u8 msbOpt2=u8((opt2>>7)&1);
+        u8 msbResult=u8((result>>7)&1);
+//        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        s16 opt1=dest->getS16();
+        s16 opt2=1;
+        s16 result=opt1-opt2;
+        dest->setU16(result);
+
+        u8 msbOpt1=u8((opt1>>15)&1);
+        u8 msbOpt2=u8((opt2>>15)&1);
+        u8 msbResult=u8((result>>15)&1);
+//        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        s32 opt1=dest->getS32();
+        s32 opt2=1;
+        s32 result=opt1-opt2;
+        dest->setU32(result);
+
+        u8 msbOpt1=u8((opt1>>31)&1);
+        u8 msbOpt2=u8((opt2>>31)&1);
+        u8 msbResult=u8((result>>31)&1);
+//        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        s64 opt1=dest->getS64();
+        s64 opt2=1;
+        s64 result=opt1-opt2;
+        dest->setU64(result);
+
+        u8 msbOpt1=u8((opt1>>63)&1);
+        u8 msbOpt2=u8((opt2>>63)&1);
+        u8 msbResult=u8((result>>63)&1);
+//        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
 //0x5
 //0x6
@@ -717,7 +1180,76 @@ EXECUTE_FUNC(executeJNLE)
 EXECUTE_FUNC(executeTEST)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("TEST");
+//    INSTRUCTION_NOT_IMPLEMENT("TEST");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        s8 opt1=dest->getS8();
+        s8 opt2=src->getS8();
+        s8 result=opt1&opt2;
+//        dest->setU8(result);
+
+        u8 msbResult=u8((result>>7)&1);
+        registerFile.getFlagsBits().CF=0;
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        registerFile.getFlagsBits().AF=0;
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        registerFile.getFlagsBits().OF=0;
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        s16 opt1=dest->getS16();
+        s16 opt2=src->getS16();
+        s16 result=opt1&opt2;
+//        dest->setU16(result);
+
+        u8 msbResult=u8((result>>15)&1);
+        registerFile.getFlagsBits().CF=0;
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        registerFile.getFlagsBits().AF=0;
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        registerFile.getFlagsBits().OF=0;
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        s32 opt1=dest->getS32();
+        s32 opt2=src->getS32();
+        s32 result=opt1&opt2;
+//        dest->setU32(result);
+
+        u8 msbResult=u8((result>>31)&1);
+        registerFile.getFlagsBits().CF=0;
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        registerFile.getFlagsBits().AF=0;
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        registerFile.getFlagsBits().OF=0;
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        s64 opt1=dest->getS64();
+        s64 opt2=src->getS64();
+        s64 result=opt1&opt2;
+//        dest->setU64(result);
+
+        u8 msbResult=u8((result>>63)&1);
+        registerFile.getFlagsBits().CF=0;
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        registerFile.getFlagsBits().AF=0;
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        registerFile.getFlagsBits().OF=0;
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
 EXECUTE_FUNC(executeXCHG)
 {
@@ -829,44 +1361,468 @@ EXECUTE_FUNC(executeSCASWDQ)
 //0xb
 //0xc
 //group2
+template <typename T>
+inline void ROL(FlagsBits& flags,T& value,u8 count)
+{
+    if(sizeof(T)==8)
+        count&=0x3f;
+    else
+        count&=0x1f;
+    u8 CF=0;
+    u8 OF=0;
+    for(int i=0; i<count; i++)
+    {
+        CF=(value>>(sizeof(T)*8-1))&0x1;
+        value<<=1;
+        value|=CF;
+    }
+    OF=((value>>(sizeof(T)*8-1))&0x1)^CF;
+
+    if(count!=0)
+    {
+        flags.CF=CF;
+        flags.OF=OF;
+    }
+}
 EXECUTE_FUNC(executeROL)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("ROL");
+//    INSTRUCTION_NOT_IMPLEMENT("ROL");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        u8 value=dest->getU8();
+        u8 count=src->getU8();
+        ROL(registerFile.getFlagsBits(),value,count);
+        dest->setU8(value);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        u16 value=dest->getU16();
+        u8 count=src->getU8();
+        ROL(registerFile.getFlagsBits(),value,count);
+        dest->setU16(value);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        u32 value=dest->getU32();
+        u8 count=src->getU8();
+        ROL(registerFile.getFlagsBits(),value,count);
+        dest->setU32(value);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        u64 value=dest->getU64();
+        u8 count=src->getU8();
+        ROL(registerFile.getFlagsBits(),value,count);
+        dest->setU64(value);
+        break;
+    }
+    default:
+        assert(0);
+    }
+
+}
+template <typename T>
+inline void ROR(FlagsBits& flags,T& value,u8 count)
+{
+    if(sizeof(T)==8)
+        count&=0x3f;
+    else
+        count&=0x1f;
+    u8 CF=0;
+    u8 OF=0;
+    for(int i=0; i<count; i++)
+    {
+        CF=(value)&0x1;
+        value>>=1;
+        value|=(T(CF)<<(sizeof(T)*8-1));
+    }
+    OF=((value>>(sizeof(T)*8-1))&0x1)^((value>>(sizeof(T)*8-2))&0x1);
+
+    if(count!=0)
+    {
+        flags.CF=CF;
+        flags.OF=OF;
+    }
 }
 EXECUTE_FUNC(executeROR)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("ROR");
+//    INSTRUCTION_NOT_IMPLEMENT("ROR");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        u8 value=dest->getU8();
+        u8 count=src->getU8();
+        ROR(registerFile.getFlagsBits(),value,count);
+        dest->setU8(value);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        u16 value=dest->getU16();
+        u8 count=src->getU8();
+        ROR(registerFile.getFlagsBits(),value,count);
+        dest->setU16(value);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        u32 value=dest->getU32();
+        u8 count=src->getU8();
+        ROR(registerFile.getFlagsBits(),value,count);
+        dest->setU32(value);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        u64 value=dest->getU64();
+        u8 count=src->getU8();
+        ROR(registerFile.getFlagsBits(),value,count);
+        dest->setU64(value);
+        break;
+    }
+    default:
+        assert(0);
+    }
+}
+template <typename T>
+inline void RCL(FlagsBits& flags,T& value,u8 count)
+{
+    if(sizeof(T)==8)
+        count&=0x3f;
+    else
+        count&=0x1f;
+    u8 CF=flags.CF;
+    u8 OF=0;
+    for(int i=0; i<count; i++)
+    {
+        u8 tempCF=(value>>(sizeof(T)*8-1))&0x1;
+        value<<=1;
+        value|=CF;
+        CF=tempCF;
+    }
+    OF=((value>>(sizeof(T)*8-1))&0x1)^CF;
+
+    if(count!=0)
+    {
+        flags.CF=CF;
+        flags.OF=OF;
+    }
 }
 EXECUTE_FUNC(executeRCL)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("RCL");
+//    INSTRUCTION_NOT_IMPLEMENT("RCL");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        u8 value=dest->getU8();
+        u8 count=src->getU8();
+        RCL(registerFile.getFlagsBits(),value,count);
+        dest->setU8(value);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        u16 value=dest->getU16();
+        u8 count=src->getU8();
+        RCL(registerFile.getFlagsBits(),value,count);
+        dest->setU16(value);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        u32 value=dest->getU32();
+        u8 count=src->getU8();
+        RCL(registerFile.getFlagsBits(),value,count);
+        dest->setU32(value);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        u64 value=dest->getU64();
+        u8 count=src->getU8();
+        RCL(registerFile.getFlagsBits(),value,count);
+        dest->setU64(value);
+        break;
+    }
+    default:
+        assert(0);
+    }
+}
+template <typename T>
+inline void RCR(FlagsBits& flags,T& value,u8 count)
+{
+    if(sizeof(T)==8)
+        count&=0x3f;
+    else
+        count&=0x1f;
+    u8 CF=flags.CF;
+    u8 OF=0;
+    OF=((value>>(sizeof(T)*8-1))&0x1)^CF;
+    for(int i=0; i<count; i++)
+    {
+        u8 tempCF=(value)&0x1;
+        value>>=1;
+        value|=(T(CF)<<(sizeof(T)*8-1));
+        CF=tempCF;
+    }
+
+    if(count!=0)
+    {
+        flags.CF=CF;
+        flags.OF=OF;
+    }
 }
 EXECUTE_FUNC(executeRCR)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("RCR");
+//    INSTRUCTION_NOT_IMPLEMENT("RCR");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        u8 value=dest->getU8();
+        u8 count=src->getU8();
+        RCR(registerFile.getFlagsBits(),value,count);
+        dest->setU8(value);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        u16 value=dest->getU16();
+        u8 count=src->getU8();
+        RCR(registerFile.getFlagsBits(),value,count);
+        dest->setU16(value);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        u32 value=dest->getU32();
+        u8 count=src->getU8();
+        RCR(registerFile.getFlagsBits(),value,count);
+        dest->setU32(value);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        u64 value=dest->getU64();
+        u8 count=src->getU8();
+        RCR(registerFile.getFlagsBits(),value,count);
+        dest->setU64(value);
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
 //EXECUTE_FUNC(executeSHL_SAL)
 //{
 
 //}
+template <typename T>
+inline void SHR(FlagsBits& flags,T& value,u8 count)
+{
+    if(sizeof(T)==8)
+        count&=0x3f;
+    else
+        count&=0x1f;
+    u8 CF=0;
+    u8 OF=0;
+    OF=((value>>(sizeof(T)*8-1))&0x1);
+    for(int i=0; i<count; i++)
+    {
+        CF=(value)&0x1;
+        value>>=1;
+    }
+
+    if(count!=0)
+    {
+        flags.CF=CF;
+        flags.OF=OF;
+    }
+}
 EXECUTE_FUNC(executeSHR)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("SHR");
+//    INSTRUCTION_NOT_IMPLEMENT("SHR");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        u8 value=dest->getU8();
+        u8 count=src->getU8();
+        SHR(registerFile.getFlagsBits(),value,count);
+        dest->setU8(value);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        u16 value=dest->getU16();
+        u8 count=src->getU8();
+        SHR(registerFile.getFlagsBits(),value,count);
+        dest->setU16(value);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        u32 value=dest->getU32();
+        u8 count=src->getU8();
+        SHR(registerFile.getFlagsBits(),value,count);
+        dest->setU32(value);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        u64 value=dest->getU64();
+        u8 count=src->getU8();
+        SHR(registerFile.getFlagsBits(),value,count);
+        dest->setU64(value);
+        break;
+    }
+    default:
+        assert(0);
+    }
+}
+template <typename T>
+inline void SHL_SAL(FlagsBits& flags,T& value,u8 count)
+{
+    if(sizeof(T)==8)
+        count&=0x3f;
+    else
+        count&=0x1f;
+    u8 CF=0;
+    u8 OF=0;
+    for(int i=0; i<count; i++)
+    {
+        CF=(value>>(sizeof(T)*8-1))&0x1;
+        value<<=1;
+//        value|=CF;
+//        CF=tempCF;
+    }
+    OF=((value>>(sizeof(T)*8-1))&0x1)^CF;
+
+    if(count!=0)
+    {
+        flags.CF=CF;
+        flags.OF=OF;
+    }
 }
 EXECUTE_FUNC(executeSHL_SAL)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("SAL");
+//    INSTRUCTION_NOT_IMPLEMENT("SAL");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        u8 value=dest->getU8();
+        u8 count=src->getU8();
+        SHL_SAL(registerFile.getFlagsBits(),value,count);
+        dest->setU8(value);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        u16 value=dest->getU16();
+        u8 count=src->getU8();
+        SHL_SAL(registerFile.getFlagsBits(),value,count);
+        dest->setU16(value);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        u32 value=dest->getU32();
+        u8 count=src->getU8();
+        SHL_SAL(registerFile.getFlagsBits(),value,count);
+        dest->setU32(value);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        u64 value=dest->getU64();
+        u8 count=src->getU8();
+        SHL_SAL(registerFile.getFlagsBits(),value,count);
+        dest->setU64(value);
+        break;
+    }
+    default:
+        assert(0);
+    }
+}
+template <typename T>
+inline void SAR(FlagsBits& flags,T& value,u8 count)
+{
+    if(sizeof(T)==8)
+        count&=0x3f;
+    else
+        count&=0x1f;
+    u8 CF=0;
+    u8 OF=0;
+//    OF=((value>>(sizeof(T)*8-1))&0x1);
+    for(int i=0; i<count; i++)
+    {
+        CF=(value)&0x1;
+        u8 msb=((value>>(sizeof(T)*8-1))&0x1);
+        value>>=1;
+        value|=T(msb)<<(sizeof(T)*8-1);
+    }
+
+    if(count!=0)
+    {
+        flags.CF=CF;
+        flags.OF=OF;
+    }
 }
 EXECUTE_FUNC(executeSAR)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("SAR");
+//    INSTRUCTION_NOT_IMPLEMENT("SAR");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        u8 value=dest->getU8();
+        u8 count=src->getU8();
+        SAR(registerFile.getFlagsBits(),value,count);
+        dest->setU8(value);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        u16 value=dest->getU16();
+        u8 count=src->getU8();
+        SAR(registerFile.getFlagsBits(),value,count);
+        dest->setU16(value);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        u32 value=dest->getU32();
+        u8 count=src->getU8();
+        SAR(registerFile.getFlagsBits(),value,count);
+        dest->setU32(value);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        u64 value=dest->getU64();
+        u8 count=src->getU8();
+        SAR(registerFile.getFlagsBits(),value,count);
+        dest->setU64(value);
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
 EXECUTE_FUNC(executeRETNEAR)//only this one.
 {
@@ -1008,12 +1964,106 @@ EXECUTE_FUNC(executeCMC)
 EXECUTE_FUNC(executeNOT)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("NOT");
+//    INSTRUCTION_NOT_IMPLEMENT("NOT");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+        dest->setU8(~dest->getS8());
+        break;
+    case DATA_SIZE_WORD:
+        dest->setU16(~dest->getS16());
+        break;
+    case DATA_SIZE_DWORD:
+        dest->setU32(~dest->getS32());
+        break;
+    case DATA_SIZE_QWORD:
+        dest->setU64(~dest->getS64());
+        break;
+    default:
+        assert(0);
+    }
 }
 EXECUTE_FUNC(executeNEG)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("NEG");
+//    INSTRUCTION_NOT_IMPLEMENT("NEG");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        s8 opt1=0;
+        s8 opt2=dest->getS8();
+        s8 result=opt1-opt2;
+        dest->setU8(result);
+
+        u8 msbOpt1=u8((opt1>>7)&1);
+        u8 msbOpt2=u8((opt2>>7)&1);
+        u8 msbResult=u8((result>>7)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        s16 opt1=0;
+        s16 opt2=dest->getS16();
+        s16 result=opt1-opt2;
+        dest->setU16(result);
+
+        u8 msbOpt1=u8((opt1>>15)&1);
+        u8 msbOpt2=u8((opt2>>15)&1);
+        u8 msbResult=u8((result>>15)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        s32 opt1=0;
+        s32 opt2=dest->getS32();
+        s32 result=opt1-opt2;
+        dest->setU32(result);
+
+        u8 msbOpt1=u8((opt1>>31)&1);
+        u8 msbOpt2=u8((opt2>>31)&1);
+        u8 msbResult=u8((result>>31)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        s64 opt1=0;
+        s64 opt2=dest->getS64();
+        s64 result=opt1-opt2;
+        dest->setU64(result);
+
+        u8 msbOpt1=u8((opt1>>63)&1);
+        u8 msbOpt2=u8((opt2>>63)&1);
+        u8 msbResult=u8((result>>63)&1);
+        setCarryFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+        setAuxiliaryCarryFlag(registerFile.getFlagsBits(),u8((opt1>>3)&1),u8((opt2>>3)&1),false,u8((result>>3)&1));
+        setZeroFlag(registerFile.getFlagsBits(),result);
+        setSignFlag(registerFile.getFlagsBits(),msbResult);
+        setOverflowFlag(registerFile.getFlagsBits(),msbOpt1,msbOpt2,false,msbResult);
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
 EXECUTE_FUNC(executeMUL1)
 {
