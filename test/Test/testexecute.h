@@ -16,6 +16,11 @@ signals:
 
 private slots:
     void testADD();
+    void testPOP();
+    void testPUSH();
+    void testOR();
+    void testAND();
+    void testXOR();
 private:
     void fillRegisterFile(RegisterFile& registerFile);
 };

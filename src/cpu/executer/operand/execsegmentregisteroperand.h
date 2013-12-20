@@ -12,7 +12,8 @@ public:
     }
     virtual void prepareReadSigned()
     {
-        assert(0);
+//        assert(0);
+        _sValue = _file.getSR(_segmentRegister);
     }
     virtual void prepareReadUnsigned()
     {
@@ -26,6 +27,7 @@ public:
     virtual void setU16(u16 value)
     {
         _file.setSR(_segmentRegister,value);
+        _file.setSSR(_segmentRegister,value<<4);//if mode=16bits.
     }
     virtual void setU32(u32 value)
     {
