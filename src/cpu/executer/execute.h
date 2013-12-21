@@ -6,8 +6,9 @@
 #include "memory/memory.h"
 #include "io/ioportlist.h"
 #define EXECUTE_FUNC(funcName) void funcName(OperatingEnvironment operatingEnvironment,\
-    EffectiveSize effectiveAddressSize,ExecReadWriteOperand* dest,ExecReadOperand* src, \
-    ExecReadOperand* src2,RegisterFile& registerFile,Memory& memory,IOPortList& ioPortList)
+    EffectiveSize effectiveAddressSize,EffectiveSize effectiveOperandSize,\
+    ExecReadWriteOperand* dest,ExecReadOperand* src,ExecReadOperand* src2,\
+    RegisterFile& registerFile,Memory& memory,IOPortList& ioPortList)
 
 //typedef void (*ExecuteFunc)(EffectiveSize dataSize,ExecReadWriteOperand* dest,ExecReadOperand* src,
 //                            ExecReadOperand* src2,RegisterFile& registerFile,Memory& memory);

@@ -1,6 +1,8 @@
 #ifndef FLAGS_H
 #define FLAGS_H
 #include "type.h"
+#include <string>
+#include <sstream>
 
 struct FlagsBits
 {
@@ -25,6 +27,29 @@ struct FlagsBits
     u32 VIF:1;//19
     u32 VIP:1;//20
     u32 ID:1;//21
+    std::string toString()
+    {
+        std::ostringstream stream;
+        stream<<"CF:"<<CF<<" ";
+        stream<<"PF:"<<PF<<" ";
+        stream<<"AF:"<<AF<<" ";
+        stream<<"ZF:"<<ZF<<" ";
+        stream<<"SF:"<<SF<<" ";
+        stream<<"TF:"<<TF<<" ";
+        stream<<"IF:"<<IF<<" ";
+        stream<<"DF:"<<DF<<std::endl;
+        stream<<"OF:"<<OF<<" ";
+        stream<<"IOPL:"<<IOPL<<" ";
+        stream<<"NT:"<<NT<<" ";
+        stream<<"RF:"<<RF<<" ";
+        stream<<"VM:"<<VM<<" ";
+        stream<<"AC:"<<AC<<" ";
+        stream<<"VIF:"<<VIF<<" ";
+        stream<<"VIP:"<<VIP<<" ";
+        stream<<"ID:"<<ID<<std::endl;
+
+        return stream.str();
+    }
 };
 union Flags
 {

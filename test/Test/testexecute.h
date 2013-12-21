@@ -64,6 +64,10 @@ private slots:
     EXECUTE_FUNC(executeJNLE);
     */
     void testJx();
+    void testJRCXZ();
+    void testLOOP();
+    void testIN();
+    void testOUT();
 private:
     void fillRegisterFile(RegisterFile& registerFile);
 };

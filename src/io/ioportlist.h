@@ -34,6 +34,7 @@ public:
         {
             std::cerr<<"Error:"<<"Didn't implement port:"<<portNumber
                     <<" try to write value:"<<value<<std::endl;
+            std::cerr<<_registerFile.toString();
             ::exit(-1);
         }
     }
@@ -46,6 +47,7 @@ public:
         {
             std::cerr<<"Error:"<<"Didn't implement port:"<<portNumber
                     <<" try to read"<<std::endl;
+            std::cerr<<_registerFile.toString();
             ::exit(-1);
         }
     }

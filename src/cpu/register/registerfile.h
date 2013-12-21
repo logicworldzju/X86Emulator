@@ -7,13 +7,51 @@
 #include <assert.h>
 #include <string.h>
 #include "cpu/cputype.h"
+#include <string>
+#include <sstream>
 class RegisterFile
 {
 public:
     RegisterFile()
     {
-        ::memset(_sementRegisters,0,sizeof(_sementRegisters));
+        ::memset(_segmentRegisters,0,sizeof(_segmentRegisters));
         _ip=0;
+    }
+    std::string toString()
+    {
+        std::ostringstream stream;
+        //------------GPRegister------------
+        const char*gpregisterName[]={"RAX","RCX","RDX","RBX","RSP","RBP","RSI","RDI",
+                             "R8","R9","R10","R11","R12","R13","R14","R15"};
+        stream<<std::hex;
+        stream.fill('0');
+
+        for(int i=0; i<16; i++)
+        {
+            stream<<gpregisterName[i]<<":";
+            stream.width(16);
+            stream<<_gpRegisters[i].get64Bits()<<"h ";
+            if(i%4==3) stream<<std::endl;
+        }
+        //----------SegmentRegister---------
+        const char* segmentRegisterName[]={"ES","CS","SS","DS","FS","GS"};
+        for(int i=0; i<6; i++)
+        {
+            stream<<segmentRegisterName[i]<<":";
+            stream.width(4);
+            stream<<_segmentRegisters[i]<<"h ";
+//            if(i%3==2) stream<<std::endl;
+        }
+        stream<<std::endl;
+        //--------------IP------------------
+
+        stream<<"IP:";
+        stream.width(8);
+        stream<<_ip<<"h"<<std::endl;
+        //-------------flags----------------
+        stream<<_flags.flagBits.toString();
+
+        return stream.str();
     }
     //--------------------General Purpose Instruction---------
     //------General Purpose registers.---------
@@ -95,12 +133,12 @@ public:
     u16 getSR(u8 index)
     {
         assert(index<6);
-        return _sementRegisters[index];
+        return _segmentRegisters[index];
     }
     void setSR(u8 index,u16 value)
     {
         assert(index<6);
-        _sementRegisters[index]=value;
+        _segmentRegisters[index]=value;
     }
 	//segment shadow register.
 	u32 getSSR(u8 index)
@@ -153,7 +191,7 @@ public:
     //----------------X87 Floating-point Instructions----------
 protected:
     GPRegisterClass _gpRegisters[16];
-    u16 _sementRegisters[6];
+    u16 _segmentRegisters[6];
 	u32 _segmentShadowRegisters[6];
     u32 _ip;
     Flags _flags;

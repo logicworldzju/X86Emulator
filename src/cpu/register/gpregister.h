@@ -64,7 +64,7 @@ public:
         u64 result=0;
         for(int i=7; i>=0; i--)
         {
-            result=(result+_reg[i])<<8;
+            result=((result<<8)+_reg[i]);
         }
         return result;
     }
