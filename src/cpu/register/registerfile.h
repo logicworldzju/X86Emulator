@@ -174,6 +174,10 @@ public:
     {
         return (u16)_flags.flags32Bits;
     }
+    u8 getFlags8Bits()
+    {
+        return (u8)_flags.flags32Bits;
+    }
     void setFlags32Bits(u32 flags)
     {
         _flags.flags32Bits=flags;
@@ -181,6 +185,10 @@ public:
     void setFlags16Bits(u16 flags)
     {
         _flags.flags32Bits=(_flags.flags32Bits&0xffff0000)|flags;
+    }
+    void setFlags8Bits(u8 flags)
+    {
+        _flags.flags32Bits=(_flags.flags32Bits&0xffffff00)|flags;
     }
     //---------------Control Registers--------
     //---------------Debug Registers----------

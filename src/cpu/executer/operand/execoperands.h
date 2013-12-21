@@ -22,11 +22,11 @@ public:
 	{
 		return _dest;
 	}
-    ExecReadOperand* getSrc()
+    ExecReadWriteOperand* getSrc()
 	{
 		return _src;
 	}
-    ExecReadOperand* getSrc2()
+    ExecReadWriteOperand* getSrc2()
 	{
 		return _src2;
 	}
@@ -35,20 +35,20 @@ public:
 		assert(dest);
 		_dest=dest;
 	}
-	void setSrc(ExecReadOperand* src)
+    void setSrc(ExecReadWriteOperand* src)
 	{
 		assert(src);
 		_src=src;
 	}
-	void setSrc2(ExecReadOperand* src2)
+    void setSrc2(ExecReadWriteOperand* src2)
 	{
 		assert(src2);
 		_src2=src2;
 	}
 protected:
 	ExecReadWriteOperand* _dest;
-	ExecReadOperand* _src;
-	ExecReadOperand* _src2;
+    ExecReadWriteOperand* _src;
+    ExecReadWriteOperand* _src2;
 };
 
 #endif // EXECOPERANDS_H

@@ -68,6 +68,18 @@ private slots:
     void testLOOP();
     void testIN();
     void testOUT();
+    void testIMUL3();
+    void testIMUL1();
+    void testMUL();
+    void testIDIV();
+    void testDIV();
+    void testXCHG();
+    void testMove();
+    void testLEA();
+    void testCBW();
+    void testCWD();
+    void testSAHF();
+    void testLAHF();
 private:
     void fillRegisterFile(RegisterFile& registerFile);
 };

@@ -1,6 +1,7 @@
 #include "execute.h"
 #include <iostream>
 #include <stdlib.h>
+#include "cpu/executer/operand/execmemoryoperand.h"
 //---------------------------Set Flags Function----------------------------------
 inline u8 getCarryFlag(u8 msbOpt1,u8 msbOpt2,bool isPlus,u8 msbResult)
 {
@@ -1073,7 +1074,53 @@ EXECUTE_FUNC(executeARPL)
 EXECUTE_FUNC(executeIMUL3) //IMUL with 3 operands.
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("IMUL3");
+//    INSTRUCTION_NOT_IMPLEMENT("IMUL3");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_WORD:
+    {
+        s32 a=src->getS16();
+        s32 b=src2->getS16();
+        s32 c=a*b;
+        s16 result=c&0xffff;
+        dest->setU16(result);
+        if(result==c)
+        {
+           registerFile.getFlagsBits().OF=0;
+           registerFile.getFlagsBits().CF=0;
+        }
+        else
+        {
+            registerFile.getFlagsBits().OF=1;
+            registerFile.getFlagsBits().CF=1;
+        }
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        s64 a=src->getS32();
+        s64 b=src2->getS32();
+        s64 c=a*b;
+        s32 result=c&0xffffffff;
+        dest->setU32(result);
+        if(result==c)
+        {
+           registerFile.getFlagsBits().OF=0;
+           registerFile.getFlagsBits().CF=0;
+        }
+        else
+        {
+            registerFile.getFlagsBits().OF=1;
+            registerFile.getFlagsBits().CF=1;
+        }
+        break;
+    }
+    case DATA_SIZE_QWORD:
+        assert(0);
+        break;
+    default:
+        assert(0);
+    }
 }
 EXECUTE_FUNC(executeINSB)
 {
@@ -1085,7 +1132,7 @@ EXECUTE_FUNC(executeINSWD)
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("INSWD");
 }
-EXECUTE_FUNC(executeOUTB)
+EXECUTE_FUNC(executeOUTSB)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("OUTB");
@@ -1340,29 +1387,162 @@ EXECUTE_FUNC(executeTEST)
 }
 EXECUTE_FUNC(executeXCHG)
 {
+    //!@todo There is a problem when opcode=90 in 64bits mode.see amd64 manual xchg.
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("XCHG");
+//    INSTRUCTION_NOT_IMPLEMENT("XCHG");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        u8 temp=dest->getU8();
+        dest->setU8(src->getU8());
+        src->setU8(temp);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        u16 temp=dest->getU16();
+        dest->setU16(src->getU16());
+        src->setU16(temp);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        u32 temp=dest->getU32();
+        dest->setU32(src->getU32());
+        src->setU32(temp);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        u64 temp=dest->getU64();
+        dest->setU64(src->getU64());
+        src->setU64(temp);
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
 EXECUTE_FUNC(executeMOVE)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("MOVE");
+//    INSTRUCTION_NOT_IMPLEMENT("MOVE");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+        dest->setU8(src->getU8());
+        break;
+    case DATA_SIZE_WORD:
+        dest->setU16(src->getU16());
+        break;
+    case DATA_SIZE_DWORD:
+        dest->setU32(src->getU32());
+        break;
+    case DATA_SIZE_QWORD:
+        dest->setU64(src->getU64());
+        break;
+    default:
+        assert(0);
+    }
 }
 EXECUTE_FUNC(executeLEA)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("LEA");
+//    INSTRUCTION_NOT_IMPLEMENT("LEA");
+    ExecMemoryOperand* memorySrc=dynamic_cast<ExecMemoryOperand*>(src);
+    assert(memorySrc);
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_WORD:
+        dest->setU16(memorySrc->getOffset());
+        break;
+    case DATA_SIZE_DWORD:
+        dest->setU32(memorySrc->getOffset());
+        break;
+    case DATA_SIZE_QWORD:
+        dest->setU64(memorySrc->getOffset());
+        break;
+    default:
+        assert(0);
+    }
 }
 //0x9
 EXECUTE_FUNC(executeCBW_CWDE_CDQE)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("CBW_CWDE_CDQE");
+//    INSTRUCTION_NOT_IMPLEMENT("CBW_CWDE_CDQE");
+    switch(effectiveOperandSize)
+    {
+    case EFFECTIVE_16_BITS:
+    {
+        s8 al=s8(registerFile.getGPR8Bits(RAX));
+        s16 ax=al;
+        registerFile.setGPR16Bits(RAX,ax);
+        break;
+    }
+    case EFFECTIVE_32_BITS:
+    {
+        s16 ax=s16(registerFile.getGPR16Bits(RAX));
+        s32 eax=ax;
+        registerFile.setGPR32Bits(RAX,eax);
+        break;
+    }
+    case EFFECTIVE_64_BITS:
+    {
+        s32 eax=s32(registerFile.getGPR32Bits(RAX));
+        s64 rax=eax;
+        registerFile.setGPR64Bits(RAX,rax);
+        break;
+    }
+    }
 }
 EXECUTE_FUNC(executeCWD_CDQ_CQO)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("CWD_CDQ_CQO");
+//    INSTRUCTION_NOT_IMPLEMENT("CWD_CDQ_CQO");
+    switch(effectiveOperandSize)
+    {
+    case EFFECTIVE_16_BITS:
+    {
+        s16 ax=registerFile.getGPR16Bits(RAX);
+        if(ax<0)
+        {
+            registerFile.setGPR16Bits(RDX,0xffff);
+        }
+        else
+        {
+            registerFile.setGPR16Bits(RDX,0x0000);
+        }
+        break;
+    }
+    case EFFECTIVE_32_BITS:
+    {
+        s32 eax=registerFile.getGPR32Bits(RAX);
+        if(eax<0)
+        {
+            registerFile.setGPR32Bits(RDX,0xffffffff);
+        }
+        else
+        {
+            registerFile.setGPR32Bits(RDX,0x00000000);
+        }
+        break;
+    }
+    case EFFECTIVE_64_BITS:
+    {
+        s64 rax=registerFile.getGPR64Bits(RAX);
+        if(rax<0)
+        {
+            registerFile.setGPR64Bits(RDX,0xffffffffffffffffL);
+        }
+        else
+        {
+            registerFile.setGPR64Bits(RDX,0x0000L);
+        }
+        break;
+    }
+    }
 }
 EXECUTE_FUNC(executeCALL_Ap)
 {
@@ -1387,12 +1567,14 @@ EXECUTE_FUNC(executePOPFDQ)
 EXECUTE_FUNC(executeSAHF)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("SAHF");
+//    INSTRUCTION_NOT_IMPLEMENT("SAHF");
+    registerFile.setFlags8Bits(registerFile.getGPR8BitsHigh(RAX));
 }
 EXECUTE_FUNC(executeLAHF)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("LAHF");
+//    INSTRUCTION_NOT_IMPLEMENT("LAHF");
+    registerFile.setGPR8BitsHigh(RAX,registerFile.getFlags8Bits());
 }
 //0xa
 EXECUTE_FUNC(executeMOVSB)
@@ -2122,54 +2304,50 @@ EXECUTE_FUNC(executeOUT)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("OUT");
-//    switch(src->getSize())
-//    {
-//    case DATA_SIZE_BYTE:
-//        ioPortList.write2Port(dest->getU16(),src->getU8());
-//        break;
-//    case DATA_SIZE_WORD:
-//        ioPortList.write2Port(dest->getU16(),src->getU16());
-//        break;
-//    case DATA_SIZE_DWORD:
     ioPortList.write2Port(dest->getU16(),src->getU32());
-//        break;
-//    default:
-//        assert(0);
-//    }
 }
+
 EXECUTE_FUNC(executeCALL_Jz)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("CALL_Jz");
 }
+
 EXECUTE_FUNC(executeJMP_J)//includes Jz & Jb
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JMP_J");
     JUMP(effectiveOperandSize,dest,registerFile);
 }
+
 EXECUTE_FUNC(executeJMP_p)//includes Mp or Ap
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("JMP_p");
 }
+
 //0xf
+
 EXECUTE_FUNC(executeINT1)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("INT1");
 }
+
 EXECUTE_FUNC(executeHLT)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("HLT");
 }
+
 EXECUTE_FUNC(executeCMC)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("CMC");
 }
+
 //group 3
+
 EXECUTE_FUNC(executeNOT)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
@@ -2192,6 +2370,7 @@ EXECUTE_FUNC(executeNOT)
         assert(0);
     }
 }
+
 EXECUTE_FUNC(executeNEG)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
@@ -2274,58 +2453,298 @@ EXECUTE_FUNC(executeNEG)
         assert(0);
     }
 }
+
 EXECUTE_FUNC(executeMUL1)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("MUL1");
+//    INSTRUCTION_NOT_IMPLEMENT("MUL1");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        u16 a=u8(registerFile.getGPR8Bits(RAX));
+        u16 b=dest->getU8();
+        u16 c=a*b;
+        u8 result=c&0xff;
+        registerFile.setGPR16Bits(RAX,c);
+        if(result==c)
+        {
+           registerFile.getFlagsBits().OF=0;
+           registerFile.getFlagsBits().CF=0;
+        }
+        else
+        {
+            registerFile.getFlagsBits().OF=1;
+            registerFile.getFlagsBits().CF=1;
+        }
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        u32 a=u16(registerFile.getGPR16Bits(RAX));
+        u32 b=dest->getU16();
+        u32 c=a*b;
+        u16 result=c&0xffff;
+
+        registerFile.setGPR16Bits(RAX,c&0xffff);
+        registerFile.setGPR16Bits(RDX,(c>>16)&0xffff);
+        if(result==c)
+        {
+           registerFile.getFlagsBits().OF=0;
+           registerFile.getFlagsBits().CF=0;
+        }
+        else
+        {
+            registerFile.getFlagsBits().OF=1;
+            registerFile.getFlagsBits().CF=1;
+        }
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        u64 a=u32(registerFile.getGPR32Bits(RAX));
+        u64 b=dest->getU32();
+        u64 c=a*b;
+        u32 result=c&0xffffffff;
+//        dest->setU32(result);
+        registerFile.setGPR32Bits(RAX,c&0xffffffff);
+        registerFile.setGPR32Bits(RDX,(c>>32)&0xffffffff);
+        if(result==c)
+        {
+           registerFile.getFlagsBits().OF=0;
+           registerFile.getFlagsBits().CF=0;
+        }
+        else
+        {
+            registerFile.getFlagsBits().OF=1;
+            registerFile.getFlagsBits().CF=1;
+        }
+        break;
+    }
+    case DATA_SIZE_QWORD:
+        assert(0);
+        break;
+    default:
+        assert(0);
+    }
 }
+
 EXECUTE_FUNC(executeIMUL1)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("IMUL1");
+//    INSTRUCTION_NOT_IMPLEMENT("IMUL1");
 
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        s16 a=s8(registerFile.getGPR8Bits(RAX));
+        s16 b=dest->getS8();
+        s16 c=a*b;
+        s8 result=c&0xff;
+        registerFile.setGPR16Bits(RAX,c);
+        if(result==c)
+        {
+           registerFile.getFlagsBits().OF=0;
+           registerFile.getFlagsBits().CF=0;
+        }
+        else
+        {
+            registerFile.getFlagsBits().OF=1;
+            registerFile.getFlagsBits().CF=1;
+        }
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        s32 a=s16(registerFile.getGPR16Bits(RAX));
+        s32 b=dest->getS16();
+        s32 c=a*b;
+        s16 result=c&0xffff;
+
+        registerFile.setGPR16Bits(RAX,c&0xffff);
+        registerFile.setGPR16Bits(RDX,(c>>16)&0xffff);
+        if(result==c)
+        {
+           registerFile.getFlagsBits().OF=0;
+           registerFile.getFlagsBits().CF=0;
+        }
+        else
+        {
+            registerFile.getFlagsBits().OF=1;
+            registerFile.getFlagsBits().CF=1;
+        }
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        s64 a=s32(registerFile.getGPR32Bits(RAX));
+        s64 b=dest->getS32();
+        s64 c=a*b;
+        s32 result=c&0xffffffff;
+//        dest->setU32(result);
+        registerFile.setGPR32Bits(RAX,c&0xffffffff);
+        registerFile.setGPR32Bits(RDX,(c>>32)&0xffffffff);
+        if(result==c)
+        {
+           registerFile.getFlagsBits().OF=0;
+           registerFile.getFlagsBits().CF=0;
+        }
+        else
+        {
+            registerFile.getFlagsBits().OF=1;
+            registerFile.getFlagsBits().CF=1;
+        }
+        break;
+    }
+    case DATA_SIZE_QWORD:
+        assert(0);
+        break;
+    default:
+        assert(0);
+    }
 }
+
 EXECUTE_FUNC(executeDIV1)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("DIV1");
+//    INSTRUCTION_NOT_IMPLEMENT("DIV1");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        u16 dividend=registerFile.getGPR16Bits(RAX);
+        u8 divisor=dest->getU8();
+        if(divisor==0)
+        {
+            assert(0);
+        }
+        u8 quotient=dividend/divisor;
+        u8 remainder=dividend%divisor;
+        registerFile.setGPR8BitsLow(RAX,quotient);
+        registerFile.setGPR8BitsHigh(RAX,remainder);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        u32 dividend=(u32(registerFile.getGPR16Bits(RDX))<<16)|registerFile.getGPR16Bits(RAX);
+        u16 divisor=dest->getU16();
+        if(divisor==0)
+        {
+            assert(0);
+        }
+        u16 quotient=dividend/divisor;
+        u16 remainder=dividend%divisor;
+        registerFile.setGPR16Bits(RAX,quotient);
+        registerFile.setGPR16Bits(RDX,remainder);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        u64 dividend=(u64(registerFile.getGPR32Bits(RDX))<<32)|registerFile.getGPR32Bits(RAX);
+        u32 divisor=dest->getU32();
+        if(divisor==0)
+        {
+            assert(0);
+        }
+        u32 quotient=dividend/divisor;
+        u32 remainder=dividend%divisor;
+        registerFile.setGPR32Bits(RAX,quotient);
+        registerFile.setGPR32Bits(RDX,remainder);
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
+
 EXECUTE_FUNC(executeIDIV1)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("IDIV1");
+//    INSTRUCTION_NOT_IMPLEMENT("IDIV1");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+    {
+        s16 dividend=s16(registerFile.getGPR16Bits(RAX));
+        s8 divisor=dest->getS8();
+        if(divisor==0)
+        {
+            assert(0);
+        }
+        s8 quotient=dividend/divisor;
+        s8 remainder=dividend%divisor;
+        registerFile.setGPR8BitsLow(RAX,quotient);
+        registerFile.setGPR8BitsHigh(RAX,remainder);
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        s32 dividend=s32((u32(registerFile.getGPR16Bits(RDX))<<16)|registerFile.getGPR16Bits(RAX));
+        s16 divisor=dest->getS16();
+        if(divisor==0)
+        {
+            assert(0);
+        }
+        s16 quotient=dividend/divisor;
+        s16 remainder=dividend%divisor;
+        registerFile.setGPR16Bits(RAX,quotient);
+        registerFile.setGPR16Bits(RDX,remainder);
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        s64 dividend=s64((u64(registerFile.getGPR32Bits(RDX))<<32)|registerFile.getGPR32Bits(RAX));
+        s32 divisor=dest->getS32();
+        if(divisor==0)
+        {
+            assert(0);
+        }
+        s32 quotient=dividend/divisor;
+        s32 remainder=dividend%divisor;
+        registerFile.setGPR32Bits(RAX,quotient);
+        registerFile.setGPR32Bits(RDX,remainder);
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
-
 EXECUTE_FUNC(executeCLC)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     registerFile.getFlagsBits().CF=0;
 //    INSTRUCTION_NOT_IMPLEMENT("CLC");
 }
+
 EXECUTE_FUNC(executeSTC)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     registerFile.getFlagsBits().CF=1;
 //    INSTRUCTION_NOT_IMPLEMENT("STC");
 }
+
 EXECUTE_FUNC(executeCLI)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     registerFile.getFlagsBits().IF=0;
 //    INSTRUCTION_NOT_IMPLEMENT("CLI");
 }
+
 EXECUTE_FUNC(executeSTI)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     registerFile.getFlagsBits().IF=1;
 //    INSTRUCTION_NOT_IMPLEMENT("STI");
 }
+
 EXECUTE_FUNC(executeCLD)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     registerFile.getFlagsBits().DF=0;
 //    INSTRUCTION_NOT_IMPLEMENT("CLD");
 }
+
 EXECUTE_FUNC(executeSTD)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
@@ -2341,8 +2760,10 @@ EXECUTE_FUNC(executeCALL_Ev)
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("CALL_Ev");
 }
+
 EXECUTE_FUNC(executeJMP_Ev)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("JMP_Ev");
 }
+

@@ -7,9 +7,9 @@
 class ExecMemoryOperand:public ExecReadWriteOperand
 {
 public:
-    ExecMemoryOperand(Memory& memory,u32 address,
+    ExecMemoryOperand(Memory& memory,u32 base,u32 offset,
                           DataSize size)
-        :_memory(memory),_address(address)
+        :_memory(memory),_address(base+offset),_base(base),_offset(offset)
     {
         _size=size;
     }
@@ -101,13 +101,15 @@ public:
         _memory.set64Bits(_address,value);
         _memory.endAccess();
     }
-    u32 getAddress()
+    u32 getOffset()
     {
-        return _address;
+        return _offset;
     }
 protected:
     Memory& _memory;
     u32 _address;
+    u32 _base;
+    u32 _offset;
 };
 
 #endif // EXECREADMEMORYOPERAND_H

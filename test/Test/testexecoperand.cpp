@@ -58,7 +58,7 @@ void TestExecOperand::testExecOperandMemory()
     memory.startAccess(Memory::DEBUG_ACCESS);
     memory.set32Bits(0x1234,0x6767);
     memory.endAccess();
-    ExecMemoryOperand operand(memory,0x1234,DATA_SIZE_DWORD);
+    ExecMemoryOperand operand(memory,0,0x1234,DATA_SIZE_DWORD);
     QCOMPARE(operand.getU8(),u8(0x67));
     operand.setU32(0x12334455);
     QCOMPARE(operand.getU32(),u32(0x12334455));

@@ -7,7 +7,7 @@
 #include "io/ioportlist.h"
 #define EXECUTE_FUNC(funcName) void funcName(OperatingEnvironment operatingEnvironment,\
     EffectiveSize effectiveAddressSize,EffectiveSize effectiveOperandSize,\
-    ExecReadWriteOperand* dest,ExecReadOperand* src,ExecReadOperand* src2,\
+    ExecReadWriteOperand* dest,ExecReadWriteOperand* src,ExecReadWriteOperand* src2,\
     RegisterFile& registerFile,Memory& memory,IOPortList& ioPortList)
 
 //typedef void (*ExecuteFunc)(EffectiveSize dataSize,ExecReadWriteOperand* dest,ExecReadOperand* src,
@@ -45,7 +45,7 @@ EXECUTE_FUNC(executeARPL);
 EXECUTE_FUNC(executeIMUL3); //IMUL with 3 operands.
 EXECUTE_FUNC(executeINSB);
 EXECUTE_FUNC(executeINSWD);
-EXECUTE_FUNC(executeOUTB);
+EXECUTE_FUNC(executeOUTSB);
 EXECUTE_FUNC(executeOUTSWD);
 //0x7
 EXECUTE_FUNC(executeJO);

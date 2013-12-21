@@ -70,12 +70,12 @@ ExecReadWriteOperand* InstructionExecuter::addressingOneOperand(InstructionHighL
 		{
             if(highFormat.effectiveAddressSize==EFFECTIVE_16_BITS)
             {
-                execOperand = new ExecMemoryOperand(memory,registerFile.getSSR(ifOperand.content.memory.finalMemorySegmentRegister)+
+                execOperand = new ExecMemoryOperand(memory,registerFile.getSSR(ifOperand.content.memory.finalMemorySegmentRegister),
                                                     calculateAddress16BitMode(registerFile,ifOperand),ifOperand.finalSize);
             }
             else
             {
-                execOperand = new ExecMemoryOperand(memory,registerFile.getSSR(ifOperand.content.memory.finalMemorySegmentRegister)+
+                execOperand = new ExecMemoryOperand(memory,registerFile.getSSR(ifOperand.content.memory.finalMemorySegmentRegister),
                                                     calculateAddress3264BitMode(registerFile,ifOperand),ifOperand.finalSize);
             }
 //			execOperand = new ExecMemoryOperand();
@@ -87,15 +87,15 @@ ExecReadWriteOperand* InstructionExecuter::addressingOneOperand(InstructionHighL
         switch(highFormat.effectiveAddressSize)
         {
         case EFFECTIVE_16_BITS:
-            execOperand = new ExecMemoryOperand(memory,registerFile.getSSR(ifOperand.content.memory.finalMemorySegmentRegister)+
+            execOperand = new ExecMemoryOperand(memory,registerFile.getSSR(ifOperand.content.memory.finalMemorySegmentRegister),
                                                 ifOperand.content.memory.memoryMode.moffsets.valueU16,ifOperand.finalSize);
             break;
         case EFFECTIVE_32_BITS:
-            execOperand = new ExecMemoryOperand(memory,registerFile.getSSR(ifOperand.content.memory.finalMemorySegmentRegister)+
+            execOperand = new ExecMemoryOperand(memory,registerFile.getSSR(ifOperand.content.memory.finalMemorySegmentRegister),
                                                 ifOperand.content.memory.memoryMode.moffsets.valueU32,ifOperand.finalSize);
             break;
         case EFFECTIVE_64_BITS:
-            execOperand = new ExecMemoryOperand(memory,registerFile.getSSR(ifOperand.content.memory.finalMemorySegmentRegister)+
+            execOperand = new ExecMemoryOperand(memory,registerFile.getSSR(ifOperand.content.memory.finalMemorySegmentRegister),
                                                 ifOperand.content.memory.memoryMode.moffsets.valueU64,ifOperand.finalSize);
             break;
         default:
