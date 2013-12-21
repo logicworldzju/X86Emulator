@@ -45,6 +45,25 @@ private slots:
     void testSHR();
     void testSHL_SAL();
     void testSAR();
+    /*
+    EXECUTE_FUNC(executeJO);
+    EXECUTE_FUNC(executeJNO);
+    EXECUTE_FUNC(executeJB);
+    EXECUTE_FUNC(executeJNB);
+    EXECUTE_FUNC(executeJZ);
+    EXECUTE_FUNC(executeJNZ);
+    EXECUTE_FUNC(executeJBE);
+    EXECUTE_FUNC(executeJNBE);
+    EXECUTE_FUNC(executeJS);
+    EXECUTE_FUNC(executeJNS);
+    EXECUTE_FUNC(executeJP);
+    EXECUTE_FUNC(executeJNP);
+    EXECUTE_FUNC(executeJL);
+    EXECUTE_FUNC(executeJNL);
+    EXECUTE_FUNC(executeJLE);
+    EXECUTE_FUNC(executeJNLE);
+    */
+    void testJx();
 private:
     void fillRegisterFile(RegisterFile& registerFile);
 };

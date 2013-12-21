@@ -1095,86 +1095,173 @@ EXECUTE_FUNC(executeOUTSWD)
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("OUTSWD");
 }
+void JUMP(OperatingEnvironment operatingEnvironment,ExecReadWriteOperand* dest,RegisterFile& registerFile)
+{
+    switch(operatingEnvironment)
+    {
+    case ENV_16_BITS:
+    {
+        u32 ip=registerFile.getIP();
+        u16 lowIP=u16(ip&0xffff);
+        u16 finalLowIP=lowIP+dest->getS16();
+        u32 finalIP=(ip&0xffff0000)|finalLowIP;
+        registerFile.setIP(finalIP);
+        break;
+    }
+    case ENV_32_BITS:
+    case ENV_64_BITS:
+    {
+        u32 ip=registerFile.getIP();
+        u32 finalIP=ip+dest->getS32();
+        registerFile.setIP(finalIP);
+        break;
+    }
+    }
+}
 //0x7
 EXECUTE_FUNC(executeJO)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JO");
+//    INSTRUCTION_NOT_IMPLEMENT("JO");
+    if(registerFile.getFlagsBits().OF==1)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJNO)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JNO");
+//    INSTRUCTION_NOT_IMPLEMENT("JNO");
+    if(registerFile.getFlagsBits().OF==0)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJB)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JB");
+//    INSTRUCTION_NOT_IMPLEMENT("JB");
+    if(registerFile.getFlagsBits().CF==1)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJNB)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JNB");
+//    INSTRUCTION_NOT_IMPLEMENT("JNB");
+    if(registerFile.getFlagsBits().CF==0)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJZ)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JZ");
+//    INSTRUCTION_NOT_IMPLEMENT("JZ");
+    if(registerFile.getFlagsBits().ZF==1)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJNZ)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JNZ");
+//    INSTRUCTION_NOT_IMPLEMENT("JNZ");
+    if(registerFile.getFlagsBits().ZF==0)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJBE)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JBE");
+//    INSTRUCTION_NOT_IMPLEMENT("JBE");
+    if(registerFile.getFlagsBits().CF==1 || registerFile.getFlagsBits().ZF==1)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJNBE)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JNBE");
+//    INSTRUCTION_NOT_IMPLEMENT("JNBE");
+    if(registerFile.getFlagsBits().CF==0 && registerFile.getFlagsBits().ZF==0)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJS)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JS");
+//    INSTRUCTION_NOT_IMPLEMENT("JS");
+    if(registerFile.getFlagsBits().SF==1)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJNS)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JNS");
+//    INSTRUCTION_NOT_IMPLEMENT("JNS");
+    if(registerFile.getFlagsBits().SF==0)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJP)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JP");
+//    INSTRUCTION_NOT_IMPLEMENT("JP");
+    if(registerFile.getFlagsBits().PF==1)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJNP)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JNP");
+//    INSTRUCTION_NOT_IMPLEMENT("JNP");
+    if(registerFile.getFlagsBits().PF==0)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJL)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("JL");
+    if(registerFile.getFlagsBits().SF!=registerFile.getFlagsBits().OF)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJNL)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JNL");
+//    INSTRUCTION_NOT_IMPLEMENT("JNL");
+    if(registerFile.getFlagsBits().SF==registerFile.getFlagsBits().OF)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJLE)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JLE");
+//    INSTRUCTION_NOT_IMPLEMENT("JLE");
+    if(registerFile.getFlagsBits().SF!=registerFile.getFlagsBits().OF || registerFile.getFlagsBits().ZF==1)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 EXECUTE_FUNC(executeJNLE)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JNLE");
+//    INSTRUCTION_NOT_IMPLEMENT("JNLE");
+    if(registerFile.getFlagsBits().SF==registerFile.getFlagsBits().OF && registerFile.getFlagsBits().ZF==0)
+    {
+        JUMP(operatingEnvironment,dest,registerFile);
+    }
 }
 //0x8
 EXECUTE_FUNC(executeTEST)

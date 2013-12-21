@@ -772,6 +772,35 @@ void TestExecute::testSAR()
     }
 }
 
+void TestExecute::testJx()
+{
+    RegisterFile registerFile;
+    DebugMemory memory;
+    IOPortList ioPortList(memory,registerFile);
+
+    {
+        fillRegisterFile(registerFile);
+        registerFile.getFlagsBits().CF=1;
+        //normal case.
+        ExecImmediateOperand dest(1,DATA_SIZE_BYTE);
+
+        executeJBE(ENV_16_BITS,EFFECTIVE_16_BITS,&dest,NULL,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE(u32(registerFile.getIP()),(u32)0x1235);
+    }
+    {
+        fillRegisterFile(registerFile);
+        registerFile.setIP(0x1122ffff);
+        registerFile.getFlagsBits().ZF=1;
+        //normal case.
+        ExecImmediateOperand dest(1,DATA_SIZE_BYTE);
+
+        executeJBE(ENV_16_BITS,EFFECTIVE_16_BITS,&dest,NULL,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE(u32(registerFile.getIP()),(u32)0x11220000);
+    }
+}
+
 void TestExecute::fillRegisterFile(RegisterFile &registerFile)
 {
     registerFile.setFlags32Bits(0);
