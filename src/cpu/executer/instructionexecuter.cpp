@@ -274,6 +274,7 @@ void InstructionExecuter::execute(InstructionHighLevelFormat& highFormat, Regist
     assert(highFormat.opcode->execFunc);
 
     ExecuteFunc* func =(ExecuteFunc*)highFormat.opcode->execFunc;
-    (*func)(highFormat.operatingEnvironment,highFormat.effectiveAddressSize,highFormat.effectiveOperandSize,
+    (*func)(highFormat.operatingEnvironment,highFormat.effectiveAddressSize,
+            highFormat.effectiveOperandSize,highFormat.effectiveSegmentRegister,
             operands.getDest(),operands.getSrc(),operands.getSrc2(),registerFile,memory,ioPortList);
 }

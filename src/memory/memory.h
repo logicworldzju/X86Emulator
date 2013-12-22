@@ -43,7 +43,7 @@ public:
     {
         return _memory;
     }
-    const u8* getVideoMemoryAddress()
+    u8* getVideoMemoryAddress()
     {
         return _memory+VIDEO_MEMORY_ADDRESS;
     }

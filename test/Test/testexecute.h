@@ -80,6 +80,17 @@ private slots:
     void testCWD();
     void testSAHF();
     void testLAHF();
+    void testLDS();
+    void testLES();
+    void testXLAT();
+    void testCMC();
+    void testINT();
+    void testIRET();
+    void testPUSHF();
+    void testPOPF();
+    void testCALLNEAR_Jz();
+    void testCALLNEAR_Ev();
+    void testCALLFAR();
 private:
     void fillRegisterFile(RegisterFile& registerFile);
 };
