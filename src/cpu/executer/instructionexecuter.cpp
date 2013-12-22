@@ -184,6 +184,7 @@ u32 InstructionExecuter::calculateAddress16BitMode(RegisterFile &registerFile, I
         assert(0);
         break;
     }
+    assert(result<0x10000);
     return result;
 }
 

@@ -36,4 +36,7 @@
 //QTEST_APPLESS_MAIN(TestDecoderEncoder)
 
 #include "testexecute.h"
-QTEST_MAIN(TestExecute)
+//QTEST_MAIN(TestExecute)
+
+#include "testinstructiondecoder.h"
+QTEST_MAIN(TestInstructionDecoder)

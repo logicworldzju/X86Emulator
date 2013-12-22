@@ -1490,7 +1490,7 @@ void TestExecute::testCALLFAR()
 
         ExecImmediateOperand src(1,DATA_SIZE_DWORD);
 
-        executeCALLFAR_Ap(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&src,NULL,NULL,registerFile,memory,ioPortList);
+        executeCALLFAR_p(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&src,NULL,NULL,registerFile,memory,ioPortList);
 
 //        QCOMPARE(u32(registerFile.getFlagsBits().CF),u32(1));
 
@@ -1547,7 +1547,7 @@ void TestExecute::testRETFAR()
 
         ExecImmediateOperand src(1,DATA_SIZE_DWORD);
 
-        executeCALLFAR_Ap(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&src,NULL,NULL,registerFile,memory,ioPortList);
+        executeCALLFAR_p(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&src,NULL,NULL,registerFile,memory,ioPortList);
 
 //        QCOMPARE(u32(registerFile.getFlagsBits().CF),u32(1));
 

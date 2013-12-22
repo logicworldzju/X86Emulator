@@ -2843,7 +2843,7 @@ EXECUTE_FUNC(executeJMPNEAR_J)//includes Jz & Jb
     JUMP(effectiveOperandSize,dest,registerFile);
 }
 
-EXECUTE_FUNC(executeCALLFAR_Ap)
+EXECUTE_FUNC(executeCALLFAR_p)//includes Mp or Ap
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("CALL_Ap");
