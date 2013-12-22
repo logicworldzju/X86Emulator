@@ -91,6 +91,18 @@ private slots:
     void testCALLNEAR_Jz();
     void testCALLNEAR_Ev();
     void testCALLFAR();
+    void testRETNEAR();
+    void testRETFAR();
+    void testJMPNEAR_J();
+    void testJMPNEAR_Ev();
+    void testJMPFAR();
+    void testENTER();
+    void testLEAVE();
+    void testCMPS();
+    void testMOVE();
+    void testLODS();
+    void testSTOS();
+    void testSCAS();
 private:
     void fillRegisterFile(RegisterFile& registerFile);
 };
