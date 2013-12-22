@@ -116,7 +116,7 @@ inline void setOverflowFlag(FlagsBits& flags,u8 msbOpt1,u8 msbOpt2,bool isPlus,u
 //0x0
 EXECUTE_FUNC(executeADD)
 {
-    (void)effectiveAddressSize;(void)effectiveOperandSize;
+    (void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;
     (void)ioPortList;(void)memory;(void)operatingEnvironment;(void)src2;
 
     switch(dest->getSize())
@@ -197,25 +197,11 @@ EXECUTE_FUNC(executeADD)
         assert(0);
     }
 }
-EXECUTE_FUNC(executePUSH)
+template <typename T>
+void PUSH(T value,EffectiveSize effectiveAddressSize,Memory& memory,RegisterFile& registerFile)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-//    INSTRUCTION_NOT_IMPLEMENT("PUSH");
-    //get data size.
-    u8 dataSize=0;
-    switch(dest->getSize())
-    {
-    case DATA_SIZE_WORD:
-        dataSize=2;
-        break;
-    case DATA_SIZE_DWORD:
-        dataSize=4;
-        break;
-    case DATA_SIZE_QWORD:
-        dataSize=8;
-    default:
-        assert(0);
-    }
+    assert(sizeof(T)==2 || sizeof(T)==4 || sizeof(T)==8);
+    u8 dataSize=sizeof(T);
 
     //get memory address.
     u32 address=registerFile.getSSR(SS);
@@ -232,16 +218,16 @@ EXECUTE_FUNC(executePUSH)
 
     //write memory.
     memory.startAccess(memory.CPU_DATA_ACCESS);
-    switch(dest->getSize())
+    switch(sizeof(T))
     {
-    case DATA_SIZE_WORD:
-        memory.set16Bits(address,dest->getS16());
+    case 2:
+        memory.set16Bits(address,value);
         break;
-    case DATA_SIZE_DWORD:
-        memory.set32Bits(address,dest->getS32());
+    case 4:
+        memory.set32Bits(address,value);
         break;
-    case DATA_SIZE_QWORD:
-        memory.set64Bits(address,dest->getS64());
+    case 8:
+        memory.set64Bits(address,value);
         break;
     default:
         assert(0);
@@ -261,57 +247,101 @@ EXECUTE_FUNC(executePUSH)
     }
 
 }
-EXECUTE_FUNC(executePOP)
+
+EXECUTE_FUNC(executePUSH)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-//    INSTRUCTION_NOT_IMPLEMENT("POP");
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("PUSH");
+    //get data size.
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_WORD:
+        PUSH<u16>(dest->getU16(),effectiveAddressSize,memory,registerFile);
+        break;
+    case DATA_SIZE_DWORD:
+        PUSH<u32>(dest->getU32(),effectiveAddressSize,memory,registerFile);
+        break;
+    case DATA_SIZE_QWORD:
+        PUSH<u64>(dest->getU64(),effectiveAddressSize,memory,registerFile);
+        break;
+    default:
+        assert(0);
+    }
+}
+template<typename T>
+void POP(T& value,EffectiveSize effectiveAddressSize,Memory& memory,RegisterFile& registerFile)
+{
+    assert(sizeof(T)==2 || sizeof(T)==4 || sizeof(T)==8);
     u32 address=registerFile.getSSR(SS);
+    u8 dataSize=sizeof(T);
     switch(effectiveAddressSize)
     {
     case EFFECTIVE_16_BITS:
         address+=registerFile.getGPR16Bits(RSP);
+        registerFile.setGPR16Bits(RSP,registerFile.getGPR16Bits(RSP)+dataSize);
         break;
     case EFFECTIVE_32_BITS:
     case EFFECTIVE_64_BITS:
         address+=registerFile.getGPR32Bits(RSP);
+        registerFile.setGPR32Bits(RSP,registerFile.getGPR32Bits(RSP)+dataSize);
         break;
     }
 
-    u8 dataSize=0;
     memory.startAccess(memory.CPU_DATA_ACCESS);
-    switch(dest->getSize())
+    switch(sizeof(T))
     {
-    case DATA_SIZE_WORD:
-        dataSize=2;
-        dest->setU16(memory.get16Bits(address));
+    case 2:
+        value=(memory.get16Bits(address));
         break;
-    case DATA_SIZE_DWORD:
-        dataSize=4;
-        dest->setU32(memory.get32Bits(address));
+    case 4:
+        value=(memory.get32Bits(address));
         break;
-    case DATA_SIZE_QWORD:
-        dataSize=8;
-        dest->setU64(memory.get64Bits(address));
+    case 8:
+        value=(memory.get64Bits(address));
         break;
     default:
         assert(0);
     }
     memory.endAccess();
 
-    switch(effectiveAddressSize)
+
+}
+
+EXECUTE_FUNC(executePOP)
+{
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("POP");
+    switch(dest->getSize())
     {
-    case EFFECTIVE_16_BITS:
-        registerFile.setGPR16Bits(RSP,registerFile.getGPR16Bits(RSP)+dataSize);
-        break;
-    case EFFECTIVE_32_BITS:
-    case EFFECTIVE_64_BITS:
-        registerFile.setGPR32Bits(RSP,registerFile.getGPR32Bits(RSP)+dataSize);
+    case DATA_SIZE_WORD:
+    {
+        u16 value;
+        POP<u16>(value,effectiveAddressSize,memory,registerFile);
+        dest->setU16(value);
         break;
     }
+    case DATA_SIZE_DWORD:
+    {
+        u32 value;
+        POP<u32>(value,effectiveAddressSize,memory,registerFile);
+        dest->setU32(value);
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        u64 value;
+        POP<u64>(value,effectiveAddressSize,memory,registerFile);
+        dest->setU64(value);
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
+
 EXECUTE_FUNC(executeOR)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("OR");
     switch(dest->getSize())
     {
@@ -383,10 +413,12 @@ EXECUTE_FUNC(executeOR)
         assert(0);
     }
 }
+
 //0x1
+
 EXECUTE_FUNC(executeADC)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("ADC");
     switch(dest->getSize())
     {
@@ -466,9 +498,10 @@ EXECUTE_FUNC(executeADC)
         assert(0);
     }
 }
+
 EXECUTE_FUNC(executeSBB)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("SBB");
     switch(dest->getSize())
     {
@@ -548,10 +581,12 @@ EXECUTE_FUNC(executeSBB)
         assert(0);
     }
 }
+
 //0x2
+
 EXECUTE_FUNC(executeAND)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("AND");
     switch(dest->getSize())
     {
@@ -623,14 +658,16 @@ EXECUTE_FUNC(executeAND)
         assert(0);
     }
 }
+
 EXECUTE_FUNC(executeDAA)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("DAA");
 }
+
 EXECUTE_FUNC(executeSUB)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("SUB");
     switch(dest->getSize())
     {
@@ -710,15 +747,18 @@ EXECUTE_FUNC(executeSUB)
         assert(0);
     }
 }
+
 EXECUTE_FUNC(executeDAS)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("DAS");
 }
+
 //0x3
+
 EXECUTE_FUNC(executeXOR)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("XOR");
     switch(dest->getSize())
     {
@@ -791,14 +831,16 @@ EXECUTE_FUNC(executeXOR)
     }
 
 }
+
 EXECUTE_FUNC(executeAAA)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("AAA");
 }
+
 EXECUTE_FUNC(executeCMP)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("CMP");
     switch(dest->getSize())
     {
@@ -878,15 +920,18 @@ EXECUTE_FUNC(executeCMP)
         assert(0);
     }
 }
+
 EXECUTE_FUNC(executeAAS)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("AAS");
 }
+
 //0x4
+
 EXECUTE_FUNC(executeINC)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("INC");
     switch(dest->getSize())
     {
@@ -967,9 +1012,10 @@ EXECUTE_FUNC(executeINC)
     }
 
 }
+
 EXECUTE_FUNC(executeDEC)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("DEC");
     switch(dest->getSize())
     {
@@ -1049,31 +1095,37 @@ EXECUTE_FUNC(executeDEC)
         assert(0);
     }
 }
+
 //0x5
 //0x6
+
 EXECUTE_FUNC(executePUSHAD)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("PUSHAD");
 }
+
 EXECUTE_FUNC(executePOPAD)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("POPAD");
 }
+
 EXECUTE_FUNC(executeBOUND)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("BOUND");
 }
+
 EXECUTE_FUNC(executeARPL)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("ARPL");
 }
+
 EXECUTE_FUNC(executeIMUL3) //IMUL with 3 operands.
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("IMUL3");
     switch(dest->getSize())
     {
@@ -1122,26 +1174,31 @@ EXECUTE_FUNC(executeIMUL3) //IMUL with 3 operands.
         assert(0);
     }
 }
+
 EXECUTE_FUNC(executeINSB)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("INSB");
 }
+
 EXECUTE_FUNC(executeINSWD)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("INSWD");
 }
+
 EXECUTE_FUNC(executeOUTSB)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("OUTB");
 }
+
 EXECUTE_FUNC(executeOUTSWD)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("OUTSWD");
 }
+
 void JUMP(EffectiveSize effectiveOperandSize,ExecReadWriteOperand* dest,RegisterFile& registerFile)
 {
     switch(effectiveOperandSize)
@@ -1151,8 +1208,8 @@ void JUMP(EffectiveSize effectiveOperandSize,ExecReadWriteOperand* dest,Register
         u32 ip=registerFile.getIP();
         u16 lowIP=u16(ip&0xffff);
         u16 finalLowIP=lowIP+dest->getS16();
-        u32 finalIP=(ip&0xffff0000)|finalLowIP;
-        registerFile.setIP(finalIP);
+//        u32 finalIP=(ip&0xffff0000)|finalLowIP;
+        registerFile.setIP(finalLowIP);
         break;
     }
     case EFFECTIVE_32_BITS:
@@ -1165,155 +1222,174 @@ void JUMP(EffectiveSize effectiveOperandSize,ExecReadWriteOperand* dest,Register
     }
     }
 }
+
 //0x7
+
 EXECUTE_FUNC(executeJO)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JO");
     if(registerFile.getFlagsBits().OF==1)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJNO)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JNO");
     if(registerFile.getFlagsBits().OF==0)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJB)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JB");
     if(registerFile.getFlagsBits().CF==1)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJNB)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JNB");
     if(registerFile.getFlagsBits().CF==0)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJZ)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JZ");
     if(registerFile.getFlagsBits().ZF==1)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJNZ)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JNZ");
     if(registerFile.getFlagsBits().ZF==0)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJBE)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JBE");
     if(registerFile.getFlagsBits().CF==1 || registerFile.getFlagsBits().ZF==1)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJNBE)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JNBE");
     if(registerFile.getFlagsBits().CF==0 && registerFile.getFlagsBits().ZF==0)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJS)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JS");
     if(registerFile.getFlagsBits().SF==1)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJNS)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JNS");
     if(registerFile.getFlagsBits().SF==0)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJP)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JP");
     if(registerFile.getFlagsBits().PF==1)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJNP)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JNP");
     if(registerFile.getFlagsBits().PF==0)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJL)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("JL");
     if(registerFile.getFlagsBits().SF!=registerFile.getFlagsBits().OF)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJNL)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JNL");
     if(registerFile.getFlagsBits().SF==registerFile.getFlagsBits().OF)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJLE)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JLE");
     if(registerFile.getFlagsBits().SF!=registerFile.getFlagsBits().OF || registerFile.getFlagsBits().ZF==1)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 EXECUTE_FUNC(executeJNLE)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JNLE");
     if(registerFile.getFlagsBits().SF==registerFile.getFlagsBits().OF && registerFile.getFlagsBits().ZF==0)
     {
         JUMP(effectiveOperandSize,dest,registerFile);
     }
 }
+
 //0x8
+
 EXECUTE_FUNC(executeTEST)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("TEST");
     switch(dest->getSize())
     {
@@ -1385,10 +1461,11 @@ EXECUTE_FUNC(executeTEST)
         assert(0);
     }
 }
+
 EXECUTE_FUNC(executeXCHG)
 {
     //!@todo There is a problem when opcode=90 in 64bits mode.see amd64 manual xchg.
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("XCHG");
     switch(dest->getSize())
     {
@@ -1424,9 +1501,10 @@ EXECUTE_FUNC(executeXCHG)
         assert(0);
     }
 }
+
 EXECUTE_FUNC(executeMOVE)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("MOVE");
     switch(dest->getSize())
     {
@@ -1446,9 +1524,10 @@ EXECUTE_FUNC(executeMOVE)
         assert(0);
     }
 }
+
 EXECUTE_FUNC(executeLEA)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("LEA");
     ExecMemoryOperand* memorySrc=dynamic_cast<ExecMemoryOperand*>(src);
     assert(memorySrc);
@@ -1467,10 +1546,12 @@ EXECUTE_FUNC(executeLEA)
         assert(0);
     }
 }
+
 //0x9
+
 EXECUTE_FUNC(executeCBW_CWDE_CDQE)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("CBW_CWDE_CDQE");
     switch(effectiveOperandSize)
     {
@@ -1497,9 +1578,10 @@ EXECUTE_FUNC(executeCBW_CWDE_CDQE)
     }
     }
 }
+
 EXECUTE_FUNC(executeCWD_CDQ_CQO)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("CWD_CDQ_CQO");
     switch(effectiveOperandSize)
     {
@@ -1544,92 +1626,142 @@ EXECUTE_FUNC(executeCWD_CDQ_CQO)
     }
     }
 }
-EXECUTE_FUNC(executeCALL_Ap)
-{
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("CALL_Ap");
-}
+
+
 EXECUTE_FUNC(executeWAIT_FWAIT)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("WAIT_FWAIT");
 }
+
 EXECUTE_FUNC(executePUSHFDQ)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("PUSHFDQ");
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("PUSHFDQ");
+    switch(effectiveOperandSize)
+    {
+    case EFFECTIVE_16_BITS:
+        PUSH<u16>(registerFile.getFlags16Bits(),effectiveAddressSize,memory,registerFile);
+        break;
+    case EFFECTIVE_32_BITS:
+        PUSH<u32>(registerFile.getFlags32Bits(),effectiveAddressSize,memory,registerFile);
+        break;
+    case EFFECTIVE_64_BITS:
+        PUSH<u64>((u64)registerFile.getFlags32Bits(),effectiveAddressSize,memory,registerFile);
+        break;
+    }
 }
+
 EXECUTE_FUNC(executePOPFDQ)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("POPFDQ");
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("POPFDQ");
+    switch(effectiveOperandSize)
+    {
+    case EFFECTIVE_16_BITS:
+    {
+        u16 flags;
+        POP<u16>(flags,effectiveAddressSize,memory,registerFile);
+        registerFile.setFlags16Bits(flags);
+        break;
+    }
+    case EFFECTIVE_32_BITS:
+    {
+        u32 flags;
+        POP<u32>(flags,effectiveAddressSize,memory,registerFile);
+        registerFile.setFlags32Bits(flags);
+        break;
+    }
+    case EFFECTIVE_64_BITS:
+    {
+        u64 flags;
+        POP<u64>(flags,effectiveAddressSize,memory,registerFile);
+        registerFile.setFlags32Bits((u32)flags);
+        break;
+    }
+    }
 }
+
 EXECUTE_FUNC(executeSAHF)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("SAHF");
     registerFile.setFlags8Bits(registerFile.getGPR8BitsHigh(RAX));
 }
+
 EXECUTE_FUNC(executeLAHF)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("LAHF");
     registerFile.setGPR8BitsHigh(RAX,registerFile.getFlags8Bits());
 }
+
 //0xa
+
 EXECUTE_FUNC(executeMOVSB)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("MOVSB");
 }
+
 EXECUTE_FUNC(executeMOVSWDQ)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("MOVSWDQ");
 }
+
 EXECUTE_FUNC(executeCMPSB)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("CMPSB");
 }
+
 EXECUTE_FUNC(executeCMPSWDQ)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("CMPSWDQ");
 }
+
 EXECUTE_FUNC(executeSTOSB)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("STOSB");
 }
+
 EXECUTE_FUNC(executeSTOSWDQ)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("STOSWDQ");
 }
+
 EXECUTE_FUNC(executeLODSB)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("LODSB");
 }
+
 EXECUTE_FUNC(executeLODSWDQ)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("LODSWDQ");
 }
+
 EXECUTE_FUNC(executeSCASB)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("SCASB");
 }
+
 EXECUTE_FUNC(executeSCASWDQ)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("SCASWDQ");
 }
+
 //0xb
 //0xc
 //group2
+
 template <typename T>
 inline void ROL(FlagsBits& flags,T& value,u8 count)
 {
@@ -1653,9 +1785,10 @@ inline void ROL(FlagsBits& flags,T& value,u8 count)
         flags.OF=OF;
     }
 }
+
 EXECUTE_FUNC(executeROL)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("ROL");
     switch(dest->getSize())
     {
@@ -1696,6 +1829,7 @@ EXECUTE_FUNC(executeROL)
     }
 
 }
+
 template <typename T>
 inline void ROR(FlagsBits& flags,T& value,u8 count)
 {
@@ -1719,9 +1853,10 @@ inline void ROR(FlagsBits& flags,T& value,u8 count)
         flags.OF=OF;
     }
 }
+
 EXECUTE_FUNC(executeROR)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("ROR");
     switch(dest->getSize())
     {
@@ -1761,6 +1896,7 @@ EXECUTE_FUNC(executeROR)
         assert(0);
     }
 }
+
 template <typename T>
 inline void RCL(FlagsBits& flags,T& value,u8 count)
 {
@@ -1785,9 +1921,10 @@ inline void RCL(FlagsBits& flags,T& value,u8 count)
         flags.OF=OF;
     }
 }
+
 EXECUTE_FUNC(executeRCL)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("RCL");
     switch(dest->getSize())
     {
@@ -1827,6 +1964,7 @@ EXECUTE_FUNC(executeRCL)
         assert(0);
     }
 }
+
 template <typename T>
 inline void RCR(FlagsBits& flags,T& value,u8 count)
 {
@@ -1851,9 +1989,10 @@ inline void RCR(FlagsBits& flags,T& value,u8 count)
         flags.OF=OF;
     }
 }
+
 EXECUTE_FUNC(executeRCR)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("RCR");
     switch(dest->getSize())
     {
@@ -1893,10 +2032,12 @@ EXECUTE_FUNC(executeRCR)
         assert(0);
     }
 }
+
 //EXECUTE_FUNC(executeSHL_SAL)
 //{
 
 //}
+
 template <typename T>
 inline void SHR(FlagsBits& flags,T& value,u8 count)
 {
@@ -1919,9 +2060,10 @@ inline void SHR(FlagsBits& flags,T& value,u8 count)
         flags.OF=OF;
     }
 }
+
 EXECUTE_FUNC(executeSHR)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("SHR");
     switch(dest->getSize())
     {
@@ -1961,6 +2103,7 @@ EXECUTE_FUNC(executeSHR)
         assert(0);
     }
 }
+
 template <typename T>
 inline void SHL_SAL(FlagsBits& flags,T& value,u8 count)
 {
@@ -1985,9 +2128,10 @@ inline void SHL_SAL(FlagsBits& flags,T& value,u8 count)
         flags.OF=OF;
     }
 }
+
 EXECUTE_FUNC(executeSHL_SAL)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("SAL");
     switch(dest->getSize())
     {
@@ -2027,6 +2171,7 @@ EXECUTE_FUNC(executeSHL_SAL)
         assert(0);
     }
 }
+
 template <typename T>
 inline void SAR(FlagsBits& flags,T& value,u8 count)
 {
@@ -2051,9 +2196,10 @@ inline void SAR(FlagsBits& flags,T& value,u8 count)
         flags.OF=OF;
     }
 }
+
 EXECUTE_FUNC(executeSAR)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("SAR");
     switch(dest->getSize())
     {
@@ -2093,84 +2239,317 @@ EXECUTE_FUNC(executeSAR)
         assert(0);
     }
 }
+
 EXECUTE_FUNC(executeRETNEAR)//only this one.
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("RETNEAR");
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("RETNEAR");
+    switch(effectiveOperandSize)
+    {
+    case EFFECTIVE_16_BITS:
+    {
+        u16 IP;
+        POP<u16>(IP,effectiveAddressSize,memory,registerFile);
+        registerFile.setIP(IP);
+        break;
+    }
+    case EFFECTIVE_32_BITS:
+    {
+        u32 IP;
+        POP<u32>(IP,effectiveAddressSize,memory,registerFile);
+        registerFile.setIP(IP);
+        break;
+    }
+    case EFFECTIVE_64_BITS:
+    {
+        u64 IP;
+        POP<u64>(IP,effectiveAddressSize,memory,registerFile);
+        registerFile.setIP((u32)IP);
+        break;
+    }
+    default:
+        assert(0);
+    }
+
+    switch(effectiveAddressSize)
+    {
+    case EFFECTIVE_16_BITS:
+        registerFile.setGPR16Bits(RSP,registerFile.getGPR16Bits(RSP)+dest->getU16());
+        break;
+    case EFFECTIVE_32_BITS:
+        registerFile.setGPR32Bits(RSP,registerFile.getGPR32Bits(RSP)+dest->getU16());
+        break;
+    case EFFECTIVE_64_BITS:
+        registerFile.setGPR64Bits(RSP,registerFile.getGPR64Bits(RSP)+dest->getU16());
+        break;
+    }
 }
+
 EXECUTE_FUNC(executeLES)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("LES");
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("LES");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_WORD:
+    {
+        u32 value=src->getU32();
+        u16 segment=(value>>16)&0xffff;
+        u16 offset=(value&0xffff);
+
+        registerFile.setSR(ES,segment);
+        registerFile.setSSR(ES,u32(segment)<<4);
+        dest->setU16(offset);
+
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        u48 value=src->getU48();
+        u16 segment=(value>>32)&0xffff;
+        u32 offset=(value&0xffffffff);
+
+        registerFile.setSR(ES,segment);
+        registerFile.setSSR(ES,u32(segment)<<4);
+        dest->setU32(offset);
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
+
 EXECUTE_FUNC(executeLDS)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("LDS");
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("LDS");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_WORD:
+    {
+        u32 value=src->getU32();
+        u16 segment=(value>>16)&0xffff;
+        u16 offset=(value&0xffff);
+
+        registerFile.setSR(DS,segment);
+        registerFile.setSSR(DS,u32(segment)<<4);
+        dest->setU16(offset);
+
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        u48 value=src->getU48();
+        u16 segment=(value>>32)&0xffff;
+        u32 offset=(value&0xffffffff);
+
+        registerFile.setSR(DS,segment);
+        registerFile.setSSR(DS,u32(segment)<<4);
+        dest->setU32(offset);
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
+
 
 EXECUTE_FUNC(executeENTER)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("ENTER");
 }
+
 EXECUTE_FUNC(executeLEAVE)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("LEAVE");
 }
+
 EXECUTE_FUNC(executeRETFAR)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("RETFAR");
-}
-EXECUTE_FUNC(executeINT3)
-{
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("INT3");
-}
-EXECUTE_FUNC(executeINT)
-{
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("INT");
-}
-EXECUTE_FUNC(executeINTO)
-{
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("INTO");
-}
-EXECUTE_FUNC(executeIRET_IRETD_IRETQ)
-{
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("IRET_IRETD_IRETQ");
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("RETFAR");
+    switch(effectiveOperandSize)
+    {
+    case EFFECTIVE_16_BITS:
+    {
+        u16 IP;
+        POP<u16>(IP,effectiveAddressSize,memory,registerFile);
+        registerFile.setIP(IP);
+
+        u16 segment;
+        POP<u16>(segment,effectiveAddressSize,memory,registerFile);
+        registerFile.setSR(CS,segment);
+        registerFile.setSSR(CS,u32(segment)<<4);
+        break;
+    }
+    case EFFECTIVE_32_BITS:
+    {
+        u32 IP;
+        POP<u32>(IP,effectiveAddressSize,memory,registerFile);
+        registerFile.setIP(IP);
+
+        u16 segment;
+        POP<u16>(segment,effectiveAddressSize,memory,registerFile);
+        registerFile.setSR(CS,segment);
+        registerFile.setSSR(CS,u32(segment)<<4);
+        break;
+    }
+    case EFFECTIVE_64_BITS:
+    {
+        u64 IP;
+        POP<u64>(IP,effectiveAddressSize,memory,registerFile);
+        registerFile.setIP((u32)IP);
+
+        u16 segment;
+        POP<u16>(segment,effectiveAddressSize,memory,registerFile);
+        registerFile.setSR(CS,segment);
+        registerFile.setSSR(CS,u32(segment)<<4);
+        break;
+    }
+    default:
+        assert(0);
+    }
+
+    switch(effectiveAddressSize)
+    {
+    case EFFECTIVE_16_BITS:
+        registerFile.setGPR16Bits(RSP,registerFile.getGPR16Bits(RSP)+dest->getU16());
+        break;
+    case EFFECTIVE_32_BITS:
+        registerFile.setGPR32Bits(RSP,registerFile.getGPR32Bits(RSP)+dest->getU16());
+        break;
+    case EFFECTIVE_64_BITS:
+        registerFile.setGPR64Bits(RSP,registerFile.getGPR64Bits(RSP)+dest->getU16());
+        break;
+    }
+
 }
 
+void INT(u8 intNumber,EffectiveSize effectiveAddressSize,Memory& memory,RegisterFile& registerFile)
+{
+    //!@todo only implement 16bit.
+    PUSH<u16>(registerFile.getFlags16Bits(),effectiveAddressSize,memory,registerFile);
+    PUSH<u16>(registerFile.getSR(CS),effectiveAddressSize,memory,registerFile);
+    PUSH<u16>(u16(registerFile.getIP()),effectiveAddressSize,memory,registerFile);
+
+    ExecMemoryOperand memOperand(memory,0,intNumber*4,DATA_SIZE_DWORD);
+    u32 memValue = memOperand.getU32();
+    u16 SR=(memValue>>16)&0xffff;
+    u16 IP=(memValue&0xffff);
+    registerFile.setSR(CS,SR);
+    registerFile.setSSR(CS,u32(SR)<<4);
+    registerFile.setIP(IP);
+
+    registerFile.getFlagsBits().AC=0;
+    registerFile.getFlagsBits().TF=0;
+    registerFile.getFlagsBits().IF=0;
+    registerFile.getFlagsBits().RF=0;
+}
+
+EXECUTE_FUNC(executeINT3)
+{
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("INT3");
+    assert(operatingEnvironment==ENV_16_BITS);
+    INT(3,effectiveAddressSize,memory,registerFile);
+}
+
+EXECUTE_FUNC(executeINT)
+{
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("INT");
+    assert(operatingEnvironment==ENV_16_BITS);
+    INT(dest->getU8(),effectiveAddressSize,memory,registerFile);
+}
+
+EXECUTE_FUNC(executeINTO)
+{
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("INTO");
+    assert(operatingEnvironment==ENV_16_BITS);
+    if(registerFile.getFlagsBits().OF==1)
+    {
+        INT(4,effectiveAddressSize,memory,registerFile);
+    }
+
+}
+
+EXECUTE_FUNC(executeIRET_IRETD_IRETQ)
+{
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("IRET_IRETD_IRETQ");
+    assert(operatingEnvironment==ENV_16_BITS);
+    //!@todo only implement 16bit.
+
+    u16 flags;
+    u16 SR;
+    u16 IP;
+
+    POP<u16>(IP,effectiveAddressSize,memory,registerFile);
+    POP<u16>(SR,effectiveAddressSize,memory,registerFile);
+    POP<u16>(flags,effectiveAddressSize,memory,registerFile);
+
+    registerFile.setSR(CS,SR);
+    registerFile.setSSR(CS,u32(SR)<<4);
+    registerFile.setIP(IP);
+
+    registerFile.setFlags16Bits(flags);
+}
 //0xd
 EXECUTE_FUNC(executeAAM)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("AAM");
 }
 EXECUTE_FUNC(executeAAD)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("AAD");
 }
 EXECUTE_FUNC(executeSALC)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("SALC");
 }
 EXECUTE_FUNC(executeXLAT)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("XLAT");
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("XLAT");
+    switch(effectiveAddressSize)
+    {
+    case EFFECTIVE_16_BITS:
+    {
+        ExecMemoryOperand memOperand(memory,registerFile.getSSR(effectiveSegmentRegister),
+                                     registerFile.getGPR16Bits(RBX)+registerFile.getGPR8BitsLow(RAX),
+                                     DATA_SIZE_BYTE);
+        registerFile.setGPR8BitsLow(RAX,memOperand.getU8());
+        break;
+    }
+    case EFFECTIVE_32_BITS:
+    {
+        ExecMemoryOperand memOperand(memory,registerFile.getSSR(effectiveSegmentRegister),
+                                     registerFile.getGPR32Bits(RBX)+registerFile.getGPR8BitsLow(RAX),
+                                     DATA_SIZE_BYTE);
+        registerFile.setGPR8BitsLow(RAX,memOperand.getU8());
+        break;
+    }
+    case EFFECTIVE_64_BITS:
+    {
+        ExecMemoryOperand memOperand(memory,registerFile.getSSR(effectiveSegmentRegister),
+                                     registerFile.getGPR64Bits(RBX)+registerFile.getGPR8BitsLow(RAX),
+                                     DATA_SIZE_BYTE);
+        registerFile.setGPR8BitsLow(RAX,memOperand.getU8());
+        break;
+    }
+    }
 }
 
 //0xe
 EXECUTE_FUNC(executeLOOPNZ)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("LOOPNZ");
     switch(effectiveAddressSize)
     {
@@ -2199,7 +2578,7 @@ EXECUTE_FUNC(executeLOOPNZ)
 }
 EXECUTE_FUNC(executeLOOPZ)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("LOOPZ");
     switch(effectiveAddressSize)
     {
@@ -2228,7 +2607,7 @@ EXECUTE_FUNC(executeLOOPZ)
 }
 EXECUTE_FUNC(executeLOOP)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("LOOP");
     switch(effectiveAddressSize)
     {
@@ -2257,7 +2636,7 @@ EXECUTE_FUNC(executeLOOP)
 }
 EXECUTE_FUNC(executeJRCXZ)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JRCXZ");
     switch(effectiveAddressSize)
     {
@@ -2283,7 +2662,7 @@ EXECUTE_FUNC(executeJRCXZ)
 }
 EXECUTE_FUNC(executeIN)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("IN");
     switch(dest->getSize())
     {
@@ -2302,55 +2681,136 @@ EXECUTE_FUNC(executeIN)
 }
 EXECUTE_FUNC(executeOUT)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("OUT");
     ioPortList.write2Port(dest->getU16(),src->getU32());
 }
 
-EXECUTE_FUNC(executeCALL_Jz)
+EXECUTE_FUNC(executeCALLNEAR_Jz)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("CALL_Jz");
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("CALL_Jz");
+    switch(effectiveOperandSize)
+    {
+    case EFFECTIVE_16_BITS:
+        PUSH<u16>((u16)registerFile.getIP(),effectiveAddressSize,memory,registerFile);
+        JUMP(effectiveOperandSize,dest,registerFile);
+        break;
+    case EFFECTIVE_32_BITS:
+        PUSH<u32>((u32)registerFile.getIP(),effectiveAddressSize,memory,registerFile);
+        JUMP(effectiveOperandSize,dest,registerFile);
+        break;
+    default:
+        assert(0);
+    }
 }
-
-EXECUTE_FUNC(executeJMP_J)//includes Jz & Jb
+EXECUTE_FUNC(executeJMPNEAR_J)//includes Jz & Jb
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("JMP_J");
     JUMP(effectiveOperandSize,dest,registerFile);
 }
-
-EXECUTE_FUNC(executeJMP_p)//includes Mp or Ap
+EXECUTE_FUNC(executeCALLFAR_Ap)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JMP_p");
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("CALL_Ap");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_DWORD:
+    {
+        PUSH<u16>(registerFile.getSR(CS),effectiveAddressSize,memory,registerFile);
+        PUSH<u16>((u16)registerFile.getIP(),effectiveAddressSize,memory,registerFile);
+
+        u32 value=dest->getU32();
+        u16 segment=(value>>16)&0xffff;
+        u16 offset=(value&0xffff);
+
+        registerFile.setSR(CS,segment);
+        registerFile.setSSR(CS,u32(segment)<<4);
+        registerFile.setIP(offset);
+
+        break;
+    }
+    case DATA_SIZE_6BYTES:
+    {
+        PUSH<u16>(registerFile.getSR(CS),effectiveAddressSize,memory,registerFile);
+        PUSH<u32>(registerFile.getIP(),effectiveAddressSize,memory,registerFile);
+
+        u48 value=src->getU48();
+        u16 segment=(value>>32)&0xffff;
+        u32 offset=(value&0xffffffff);
+
+        registerFile.setSR(CS,segment);
+        registerFile.setSSR(CS,u32(segment)<<4);
+        registerFile.setIP(offset);
+
+        break;
+    }
+    default:
+        assert(0);
+    }
+}
+EXECUTE_FUNC(executeJMPFAR_p)//includes Mp or Ap
+{
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("JMP_p");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_DWORD:
+    {
+        u32 value=dest->getU32();
+        u16 segment=(value>>16)&0xffff;
+        u16 offset=(value&0xffff);
+
+        registerFile.setSR(CS,segment);
+        registerFile.setSSR(CS,u32(segment)<<4);
+        registerFile.setIP(offset);
+
+        break;
+    }
+    case DATA_SIZE_6BYTES:
+    {
+        u48 value=src->getU48();
+        u16 segment=(value>>32)&0xffff;
+        u32 offset=(value&0xffffffff);
+
+        registerFile.setSR(CS,segment);
+        registerFile.setSSR(CS,u32(segment)<<4);
+        registerFile.setIP(offset);
+
+        break;
+    }
+    default:
+        assert(0);
+    }
 }
 
 //0xf
-
 EXECUTE_FUNC(executeINT1)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("INT1");
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("INT1");
+    assert(operatingEnvironment==ENV_16_BITS);
+    INT(1,effectiveAddressSize,memory,registerFile);
 }
 
 EXECUTE_FUNC(executeHLT)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("HLT");
 }
-
 EXECUTE_FUNC(executeCMC)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("CMC");
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("CMC");
+    u8 CF=registerFile.getFlagsBits().CF;
+    registerFile.getFlagsBits().CF=~CF;
 }
 
 //group 3
-
 EXECUTE_FUNC(executeNOT)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("NOT");
     switch(dest->getSize())
     {
@@ -2370,10 +2830,9 @@ EXECUTE_FUNC(executeNOT)
         assert(0);
     }
 }
-
 EXECUTE_FUNC(executeNEG)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("NEG");
     switch(dest->getSize())
     {
@@ -2453,10 +2912,9 @@ EXECUTE_FUNC(executeNEG)
         assert(0);
     }
 }
-
 EXECUTE_FUNC(executeMUL1)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("MUL1");
     switch(dest->getSize())
     {
@@ -2528,10 +2986,9 @@ EXECUTE_FUNC(executeMUL1)
         assert(0);
     }
 }
-
 EXECUTE_FUNC(executeIMUL1)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("IMUL1");
 
     switch(dest->getSize())
@@ -2604,10 +3061,9 @@ EXECUTE_FUNC(executeIMUL1)
         assert(0);
     }
 }
-
 EXECUTE_FUNC(executeDIV1)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("DIV1");
     switch(dest->getSize())
     {
@@ -2657,10 +3113,9 @@ EXECUTE_FUNC(executeDIV1)
         assert(0);
     }
 }
-
 EXECUTE_FUNC(executeIDIV1)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("IDIV1");
     switch(dest->getSize())
     {
@@ -2710,44 +3165,40 @@ EXECUTE_FUNC(executeIDIV1)
         assert(0);
     }
 }
+
 EXECUTE_FUNC(executeCLC)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     registerFile.getFlagsBits().CF=0;
 //    INSTRUCTION_NOT_IMPLEMENT("CLC");
 }
-
 EXECUTE_FUNC(executeSTC)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     registerFile.getFlagsBits().CF=1;
 //    INSTRUCTION_NOT_IMPLEMENT("STC");
 }
-
 EXECUTE_FUNC(executeCLI)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     registerFile.getFlagsBits().IF=0;
 //    INSTRUCTION_NOT_IMPLEMENT("CLI");
 }
-
 EXECUTE_FUNC(executeSTI)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     registerFile.getFlagsBits().IF=1;
 //    INSTRUCTION_NOT_IMPLEMENT("STI");
 }
-
 EXECUTE_FUNC(executeCLD)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     registerFile.getFlagsBits().DF=0;
 //    INSTRUCTION_NOT_IMPLEMENT("CLD");
 }
-
 EXECUTE_FUNC(executeSTD)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     registerFile.getFlagsBits().DF=1;
 //    INSTRUCTION_NOT_IMPLEMENT("STD");
 }
@@ -2755,15 +3206,49 @@ EXECUTE_FUNC(executeSTD)
 //group 4
 
 //group 5
-EXECUTE_FUNC(executeCALL_Ev)
+EXECUTE_FUNC(executeCALLNEAR_Ev)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("CALL_Ev");
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("CALL_Ev");
+    switch(effectiveOperandSize)
+    {
+    case EFFECTIVE_16_BITS:
+        PUSH<u16>((u16)registerFile.getIP(),effectiveAddressSize,memory,registerFile);
+        registerFile.setIP(dest->getU16());
+        break;
+    case EFFECTIVE_32_BITS:
+        PUSH<u32>((u32)registerFile.getIP(),effectiveAddressSize,memory,registerFile);
+        registerFile.setIP(dest->getU32());
+        break;
+    case EFFECTIVE_64_BITS:
+        PUSH<u64>((u64)registerFile.getIP(),effectiveAddressSize,memory,registerFile);
+        registerFile.setIP((u32)dest->getU64());
+        break;
+    default:
+        assert(0);
+    }
 }
 
-EXECUTE_FUNC(executeJMP_Ev)
+EXECUTE_FUNC(executeJMPNEAR_Ev)
 {
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JMP_Ev");
+    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("JMP_Ev");
+    switch(effectiveOperandSize)
+    {
+    case EFFECTIVE_16_BITS:
+//        PUSH<u16>((u16)registerFile.getIP(),effectiveAddressSize,memory,registerFile);
+        registerFile.setIP(dest->getU16());
+        break;
+    case EFFECTIVE_32_BITS:
+//        PUSH<u32>((u32)registerFile.getIP(),effectiveAddressSize,memory,registerFile);
+        registerFile.setIP(dest->getU32());
+        break;
+    case EFFECTIVE_64_BITS:
+//        PUSH<u64>((u64)registerFile.getIP(),effectiveAddressSize,memory,registerFile);
+        registerFile.setIP((u32)dest->getU64());
+        break;
+    default:
+        assert(0);
+    }
 }
 

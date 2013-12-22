@@ -6,7 +6,7 @@
 #include "memory/memory.h"
 #include "io/ioportlist.h"
 #define EXECUTE_FUNC(funcName) void funcName(OperatingEnvironment operatingEnvironment,\
-    EffectiveSize effectiveAddressSize,EffectiveSize effectiveOperandSize,\
+    EffectiveSize effectiveAddressSize,EffectiveSize effectiveOperandSize,SegmentRegister effectiveSegmentRegister,\
     ExecReadWriteOperand* dest,ExecReadWriteOperand* src,ExecReadWriteOperand* src2,\
     RegisterFile& registerFile,Memory& memory,IOPortList& ioPortList)
 
@@ -72,7 +72,7 @@ EXECUTE_FUNC(executeLEA);
 //0x9
 EXECUTE_FUNC(executeCBW_CWDE_CDQE);
 EXECUTE_FUNC(executeCWD_CDQ_CQO);
-EXECUTE_FUNC(executeCALL_Ap);
+EXECUTE_FUNC(executeCALLFAR_Ap);
 EXECUTE_FUNC(executeWAIT_FWAIT);
 EXECUTE_FUNC(executePUSHFDQ);
 EXECUTE_FUNC(executePOPFDQ);
@@ -125,9 +125,9 @@ EXECUTE_FUNC(executeLOOP);
 EXECUTE_FUNC(executeJRCXZ);
 EXECUTE_FUNC(executeIN);
 EXECUTE_FUNC(executeOUT);
-EXECUTE_FUNC(executeCALL_Jz);
-EXECUTE_FUNC(executeJMP_J);//includes Jz & Jb
-EXECUTE_FUNC(executeJMP_p);//includes Mp or Ap
+EXECUTE_FUNC(executeCALLNEAR_Jz);
+EXECUTE_FUNC(executeJMPNEAR_J);//includes Jz & Jb
+EXECUTE_FUNC(executeJMPFAR_p);//includes Mp or Ap
 //0xf
 EXECUTE_FUNC(executeINT1);
 EXECUTE_FUNC(executeHLT);
@@ -150,8 +150,8 @@ EXECUTE_FUNC(executeSTD);
 //group 4
 
 //group 5
-EXECUTE_FUNC(executeCALL_Ev);
-EXECUTE_FUNC(executeJMP_Ev);
+EXECUTE_FUNC(executeCALLNEAR_Ev);
+EXECUTE_FUNC(executeJMPNEAR_Ev);
 
 
 #endif // EXECUTE_H
