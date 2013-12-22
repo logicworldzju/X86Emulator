@@ -24,7 +24,7 @@ SOURCES += ../../src/memory/memory.cpp \
     ../../src/cpu/executer/instructionexecuter.cpp \
     ../../src/cpu/executer/execute.cpp \
     testexecute.cpp \
-    testinstructiondecoder.cpp
+    testinstructionexecuter.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 HEADERS += ../../src/memory/memory.h \
     ../../src/memory/debugmemory.h \
@@ -61,4 +61,4 @@ HEADERS += ../../src/memory/memory.h \
     ../../src/cpu/executer/operand/execoperands.h \
     ../../src/cpu/executer/execute.h \
     testexecute.h \
-    testinstructiondecoder.h
+    testinstructionexecuter.h

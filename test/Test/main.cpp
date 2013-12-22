@@ -38,5 +38,5 @@
 #include "testexecute.h"
 //QTEST_MAIN(TestExecute)
 
-#include "testinstructiondecoder.h"
-QTEST_MAIN(TestInstructionDecoder)
+#include "testinstructionexecuter.h"
+QTEST_MAIN(TestInstructionExecuter)

@@ -4,11 +4,11 @@
 #include <QObject>
 #include <QtTest/QtTest>
 
-class TestInstructionDecoder : public QObject
+class TestInstructionExecuter : public QObject
 {
     Q_OBJECT
 public:
-    explicit TestInstructionDecoder(QObject *parent = 0);
+    explicit TestInstructionExecuter(QObject *parent = 0);
 
 signals:
 

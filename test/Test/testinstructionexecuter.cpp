@@ -1,4 +1,4 @@
-#include "testinstructiondecoder.h"
+#include "testinstructionexecuter.h"
 #include "cpu/decoder/instructiondecoder.h"
 #include "cpu/encoder/instructionencoder.h"
 #include "cpu/decoder/instructionstreamfromfile.h"
@@ -7,7 +7,7 @@
 #include "cpu/executer/instructionexecuter.h"
 #include "memory/debugmemory.h"
 
-TestInstructionDecoder::TestInstructionDecoder(QObject *parent) :
+TestInstructionExecuter::TestInstructionExecuter(QObject *parent) :
     QObject(parent)
 {
 }
@@ -27,7 +27,7 @@ static void hex2Ascii(const std::vector<u8>& hex,std::string& ascii)
         ascii+=" ";
     }
 }
-void TestInstructionDecoder::testAll()
+void TestInstructionExecuter::testAll()
 {
     InstructionStreamFromFile fromFile("../asm/1.com");
 
@@ -81,7 +81,7 @@ void TestInstructionDecoder::testAll()
 
 //        InstructionExecuter executer;
         ExecOperands operands;
-        InstructionExecuter::addressing(highFormat,registerFile,memory,operands);
+
         switch(count)
         {
 //        start:
@@ -90,6 +90,7 @@ void TestInstructionDecoder::testAll()
         case 0:
         {
             registerFile.setGPR8Bits(RAX,0x80);
+            InstructionExecuter::addressing(highFormat,registerFile,memory,operands);
             InstructionExecuter::execute(highFormat,registerFile,memory,ioPortList,operands);
 //            QCOMPARE(u32(registerFile.getFlagsBits().))
             QCOMPARE(int(registerFile.getGPR8Bits(RAX)),0x00);
@@ -108,6 +109,7 @@ void TestInstructionDecoder::testAll()
             memory.startAccess(memory.DEBUG_ACCESS);
             memory.set8Bits(registerFile.getSSR(DS),0x11);
             memory.endAccess();
+            InstructionExecuter::addressing(highFormat,registerFile,memory,operands);
             InstructionExecuter::execute(highFormat,registerFile,memory,ioPortList,operands);
 
             memory.startAccess(memory.DEBUG_ACCESS);
@@ -125,6 +127,7 @@ void TestInstructionDecoder::testAll()
         case 2:
         {
             registerFile.setGPR16Bits(RAX,0xcc);
+            InstructionExecuter::addressing(highFormat,registerFile,memory,operands);
             InstructionExecuter::execute(highFormat,registerFile,memory,ioPortList,operands);
 
             QCOMPARE(registerFile.getGPR16Bits(RAX),u16(0x198));
@@ -140,20 +143,24 @@ void TestInstructionDecoder::testAll()
 //        add [1],ax 	;0x01
         case 3:
         {
-            registerFile.setGPR8Bits(RAX,0xcc);
+            registerFile.setGPR16Bits(RAX,0xcc);
+            registerFile.setSR(DS,1);
+            registerFile.setSSR(DS,1<<4);
             memory.startAccess(memory.DEBUG_ACCESS);
-            memory.set8Bits(registerFile.getSSR(DS),0x11);
+            memory.set16Bits(registerFile.getSSR(DS)+1,0x1111);
             memory.endAccess();
+
+            InstructionExecuter::addressing(highFormat,registerFile,memory,operands);
             InstructionExecuter::execute(highFormat,registerFile,memory,ioPortList,operands);
 
             memory.startAccess(memory.DEBUG_ACCESS);
-            QCOMPARE(u32(memory.get8Bits(registerFile.getSSR(DS))),u32(0xdd));
+            QCOMPARE(u32(memory.get16Bits(registerFile.getSSR(DS)+1)),u32(0x11dd));
             memory.endAccess();
             QCOMPARE(registerFile.getFlagsBits().CF,(unsigned int)(0));
             QCOMPARE(registerFile.getFlagsBits().PF,(unsigned int)(1));
             QCOMPARE(registerFile.getFlagsBits().AF,(unsigned int)(0));
             QCOMPARE(registerFile.getFlagsBits().ZF,(unsigned int)(0));
-            QCOMPARE(registerFile.getFlagsBits().SF,(unsigned int)(1));
+            QCOMPARE(registerFile.getFlagsBits().SF,(unsigned int)(0));
             QCOMPARE(registerFile.getFlagsBits().OF,(unsigned int)(0));
             break;
         }
