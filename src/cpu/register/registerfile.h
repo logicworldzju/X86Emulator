@@ -15,6 +15,7 @@ public:
     RegisterFile()
     {
         ::memset(_segmentRegisters,0,sizeof(_segmentRegisters));
+        ::memset(_segmentShadowRegisters,0,sizeof(_segmentShadowRegisters));
         _ip=0;
     }
     std::string toString()

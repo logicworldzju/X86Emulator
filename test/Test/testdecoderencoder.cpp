@@ -10,7 +10,7 @@ TestDecoderEncoder::TestDecoderEncoder(QObject *parent) :
     QObject(parent)
 {
 }
-void hex2Ascii(const std::vector<u8>& hex,std::string& ascii)
+static void hex2Ascii(const std::vector<u8>& hex,std::string& ascii)
 {
     for(uint i=0; i<hex.size(); i++)
     {

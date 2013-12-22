@@ -1479,28 +1479,445 @@ void TestExecute::testCALLNEAR_Ev()
 
 void TestExecute::testCALLFAR()
 {
-//    RegisterFile registerFile;
+    RegisterFile registerFile;
 
-//    DebugMemory memory;
-//    IOPortList ioPortList(memory,registerFile);
+    DebugMemory memory;
+    IOPortList ioPortList(memory,registerFile);
 
-//    {
-//        fillRegisterFile(registerFile);
-//        //normal case.
+    {
+        fillRegisterFile(registerFile);
+        //normal case.
 
-//        ExecImmediateOperand src(1,DATA_SIZE_BYTE);
+        ExecImmediateOperand src(1,DATA_SIZE_DWORD);
 
-//        executeCALLFAR_Ap(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&src,NULL,NULL,registerFile,memory,ioPortList);
+        executeCALLFAR_p(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&src,NULL,NULL,registerFile,memory,ioPortList);
 
-////        QCOMPARE(u32(registerFile.getFlagsBits().CF),u32(1));
+//        QCOMPARE(u32(registerFile.getFlagsBits().CF),u32(1));
+
+        memory.startAccess(memory.DEBUG_ACCESS);
+        QCOMPARE(u32(memory.get32Bits(registerFile.getSSR(SS)+registerFile.getGPR16Bits(RSP))),
+                 u32(0x11111234));
+        memory.endAccess();
+        QCOMPARE(u16(registerFile.getSR(CS)),u16(0));
+        QCOMPARE(u32(registerFile.getIP()),u32(0x1));
+    }
+}
+
+void TestExecute::testRETNEAR()
+{
+    RegisterFile registerFile;
+
+    DebugMemory memory;
+    IOPortList ioPortList(memory,registerFile);
+
+    {
+        fillRegisterFile(registerFile);
+        //normal case.
+
+        ExecImmediateOperand src(1,DATA_SIZE_BYTE);
+
+        executeCALLNEAR_Ev(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&src,NULL,NULL,registerFile,memory,ioPortList);
+
+//        QCOMPARE(u32(registerFile.getFlagsBits().CF),u32(1));
+
+        memory.startAccess(memory.DEBUG_ACCESS);
+        QCOMPARE(u32(memory.get16Bits(registerFile.getSSR(SS)+registerFile.getGPR16Bits(RSP))),
+                 u32(0x1234));
+        memory.endAccess();
+        QCOMPARE(u32(registerFile.getIP()),u32(0x1));
+        QCOMPARE(u32(registerFile.getGPR16Bits(RSP)),u32(0x4442));
+
+        executeRETNEAR(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&src,NULL,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE(u32(registerFile.getIP()),u32(0x1234));
+        QCOMPARE(u32(registerFile.getGPR16Bits(RSP)),u32(0x4445));
+    }
+}
+
+void TestExecute::testRETFAR()
+{
+    RegisterFile registerFile;
+
+    DebugMemory memory;
+    IOPortList ioPortList(memory,registerFile);
+
+    {
+        fillRegisterFile(registerFile);
+        //normal case.
+
+        ExecImmediateOperand src(1,DATA_SIZE_DWORD);
+
+        executeCALLFAR_p(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&src,NULL,NULL,registerFile,memory,ioPortList);
+
+//        QCOMPARE(u32(registerFile.getFlagsBits().CF),u32(1));
+
+        memory.startAccess(memory.DEBUG_ACCESS);
+        QCOMPARE(u32(memory.get32Bits(registerFile.getSSR(SS)+registerFile.getGPR16Bits(RSP))),
+                 u32(0x11111234));
+        memory.endAccess();
+        QCOMPARE(u16(registerFile.getSR(CS)),u16(0));
+        QCOMPARE(u32(registerFile.getIP()),u32(0x1));
+        QCOMPARE(u32(registerFile.getGPR16Bits(RSP)),u32(0x4440));
+
+        executeRETFAR(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&src,NULL,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE(u32(registerFile.getIP()),u32(0x1234));
+        QCOMPARE(u32(registerFile.getSR(CS)),u32(0x1111));
+        QCOMPARE(u32(registerFile.getGPR16Bits(RSP)),u32(0x4445));
+
+
+    }
+}
+
+void TestExecute::testJMPNEAR_J()
+{
+    RegisterFile registerFile;
+
+    DebugMemory memory;
+    IOPortList ioPortList(memory,registerFile);
+
+    {
+        fillRegisterFile(registerFile);
+        //normal case.
+
+        ExecImmediateOperand src(1,DATA_SIZE_BYTE);
+
+        executeJMPNEAR_J(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&src,NULL,NULL,registerFile,memory,ioPortList);
+
+//        QCOMPARE(u32(registerFile.getFlagsBits().CF),u32(1));
 
 //        memory.startAccess(memory.DEBUG_ACCESS);
 //        QCOMPARE(u32(memory.get16Bits(registerFile.getSSR(SS)+registerFile.getGPR16Bits(RSP))),
 //                 u32(0x1234));
 //        memory.endAccess();
-//        QCOMPARE(u32(registerFile.getIP()),u32(0x1));
-//    }
+        QCOMPARE(u32(registerFile.getIP()),u32(0x1235));
+    }
 }
+
+void TestExecute::testJMPNEAR_Ev()
+{
+    RegisterFile registerFile;
+
+    DebugMemory memory;
+    IOPortList ioPortList(memory,registerFile);
+
+    {
+        fillRegisterFile(registerFile);
+        //normal case.
+
+        ExecImmediateOperand src(1,DATA_SIZE_BYTE);
+
+        executeJMPNEAR_Ev(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&src,NULL,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE(u32(registerFile.getIP()),u32(0x1));
+    }
+}
+
+void TestExecute::testJMPFAR()
+{
+    RegisterFile registerFile;
+
+    DebugMemory memory;
+    IOPortList ioPortList(memory,registerFile);
+
+    {
+        fillRegisterFile(registerFile);
+        //normal case.
+
+        ExecImmediateOperand src(1,DATA_SIZE_DWORD);
+
+        executeJMPFAR_p(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&src,NULL,NULL,registerFile,memory,ioPortList);
+
+//        QCOMPARE(u32(registerFile.getFlagsBits().CF),u32(1));
+
+        QCOMPARE(u16(registerFile.getSR(CS)),u16(0));
+        QCOMPARE(u32(registerFile.getIP()),u32(0x1));
+    }
+}
+
+void TestExecute::testENTER()
+{
+    RegisterFile registerFile;
+
+    DebugMemory memory;
+    IOPortList ioPortList(memory,registerFile);
+
+    {
+        fillRegisterFile(registerFile);
+        memory.startAccess(memory.DEBUG_ACCESS);
+        memory.set16Bits(registerFile.getSSR(SS)+registerFile.getGPR16Bits(RBP)-2,0xcc);
+        memory.endAccess();
+        //normal case.
+
+        ExecImmediateOperand dest(1,DATA_SIZE_DWORD);
+        ExecImmediateOperand src(2,DATA_SIZE_DWORD);
+
+        executeENTER(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&dest,&src,NULL,registerFile,memory,ioPortList);
+
+//        QCOMPARE(u32(registerFile.getFlagsBits().CF),u32(1));
+
+//        QCOMPARE(u16(registerFile.getSR(CS)),u16(0));
+//        QCOMPARE(u32(registerFile.getIP()),u32(0x1));
+        QCOMPARE(u32(registerFile.getGPR16Bits(RBP)),u32(0x4444-2));
+        QCOMPARE(u32(registerFile.getGPR16Bits(RSP)),u32(0x4444-2-2*2-1));
+
+        memory.startAccess(memory.DEBUG_ACCESS);
+        QCOMPARE(u32(memory.get16Bits(registerFile.getSSR(SS)+registerFile.getGPR16Bits(RBP))),
+                 u32(0x5555));
+        QCOMPARE(u32(memory.get16Bits(registerFile.getSSR(SS)+registerFile.getGPR16Bits(RBP)-2)),
+                 u32(0xcc));
+        QCOMPARE(u32(memory.get16Bits(registerFile.getSSR(SS)+registerFile.getGPR16Bits(RBP)-4)),
+                 u32(0x4444-2));
+        memory.endAccess();
+    }
+}
+
+void TestExecute::testLEAVE()
+{
+    RegisterFile registerFile;
+
+    DebugMemory memory;
+    IOPortList ioPortList(memory,registerFile);
+
+    {
+        fillRegisterFile(registerFile);
+        memory.startAccess(memory.DEBUG_ACCESS);
+        memory.set16Bits(registerFile.getSSR(SS)+registerFile.getGPR16Bits(RBP)-2,0xcc);
+        memory.endAccess();
+        //normal case.
+
+        ExecImmediateOperand dest(1,DATA_SIZE_DWORD);
+        ExecImmediateOperand src(2,DATA_SIZE_DWORD);
+
+        executeENTER(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&dest,&src,NULL,registerFile,memory,ioPortList);
+
+//        QCOMPARE(u32(registerFile.getFlagsBits().CF),u32(1));
+
+//        QCOMPARE(u16(registerFile.getSR(CS)),u16(0));
+//        QCOMPARE(u32(registerFile.getIP()),u32(0x1));
+        QCOMPARE(u32(registerFile.getGPR16Bits(RBP)),u32(0x4444-2));
+        QCOMPARE(u32(registerFile.getGPR16Bits(RSP)),u32(0x4444-2-2*2-1));
+
+        memory.startAccess(memory.DEBUG_ACCESS);
+        QCOMPARE(u32(memory.get16Bits(registerFile.getSSR(SS)+registerFile.getGPR16Bits(RBP))),
+                 u32(0x5555));
+        QCOMPARE(u32(memory.get16Bits(registerFile.getSSR(SS)+registerFile.getGPR16Bits(RBP)-2)),
+                 u32(0xcc));
+        QCOMPARE(u32(memory.get16Bits(registerFile.getSSR(SS)+registerFile.getGPR16Bits(RBP)-4)),
+                 u32(0x4444-2));
+        memory.endAccess();
+
+
+        executeLEAVE(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,NULL,NULL,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE(u32(registerFile.getGPR16Bits(RBP)),u32(0x5555));
+        QCOMPARE(u32(registerFile.getGPR16Bits(RSP)),u32(0x4444));
+
+    }
+}
+
+void TestExecute::testCMPS()
+{
+    RegisterFile registerFile;
+    DebugMemory memory;
+    IOPortList ioPortList(memory,registerFile);
+
+    {
+        fillRegisterFile(registerFile);
+//        registerFile.getFlagsBits().CF=1;
+        //normal case.
+        ExecGPRegisterOperand dest(registerFile,RAX,DATA_SIZE_WORD,false);
+        dest.setU16(0xffee);
+        ExecImmediateOperand src(0x11,DATA_SIZE_WORD);
+
+        executeCMPS(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&dest,&src,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE((u32)registerFile.getFlagsBits().CF,(u32)0);
+        QCOMPARE((u32)registerFile.getFlagsBits().PF,(u32)1);
+        QCOMPARE((u32)registerFile.getFlagsBits().AF,(u32)0);
+        QCOMPARE((u32)registerFile.getFlagsBits().ZF,(u32)0);
+        QCOMPARE((u32)registerFile.getFlagsBits().SF,(u32)1);
+        QCOMPARE((u32)registerFile.getFlagsBits().OF,(u32)0);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RDI),(u32)0x7779);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RSI),(u32)0x6668);
+    }
+    {
+        fillRegisterFile(registerFile);
+        registerFile.getFlagsBits().DF=1;
+        //normal case.
+        ExecGPRegisterOperand dest(registerFile,RAX,DATA_SIZE_WORD,false);
+        dest.setU16(0xffee);
+        ExecImmediateOperand src(0x11,DATA_SIZE_WORD);
+
+        executeCMPS(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&dest,&src,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE((u32)registerFile.getFlagsBits().CF,(u32)0);
+        QCOMPARE((u32)registerFile.getFlagsBits().PF,(u32)1);
+        QCOMPARE((u32)registerFile.getFlagsBits().AF,(u32)0);
+        QCOMPARE((u32)registerFile.getFlagsBits().ZF,(u32)0);
+        QCOMPARE((u32)registerFile.getFlagsBits().SF,(u32)1);
+        QCOMPARE((u32)registerFile.getFlagsBits().OF,(u32)0);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RDI),(u32)0x7775);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RSI),(u32)0x6664);
+    }
+}
+
+void TestExecute::testMOVE()
+{
+    RegisterFile registerFile;
+    DebugMemory memory;
+    IOPortList ioPortList(memory,registerFile);
+
+    {
+        fillRegisterFile(registerFile);
+//        registerFile.getFlagsBits().CF=1;
+        //normal case.
+        ExecGPRegisterOperand dest(registerFile,RAX,DATA_SIZE_WORD,false);
+        dest.setU16(0xffee);
+        ExecImmediateOperand src(0x11,DATA_SIZE_WORD);
+
+        executeMOVS(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&dest,&src,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE((u32)dest.getU16(),(u32)0x11);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RDI),(u32)0x7779);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RSI),(u32)0x6668);
+    }
+    {
+        fillRegisterFile(registerFile);
+        registerFile.getFlagsBits().DF=1;
+        //normal case.
+        ExecGPRegisterOperand dest(registerFile,RAX,DATA_SIZE_WORD,false);
+        dest.setU16(0xffee);
+        ExecImmediateOperand src(0x11,DATA_SIZE_WORD);
+
+        executeMOVS(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&dest,&src,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE((u32)dest.getU16(),(u32)0x11);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RDI),(u32)0x7775);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RSI),(u32)0x6664);
+    }
+}
+
+void TestExecute::testLODS()
+{
+    RegisterFile registerFile;
+    DebugMemory memory;
+    IOPortList ioPortList(memory,registerFile);
+
+    {
+        fillRegisterFile(registerFile);
+//        registerFile.getFlagsBits().CF=1;
+        //normal case.
+        ExecGPRegisterOperand dest(registerFile,RAX,DATA_SIZE_WORD,false);
+        dest.setU16(0xffee);
+        ExecImmediateOperand src(0x11,DATA_SIZE_WORD);
+
+        executeLODS(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&dest,&src,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE((u32)dest.getU16(),(u32)0x11);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RDI),(u32)0x7777);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RSI),(u32)0x6668);
+    }
+    {
+        fillRegisterFile(registerFile);
+        registerFile.getFlagsBits().DF=1;
+        //normal case.
+        ExecGPRegisterOperand dest(registerFile,RAX,DATA_SIZE_WORD,false);
+        dest.setU16(0xffee);
+        ExecImmediateOperand src(0x11,DATA_SIZE_WORD);
+
+        executeLODS(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&dest,&src,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE((u32)dest.getU16(),(u32)0x11);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RDI),(u32)0x7777);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RSI),(u32)0x6664);
+    }
+}
+
+void TestExecute::testSTOS()
+{
+    RegisterFile registerFile;
+    DebugMemory memory;
+    IOPortList ioPortList(memory,registerFile);
+
+    {
+        fillRegisterFile(registerFile);
+//        registerFile.getFlagsBits().CF=1;
+        //normal case.
+        ExecGPRegisterOperand dest(registerFile,RAX,DATA_SIZE_WORD,false);
+        dest.setU16(0xffee);
+        ExecImmediateOperand src(0x11,DATA_SIZE_WORD);
+
+        executeSTOS(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&dest,&src,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE((u32)dest.getU16(),(u32)0x11);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RDI),(u32)0x7779);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RSI),(u32)0x6666);
+    }
+    {
+        fillRegisterFile(registerFile);
+        registerFile.getFlagsBits().DF=1;
+        //normal case.
+        ExecGPRegisterOperand dest(registerFile,RAX,DATA_SIZE_WORD,false);
+        dest.setU16(0xffee);
+        ExecImmediateOperand src(0x11,DATA_SIZE_WORD);
+
+        executeSTOS(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&dest,&src,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE((u32)dest.getU16(),(u32)0x11);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RDI),(u32)0x7775);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RSI),(u32)0x6666);
+    }
+}
+
+void TestExecute::testSCAS()
+{
+    RegisterFile registerFile;
+    DebugMemory memory;
+    IOPortList ioPortList(memory,registerFile);
+
+    {
+        fillRegisterFile(registerFile);
+//        registerFile.getFlagsBits().CF=1;
+        //normal case.
+        ExecGPRegisterOperand dest(registerFile,RAX,DATA_SIZE_WORD,false);
+        dest.setU16(0xffee);
+        ExecImmediateOperand src(0xffee,DATA_SIZE_WORD);
+
+        executeSCAS(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&dest,&src,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE((u32)registerFile.getFlagsBits().CF,(u32)0);
+        QCOMPARE((u32)registerFile.getFlagsBits().PF,(u32)1);
+        QCOMPARE((u32)registerFile.getFlagsBits().AF,(u32)0);
+        QCOMPARE((u32)registerFile.getFlagsBits().ZF,(u32)1);
+        QCOMPARE((u32)registerFile.getFlagsBits().SF,(u32)0);
+        QCOMPARE((u32)registerFile.getFlagsBits().OF,(u32)0);
+
+        QCOMPARE((u32)registerFile.getGPR16Bits(RDI),(u32)0x7779);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RSI),(u32)0x6666);
+    }
+    {
+        fillRegisterFile(registerFile);
+        registerFile.getFlagsBits().DF=1;
+        //normal case.
+        ExecGPRegisterOperand dest(registerFile,RAX,DATA_SIZE_WORD,false);
+        dest.setU16(0xffee);
+        ExecImmediateOperand src(0x11,DATA_SIZE_WORD);
+
+        executeSCAS(ENV_16_BITS,EFFECTIVE_16_BITS,EFFECTIVE_16_BITS,DS,&dest,&src,NULL,registerFile,memory,ioPortList);
+
+        QCOMPARE((u32)registerFile.getFlagsBits().CF,(u32)0);
+        QCOMPARE((u32)registerFile.getFlagsBits().PF,(u32)1);
+        QCOMPARE((u32)registerFile.getFlagsBits().AF,(u32)0);
+        QCOMPARE((u32)registerFile.getFlagsBits().ZF,(u32)0);
+        QCOMPARE((u32)registerFile.getFlagsBits().SF,(u32)1);
+        QCOMPARE((u32)registerFile.getFlagsBits().OF,(u32)0);
+
+        QCOMPARE((u32)registerFile.getGPR16Bits(RDI),(u32)0x7775);
+        QCOMPARE((u32)registerFile.getGPR16Bits(RSI),(u32)0x6666);
+    }
+}
+
 
 void TestExecute::fillRegisterFile(RegisterFile &registerFile)
 {
