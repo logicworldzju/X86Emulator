@@ -56,7 +56,7 @@ protected:
     static const char* _dataSizeString[7];
 
     static const char* _modrm16BitsString[3][8];
-    static const char* _moderm3264BitsString[3][16];
+//    static const char* _moderm3264BitsString[3][16];
 };
 
 #endif // INSTRUCTIONTOSTRING_H

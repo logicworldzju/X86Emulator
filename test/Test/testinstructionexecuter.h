@@ -14,6 +14,7 @@ signals:
 
 private slots:
     void testAll();
+    void testAll2();
 };
 
 #endif // TESTINSTRUCTIONDECODER_H

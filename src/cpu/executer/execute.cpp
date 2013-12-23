@@ -208,11 +208,11 @@ void PUSH(T value,EffectiveSize effectiveAddressSize,Memory& memory,RegisterFile
     switch(effectiveAddressSize)
     {
     case EFFECTIVE_16_BITS:
-        address+=registerFile.getGPR16Bits(RSP)-dataSize;
+        address+=u16(registerFile.getGPR16Bits(RSP)-dataSize);
         break;
     case EFFECTIVE_32_BITS:
     case EFFECTIVE_64_BITS:
-        address+=registerFile.getGPR32Bits(RSP)-dataSize;
+        address+=u32(registerFile.getGPR32Bits(RSP)-dataSize);
         break;
     }
 
@@ -255,6 +255,20 @@ EXECUTE_FUNC(executePUSH)
     //get data size.
     switch(dest->getSize())
     {
+    case DATA_SIZE_BYTE:
+        switch(effectiveOperandSize)
+        {
+        case EFFECTIVE_16_BITS:
+            PUSH<u16>(dest->getS16(),effectiveAddressSize,memory,registerFile);
+            break;
+        case EFFECTIVE_32_BITS:
+            PUSH<u32>(dest->getS32(),effectiveAddressSize,memory,registerFile);
+            break;
+        case EFFECTIVE_64_BITS:
+            PUSH<u64>(dest->getS64(),effectiveAddressSize,memory,registerFile);
+            break;
+        }
+        break;
     case DATA_SIZE_WORD:
         PUSH<u16>(dest->getU16(),effectiveAddressSize,memory,registerFile);
         break;
@@ -1351,7 +1365,7 @@ EXECUTE_FUNC(executeJNP)
 EXECUTE_FUNC(executeJL)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("JL");
+//    INSTRUCTION_NOT_IMPLEMENT("JL");
     if(registerFile.getFlagsBits().SF!=registerFile.getFlagsBits().OF)
     {
         JUMP(effectiveOperandSize,dest,registerFile);

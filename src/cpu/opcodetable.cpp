@@ -424,7 +424,7 @@ OpcodeTableEntry opcodeTableOneByte[256]=
     OpcodeTableEntry("LEA",(void*)executeLEA,OT_G,OS_v,OT_M,OS_NOT_EXISTS),//0x8d
     OpcodeTableEntry("MOV",(void*)executeMOVE,OT_S,OS_w,OT_E,OS_w),//0x8e
     OpcodeTableEntry("Group 1a",opcodeTableGroup1a),//0x8f
-    OpcodeTableEntry("NOP/PAUSE",(void*)executeXCHG),//0x90 //XCHG r8,rAX in 64-bit mode.
+    OpcodeTableEntry("NOP/PAUSE",(void*)executeXCHG,OT_RAX,OS_v,OT_RAX,OS_v),//0x90 //XCHG r8,rAX in 64-bit mode.
     OpcodeTableEntry("XCHG",(void*)executeXCHG,OT_RCX,OS_v,OT_RAX,OS_v),//0x91
     OpcodeTableEntry("XCHG",(void*)executeXCHG,OT_RDX,OS_v,OT_RAX,OS_v),//0x92
     OpcodeTableEntry("XCHG",(void*)executeXCHG,OT_RBX,OS_v,OT_RAX,OS_v),//0x93

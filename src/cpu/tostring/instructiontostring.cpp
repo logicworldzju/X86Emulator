@@ -543,12 +543,12 @@ void InstructionToString::memoryModRM16BitsToString(InstructionHighLevelFormat &
     }
     inst+=dispString;
 }
-const char* InstructionToString::_moderm3264BitsString[3][16]=
-{
-    {},
-    {},
-    {}
-};
+//const char* InstructionToString::_moderm3264BitsString[3][16]=
+//{
+//    {},
+//    {},
+//    {}
+//};
 void InstructionToString::memoryModRM3264BitsToString(
         InstructionHighLevelFormat &highFormat,
         std::string &inst, IFOperand &operand)
