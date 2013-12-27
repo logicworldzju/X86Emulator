@@ -39,4 +39,10 @@
 //QTEST_MAIN(TestExecute)
 
 #include "testinstructionexecuter.h"
-QTEST_MAIN(TestInstructionExecuter)
+//QTEST_MAIN(TestInstructionExecuter)
+
+#include "testbios.h"
+//QTEST_MAIN(TestBIOS)
+
+#include "testdebugcpu.h"
+QTEST_MAIN(TestDebugCPU)
