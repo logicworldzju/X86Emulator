@@ -15,6 +15,7 @@
 typedef EXECUTE_FUNC(*ExecuteFunc);
 //void move(EffectiveSize dataSize,ExecReadWriteOperand* dest,ExecReadOperand* src,ExecReadOperand* src2,
 //          RegisterFile& registerFile,Memory& memory);
+void INT(u8 intNumber,EffectiveSize effectiveAddressSize,Memory& memory,RegisterFile& registerFile);
 //0x0
 EXECUTE_FUNC(executeADD);
 EXECUTE_FUNC(executePUSH);
