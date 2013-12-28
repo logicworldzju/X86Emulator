@@ -93,7 +93,8 @@ void CPU::run()
         if(highFormat.legacyPrefix.rep_repz)
         {
             if(execFunc==(void*)executeLODS || execFunc==(void*)executeMOVS ||
-                    execFunc==(void*)executeSTOS)
+                    execFunc==(void*)executeSTOS || execFunc==(void*)executeINS ||
+                    execFunc==(void*)executeOUTS)
             {
                 //rep
                 if(!decRCX(_registerFile,highFormat.effectiveOperandSize))
