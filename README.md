@@ -14,5 +14,6 @@ How to build it
 ### Some requirement
 * Qt 4.x
 * nasm
+
 ### Steps
-NA
+1. NA
