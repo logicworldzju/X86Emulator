@@ -388,10 +388,10 @@ OpcodeTableEntry opcodeTableOneByte[256]=
     OpcodeTableEntry("IMUL",(void*)executeIMUL3,OT_G,OS_v,OT_E,OS_v,OT_I,OS_z),//0x69
     OpcodeTableEntry("PUSH",(void*)executePUSH,OT_I,OS_b),//0x6a
     OpcodeTableEntry("IMUL",(void*)executeIMUL3,OT_G,OS_v,OT_E,OS_v,OT_I,OS_b),//0x6b
-    OpcodeTableEntry("INSB",(void*)executeINSB,OT_Y,OS_b,OT_RDX,OS_w),//0x6c
-    OpcodeTableEntry("INSW/D",(void*)executeINSWD,OT_Y,OS_z,OT_RDX,OS_w),//0x6d
-    OpcodeTableEntry("OUTSB",(void*)executeOUTSB,OT_RDX,OS_w,OT_X,OS_b),//0x6e
-    OpcodeTableEntry("OUTSW/D",(void*)executeOUTSWD,OT_RDX,OS_w,OT_X,OS_z),//0x6f
+    OpcodeTableEntry("INSB",(void*)executeINS,OT_Y,OS_b,OT_RDX,OS_w),//0x6c
+    OpcodeTableEntry("INSW/D",(void*)executeINS,OT_Y,OS_z,OT_RDX,OS_w),//0x6d
+    OpcodeTableEntry("OUTSB",(void*)executeOUTS,OT_RDX,OS_w,OT_X,OS_b),//0x6e
+    OpcodeTableEntry("OUTSW/D",(void*)executeOUTS,OT_RDX,OS_w,OT_X,OS_z),//0x6f
     OpcodeTableEntry("JO",(void*)executeJO,OT_J,OS_b),//0x70
     OpcodeTableEntry("JNO",(void*)executeJNO,OT_J,OS_b),//0x71
     OpcodeTableEntry("JB",(void*)executeJB,OT_J,OS_b),//0x72

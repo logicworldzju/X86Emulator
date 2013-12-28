@@ -1192,29 +1192,29 @@ EXECUTE_FUNC(executeIMUL3) //IMUL with 3 operands.
     }
 }
 
-EXECUTE_FUNC(executeINSB)
+EXECUTE_FUNC(executeINS)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("INSB");
 }
 
-EXECUTE_FUNC(executeINSWD)
-{
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("INSWD");
-}
+//EXECUTE_FUNC(executeINSWD)
+//{
+//    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("INSWD");
+//}
 
-EXECUTE_FUNC(executeOUTSB)
+EXECUTE_FUNC(executeOUTS)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("OUTB");
 }
 
-EXECUTE_FUNC(executeOUTSWD)
-{
-    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("OUTSWD");
-}
+//EXECUTE_FUNC(executeOUTSWD)
+//{
+//    (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
+//    INSTRUCTION_NOT_IMPLEMENT("OUTSWD");
+//}
 
 void JUMP(EffectiveSize effectiveOperandSize,ExecReadWriteOperand* dest,RegisterFile& registerFile)
 {
