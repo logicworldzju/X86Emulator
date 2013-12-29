@@ -1,6 +1,6 @@
 #ifndef FLAGS_H
 #define FLAGS_H
-#include "type.h"
+#include "../../type.h"
 #include <string>
 #include <sstream>
 

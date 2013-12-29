@@ -1,7 +1,7 @@
 #ifndef EXECSEMENTREGISTEROPERAND_H
 #define EXECSEMENTREGISTEROPERAND_H
 #include "execreadwriteoperand.h"
-#include "cpu/register/registerfile.h"
+#include "../../register/registerfile.h"
 class ExecSegmentRegisterOperand:public ExecReadWriteOperand
 {
 public:

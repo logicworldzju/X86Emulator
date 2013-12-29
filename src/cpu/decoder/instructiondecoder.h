@@ -1,6 +1,6 @@
 #ifndef INSTRUCTIONDECODER_H
 #define INSTRUCTIONDECODER_H
-#include "cpu/instructionformat.h"
+#include "../instructionformat.h"
 #include "instructionstream.h"
 
 class OpcodeTableEntry;

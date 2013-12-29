@@ -1,10 +1,10 @@
 #include "instructiondecoder.h"
-#include "cpu/cputype.h"
-#include "cpu/opcodetable.h"
+#include "../cputype.h"
+#include "../opcodetable.h"
 #include <iostream>
 #include <stdlib.h>
 #include <assert.h>
-#include "cpu/instructioncode.h"
+#include "../instructioncode.h"
 
 InstructionDecoder::InstructionDecoder()
 {

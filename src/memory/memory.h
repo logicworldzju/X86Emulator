@@ -1,6 +1,6 @@
 #ifndef MEMORY_H
 #define MEMORY_H
-#include "type.h"
+#include "../type.h"
 #include <assert.h>
 /*
 the layout and contents of the first Meg of memory[1][2]:

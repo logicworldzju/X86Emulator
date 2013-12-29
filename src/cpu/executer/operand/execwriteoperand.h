@@ -1,8 +1,8 @@
 #ifndef EXECWRITEOPERAND_H
 #define EXECWRITEOPERAND_H
 
-#include "type.h"
-#include "cpu/instructionformat.h"
+#include "../../../type.h"
+#include "../../instructionformat.h"
 
 class ExecWriteOperand
 {

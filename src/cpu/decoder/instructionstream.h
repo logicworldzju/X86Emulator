@@ -1,6 +1,6 @@
 #ifndef INSTRUCTIONSTREAM_H
 #define INSTRUCTIONSTREAM_H
-#include "type.h"
+#include "../../type.h"
 #include <vector>
 class InstructionStream
 {

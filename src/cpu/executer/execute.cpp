@@ -1,7 +1,7 @@
 #include "execute.h"
 #include <iostream>
 #include <stdlib.h>
-#include "cpu/executer/operand/execmemoryoperand.h"
+#include "operand/execmemoryoperand.h"
 //---------------------------Set Flags Function----------------------------------
 inline u8 getCarryFlag(u8 msbOpt1,u8 msbOpt2,bool isPlus,u8 msbResult)
 {

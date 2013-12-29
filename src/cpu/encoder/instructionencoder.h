@@ -1,7 +1,7 @@
 #ifndef INSTRUCTIONENCODER_H
 #define INSTRUCTIONENCODER_H
 
-#include "cpu/instructionformat.h"
+#include "../instructionformat.h"
 #include <vector>
 
 class InstructionEncoder
