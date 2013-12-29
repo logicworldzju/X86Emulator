@@ -1,8 +1,9 @@
 #ifndef OPCODETABLE_H
 #define OPCODETABLE_H
 
+#include "../type.h"
 #include <string>
-#include "type.h"
+
 
 enum OTOperandType
 {

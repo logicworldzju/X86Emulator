@@ -1,6 +1,6 @@
 #ifndef GPREGISTER_H
 #define GPREGISTER_H
-#include "type.h"
+#include "../../type.h"
 #include <string.h>
 class GPRegisterClass
 {

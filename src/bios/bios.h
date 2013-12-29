@@ -1,7 +1,7 @@
 #ifndef BIOS_H
 #define BIOS_H
 #include <string>
-#include "memory/memory.h"
+#include "../memory/memory.h"
 
 class BIOS
 {

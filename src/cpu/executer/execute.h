@@ -1,10 +1,10 @@
 #ifndef EXECUTE_H
 #define EXECUTE_H
-#include "cpu/instructionformat.h"
-#include "cpu/executer/operand/execreadwriteoperand.h"
-#include "cpu/register/registerfile.h"
-#include "memory/memory.h"
-#include "io/ioportlist.h"
+#include "../instructionformat.h"
+#include "../executer/operand/execreadwriteoperand.h"
+#include "../register/registerfile.h"
+#include "../../memory/memory.h"
+#include "../../io/ioportlist.h"
 #define EXECUTE_FUNC(funcName) void funcName(OperatingEnvironment operatingEnvironment,\
     EffectiveSize effectiveAddressSize,EffectiveSize effectiveOperandSize,SegmentRegister effectiveSegmentRegister,\
     ExecReadWriteOperand* dest,ExecReadWriteOperand* src,ExecReadWriteOperand* src2,\

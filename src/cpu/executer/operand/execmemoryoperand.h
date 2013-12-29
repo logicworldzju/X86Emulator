@@ -1,7 +1,7 @@
 #ifndef EXECREADMEMORYOPERAND_H
 #define EXECREADMEMORYOPERAND_H
 #include "execreadwriteoperand.h"
-#include "memory/memory.h"
+#include "../../../memory/memory.h"
 #include <assert.h>
 
 class ExecMemoryOperand:public ExecReadWriteOperand

@@ -6,6 +6,7 @@
 
 QT       += core gui
 
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = X86Emulator
 TEMPLATE = app
 
@@ -20,7 +21,8 @@ SOURCES += main.cpp\
     cpu/tostring/instructiontostring.cpp \
     bios/bios.cpp \
     cpu/executer/instructionexecuter.cpp \
-    cpu/executer/execute.cpp
+    cpu/executer/execute.cpp \
+    gui/video.cpp
 
 HEADERS  += gui/mainwindow.h \
     cpu/instructionformat.h \
@@ -55,7 +57,8 @@ HEADERS  += gui/mainwindow.h \
     cpu/tostring/instructiontostring.h \
     bios/bios.h \
     cpu/executer/instructionexecuter.h \
-    cpu/executer/execute.h
+    cpu/executer/execute.h \
+    gui/video.h
 
 FORMS    += gui/mainwindow.ui
 

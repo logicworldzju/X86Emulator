@@ -1,5 +1,5 @@
 #include "instructionencoder.h"
-#include "cpu/instructioncode.h"
+#include "../instructioncode.h"
 #include <assert.h>
 InstructionEncoder::InstructionEncoder()
 {

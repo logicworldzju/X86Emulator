@@ -1,12 +1,12 @@
 #ifndef REGISTERFILE_H
 #define REGISTERFILE_H
 
-#include "type.h"
+#include "../../type.h"
 #include "gpregister.h"
 #include "flags.h"
 #include <assert.h>
 #include <string.h>
-#include "cpu/cputype.h"
+#include "../cputype.h"
 #include <string>
 #include <sstream>
 class RegisterFile

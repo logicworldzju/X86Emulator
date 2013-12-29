@@ -2,7 +2,7 @@
 #define EXECGPREGISTEROPERAND_H
 
 #include "execreadwriteoperand.h"
-#include "cpu/register/registerfile.h"
+#include "../../register/registerfile.h"
 
 class ExecGPRegisterOperand :public ExecReadWriteOperand
 {

@@ -1,6 +1,6 @@
 #ifndef EXECOPERANDS_H
 #define EXECOPERANDS_H
-#include "cpu/executer/operand/execreadwriteoperand.h"
+#include "execreadwriteoperand.h"
 #include <assert.h>
 class ExecOperands
 {

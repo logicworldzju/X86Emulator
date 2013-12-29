@@ -1,7 +1,7 @@
 #ifndef INSTRUCTIONTOSTRING_H
 #define INSTRUCTIONTOSTRING_H
 
-#include "cpu/instructionformat.h"
+#include "../instructionformat.h"
 #include <string>
 
 class InstructionToString
