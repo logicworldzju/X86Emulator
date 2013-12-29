@@ -13,7 +13,9 @@ How to build it
 ------------
 ### Some requirements
 * Qt 4.x
-* nasm
+* nasm(may not be necessary)
 
 ### Steps
-1. NA
+1. cd into the src/bios/ and execute the genBin.sh(unix) or genBin.cmd(windows).As I have upload one bios.bin, this may not be necessary.
+2. cd into the src/ ,use qmake to generate the native makefile,then make it.Using Qt Creater to open the X86Emulator.pro and Compiling it is another but actually the same method.
+3. Finally,you will find a X86Emulator executable file in the X86Emulator directory.
