@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
-
+CONFIG += console
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = X86Emulator
 TEMPLATE = app
@@ -22,7 +22,9 @@ SOURCES += main.cpp\
     bios/bios.cpp \
     cpu/executer/instructionexecuter.cpp \
     cpu/executer/execute.cpp \
-    gui/video.cpp
+    gui/video.cpp \
+    cpu/debugcpu.cpp \
+    cpu/cpu.cpp
 
 HEADERS  += gui/mainwindow.h \
     cpu/instructionformat.h \
@@ -58,7 +60,9 @@ HEADERS  += gui/mainwindow.h \
     bios/bios.h \
     cpu/executer/instructionexecuter.h \
     cpu/executer/execute.h \
-    gui/video.h
+    gui/video.h \
+    cpu/debugcpu.h \
+    cpu/cpu.h
 
 FORMS    += gui/mainwindow.ui
 
