@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
     //-------------------------------------
     //BIOS&IO
-    BIOS bios(memory,"../src/bios/bios.bin");
+    BIOS bios(memory,"bios.bin");
     //! @todo put your written io class here.
 
 
