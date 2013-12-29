@@ -1637,7 +1637,7 @@ EXECUTE_FUNC(executeCWD_CDQ_CQO)
         s64 rax=registerFile.getGPR64Bits(RAX);
         if(rax<0)
         {
-            registerFile.setGPR64Bits(RDX,0xffffffffffffffffL);
+            registerFile.setGPR64Bits(RDX,0xffffffffffffffffULL);
         }
         else
         {

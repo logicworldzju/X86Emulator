@@ -1923,22 +1923,22 @@ void TestExecute::fillRegisterFile(RegisterFile &registerFile)
 {
     registerFile.setFlags32Bits(0);
     //RAX=0,RCX,RDX,RBX,RSP,RBP,RSI,RDI,R8,R9,R10,R11,R12,R13,R14,R15
-    registerFile.setGPR64Bits(RAX,0x0000000000000000L);
-    registerFile.setGPR64Bits(RCX,0x1111111111111111L);
-    registerFile.setGPR64Bits(RDX,0x2222222222222222L);
-    registerFile.setGPR64Bits(RBX,0x3333333333333333L);
-    registerFile.setGPR64Bits(RSP,0x4444444444444444L);
-    registerFile.setGPR64Bits(RBP,0x5555555555555555L);
-    registerFile.setGPR64Bits(RSI,0x6666666666666666L);
-    registerFile.setGPR64Bits(RDI,0x7777777777777777L);
-    registerFile.setGPR64Bits(R8,0x8888888888888888L);
-    registerFile.setGPR64Bits(R9,0x9999999999999999L);
-    registerFile.setGPR64Bits(R10,0xaaaaaaaaaaaaaaaaL);
-    registerFile.setGPR64Bits(R11,0xbbbbbbbbbbbbbbbbL);
-    registerFile.setGPR64Bits(R12,0xccccccccccccccccL);
-    registerFile.setGPR64Bits(R13,0xddddddddddddddddL);
-    registerFile.setGPR64Bits(R14,0xeeeeeeeeeeeeeeeeL);
-    registerFile.setGPR64Bits(R15,0xffffffffffffffffL);
+    registerFile.setGPR64Bits(RAX,0x0000000000000000ULL);
+    registerFile.setGPR64Bits(RCX,0x1111111111111111ULL);
+    registerFile.setGPR64Bits(RDX,0x2222222222222222ULL);
+    registerFile.setGPR64Bits(RBX,0x3333333333333333ULL);
+    registerFile.setGPR64Bits(RSP,0x4444444444444444ULL);
+    registerFile.setGPR64Bits(RBP,0x5555555555555555ULL);
+    registerFile.setGPR64Bits(RSI,0x6666666666666666ULL);
+    registerFile.setGPR64Bits(RDI,0x7777777777777777ULL);
+    registerFile.setGPR64Bits(R8,0x8888888888888888ULL);
+    registerFile.setGPR64Bits(R9,0x9999999999999999ULL);
+    registerFile.setGPR64Bits(R10,0xaaaaaaaaaaaaaaaaULL);
+    registerFile.setGPR64Bits(R11,0xbbbbbbbbbbbbbbbbULL);
+    registerFile.setGPR64Bits(R12,0xccccccccccccccccULL);
+    registerFile.setGPR64Bits(R13,0xddddddddddddddddULL);
+    registerFile.setGPR64Bits(R14,0xeeeeeeeeeeeeeeeeULL);
+    registerFile.setGPR64Bits(R15,0xffffffffffffffffULL);
 //    registerFile.setGPR64Bits(R15,0xfffL);
 
     registerFile.setIP(0x1234);
