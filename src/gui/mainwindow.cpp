@@ -10,6 +10,8 @@
 #include <time.h>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <string.h>
+#include <stdio.h>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -82,7 +84,7 @@ void MainWindow::showTime()
     time( &long_time );                //Get time as long integer
     t = localtime( &long_time );
     char ch[10];
-    sprintf_s(ch,"%02d:%02d:%02d",t->tm_hour,t->tm_min,t->tm_sec);
+    ::sprintf(ch,"%02d:%02d:%02d",t->tm_hour,t->tm_min,t->tm_sec);
     timelabel->setText(QString(ch));
 }
 
