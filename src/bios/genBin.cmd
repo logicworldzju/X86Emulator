@@ -1,1 +1,1 @@
-nasm bios.asm -fbin -o bios.bin
+nasm bios.asm -fbin -o ..\..\bios.bin

@@ -9,6 +9,7 @@ CONFIG += console
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = X86Emulator
 TEMPLATE = app
+DESTDIR = ..
 
 
 SOURCES += main.cpp\
