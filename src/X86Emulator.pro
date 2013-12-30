@@ -25,7 +25,9 @@ SOURCES += main.cpp\
     cpu/executer/execute.cpp \
     gui/video.cpp \
     cpu/debugcpu.cpp \
-    cpu/cpu.cpp
+    cpu/cpu.cpp \
+    gui/consoleimage.cpp \
+    gui/consolewidget.cpp
 
 HEADERS  += gui/mainwindow.h \
     cpu/instructionformat.h \
@@ -63,7 +65,9 @@ HEADERS  += gui/mainwindow.h \
     cpu/executer/execute.h \
     gui/video.h \
     cpu/debugcpu.h \
-    cpu/cpu.h
+    cpu/cpu.h \
+    gui/consoleimage.h \
+    gui/consolewidget.h
 
 FORMS    += gui/mainwindow.ui
 

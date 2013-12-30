@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "memory/memory.h"
+#include "consolewidget.h"
 
 class QAction;
 class QLabel;
@@ -15,8 +17,9 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(Memory& memory,QWidget *parent = 0);
     ~MainWindow();
+    ConsoleWidget& getConsoleWidget();
 
 private slots:
     void start();

@@ -27,13 +27,16 @@ int main(int argc, char *argv[])
     //! @todo put your written io class here.
 
 
+    //----------------------
+    //init mainwindow first as the ConsoleWidget is in the mainwindow.
+    MainWindow w(memory);
+    w.show();
+    //w.getConsoleWidget() this may be used by the Video BIOS function.
+
     //-------------------------------------
     //start cpu execution in another thread.
     cpu.start();
     //------------------------------------------------------------------------
-
-    MainWindow w;
-    w.show();
 
     return a.exec();
 }

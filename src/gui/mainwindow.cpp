@@ -14,7 +14,7 @@
 #include <stdio.h>
 
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(Memory& memory,QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
@@ -59,11 +59,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(resetAction, SIGNAL(triggered()), this, SLOT(reset()));
     connect(capsAction, SIGNAL(triggered()), this, SLOT(showStatus1()));
     connect(numlockAction, SIGNAL(triggered()), this, SLOT(showStatus2()));
+
+    ui->centralWidget->setVideoMemoryAddress(memory.getVideoMemoryAddress());
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+ConsoleWidget &MainWindow::getConsoleWidget()
+{
+    return *(ui->centralWidget);
 }
 
 void MainWindow::start()
