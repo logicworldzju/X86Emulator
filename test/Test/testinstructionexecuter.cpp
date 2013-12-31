@@ -30,9 +30,9 @@ static void hex2Ascii(const std::vector<u8>& hex,std::string& ascii)
 }
 void TestInstructionExecuter::testAll()
 {
-    InstructionStreamFromFile fromFile("../asm/1.com");
+    InstructionStreamFromFile fromFile("test/asm/1.com");
 
-    std::ofstream fout("../asm/1.txt");
+    std::ofstream fout("test/asm/1.txt");
 
     RegisterFile registerFile;
     DebugMemory memory;
@@ -1311,9 +1311,9 @@ void TestInstructionExecuter::testAll()
 
 void TestInstructionExecuter::testAll2()
 {
-    InstructionStreamFromFile fromFile("../asm/2.com");
+    InstructionStreamFromFile fromFile("test/asm/2.com");
 
-    std::ofstream fout("../asm/2.txt");
+    std::ofstream fout("test/asm/2.txt");
 
     RegisterFile registerFile;
     DebugMemory memory;

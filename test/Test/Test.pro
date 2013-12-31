@@ -2,11 +2,12 @@
 # Project created by QtCreator 2013-11-10T20:25:10
 # -------------------------------------------------
 QT += testlib
-QT -= gui
+QT += gui
 TARGET = tst_testtest
 CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
+DESTDIR = ../..
 INCLUDEPATH += ../../src
 SOURCES += ../../src/memory/memory.cpp \
     ../../src/memory/debugmemory.cpp \
@@ -29,7 +30,12 @@ SOURCES += ../../src/memory/memory.cpp \
     ../../src/cpu/debugcpu.cpp \
     ../../src/bios/bios.cpp \
     testbios.cpp \
-    testdebugcpu.cpp
+    testdebugcpu.cpp \
+    ../../src/gui/consolewidget.cpp \
+    ../../src/gui/consoleimage.cpp \
+    ../../src/gui/charactercode.cpp \
+    testcharactercode.cpp \
+    testconsolewidget.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 HEADERS += ../../src/memory/memory.h \
     ../../src/memory/debugmemory.h \
@@ -71,4 +77,9 @@ HEADERS += ../../src/memory/memory.h \
     ../../src/cpu/debugcpu.h \
     ../../src/bios/bios.h \
     testbios.h \
-    testdebugcpu.h
+    testdebugcpu.h \
+    ../../src/gui/consolewidget.h \
+    ../../src/gui/consoleimage.h \
+    ../../src/gui/charactercode.h \
+    testcharactercode.h \
+    testconsolewidget.h

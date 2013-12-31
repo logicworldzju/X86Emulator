@@ -20,7 +20,7 @@ void TestDebugCPU::test()
 
     cpu.initHardwareConnection(memory,ioPortList,interrupt);
 
-    BIOS bios(memory,"../../src/bios/bios.bin");
+    BIOS bios(memory,"bios.bin");
     cpu.start();
     cpu.wait();
 }

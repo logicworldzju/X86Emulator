@@ -88,7 +88,7 @@ void ConsoleImage::drawFont(u8 font[],u8 attribute, const QPoint &position,
         int pixelY = position.y()*CHARACTER_HEIGHT+i;
         for(u32 j=0; j<CHARACTER_WIDTH; j++)
         {
-            if(fontScanLine&(1<<j))
+            if(fontScanLine&(1<<(7-j)))
             {
                 //foreground
                 _image->setPixel(pixelX+j,pixelY,foregroundColor);

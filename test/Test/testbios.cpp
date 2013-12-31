@@ -10,7 +10,7 @@ TestBIOS::TestBIOS(QObject *parent) :
 void TestBIOS::test()
 {
     DebugMemory memory;
-    BIOS bios(memory,"../../src/bios/bios.bin");
+    BIOS bios(memory,"bios.bin");
     memory.startAccess(memory.DEBUG_ACCESS);
 
     QCOMPARE(memory.get8Bits(0xf0000),u8(0xe6));

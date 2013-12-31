@@ -28,8 +28,11 @@ int main(int argc, char *argv[])
 
 
     //----------------------
-    //init mainwindow first as the ConsoleWidget is in the mainwindow.
-    MainWindow w(memory);
+    //MainWindow is nolonger necessary.
+    //(init mainwindow first as the ConsoleWidget is in the mainwindow).
+//    MainWindow w(memory);
+//    w.show();
+    ConsoleWidget w(NULL,memory.getVideoMemoryAddress());
     w.show();
     //w.getConsoleWidget() this may be used by the Video BIOS function.
 

@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     cpu/debugcpu.cpp \
     cpu/cpu.cpp \
     gui/consoleimage.cpp \
-    gui/consolewidget.cpp
+    gui/consolewidget.cpp \
+    gui/charactercode.cpp
 
 HEADERS  += gui/mainwindow.h \
     cpu/instructionformat.h \
@@ -67,7 +68,8 @@ HEADERS  += gui/mainwindow.h \
     cpu/debugcpu.h \
     cpu/cpu.h \
     gui/consoleimage.h \
-    gui/consolewidget.h
+    gui/consolewidget.h \
+    gui/charactercode.h
 
 FORMS    += gui/mainwindow.ui
 

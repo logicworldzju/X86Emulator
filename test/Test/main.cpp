@@ -45,4 +45,12 @@
 //QTEST_MAIN(TestBIOS)
 
 #include "testdebugcpu.h"
-QTEST_MAIN(TestDebugCPU)
+//QTEST_MAIN(TestDebugCPU)
+
+#include "testcharactercode.h"
+//QTEST_MAIN(TestCharacterCode)
+
+#include "testconsolewidget.h"
+QTEST_MAIN(TestConsoleWidget)
+
+//QTEST_

@@ -10,7 +10,7 @@ TestInstructionStream::TestInstructionStream(QObject *parent) :
 
 void TestInstructionStream::testStreamFromFile()
 {
-    InstructionStreamFromFile fromFile("../asm/1.com");
+    InstructionStreamFromFile fromFile("test/asm/1.com");
     fromFile.startReadOneInstruction();
     fromFile.get8Bits();
     fromFile.get16Bits();

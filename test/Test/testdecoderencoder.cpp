@@ -27,9 +27,9 @@ static void hex2Ascii(const std::vector<u8>& hex,std::string& ascii)
 }
 void TestDecoderEncoder::testAll()
 {
-    InstructionStreamFromFile fromFile("../asm/1.com");
+    InstructionStreamFromFile fromFile("test/asm/1.com");
 
-    std::ofstream fout("../asm/1.txt");
+    std::ofstream fout("test/asm/1.txt");
 
     while(!fromFile.eof())
     {
