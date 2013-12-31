@@ -51,7 +51,6 @@ MainWindow::MainWindow(Memory& memory,QWidget *parent) :
     statusBar()->setSizeGripEnabled(false);
 
     QTimer *my_timer = new QTimer(this);
-    //timeout这个信号表示的是timer设定的时间已经到达时发出的。
     connect(my_timer, SIGNAL(timeout()), this, SLOT(showTime()));
     my_timer->start(200);
 

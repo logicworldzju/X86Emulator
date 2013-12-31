@@ -1,10 +1,12 @@
 #include "memory.h"
 #include <assert.h>
+#include <string.h>
 
 Memory::Memory(u32 memorySize)
 {
     _memorySize = memorySize;
     _memory = new u8[memorySize];
+    ::memset(_memory,0,memorySize);
 
     _accessMode=NOT_ACCESS_MODE;
 }

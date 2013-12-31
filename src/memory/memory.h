@@ -4,15 +4,13 @@
 #include <assert.h>
 /*
 the layout and contents of the first Meg of memory[1][2]:
-0x0 - 0x3ff: 256个bios interrupt vector
-0x400 - 0x4ff: 255B BDA(BIOS Data Area) 保存bios检测的结果，如：
-        0x40E： LPT4 I/O base address 或者 EBDA(Extended Bios Data Area)
-                如果存在EBDA，其值为0x9FC0，查找RSDP的一种方法就是从EBDA查找
+0x0 - 0x3ff: 256 bios interrupt vector
+0x400 - 0x4ff: 255B BDA(BIOS Data Area)
+        0x40E LPT4 I/O base address or EBDA(Extended Bios Data Area)
                 (AcpiTbFindRsdp)
         0x410: Equipment Word
-        0x472: Soft reset flag 系统启动时会在该地址写入1234h告诉bios下次跳过内存检测
-                参见i386/i386/locore.s
-        0x475: Number of hard disk drives(参见boot0)
+        0x472: Soft reset flag
+        0x475: Number of hard disk drives(boot0)
 0x500 - 0x9Fbff: dos, etc
 0x9FC00 - 0x9feff: EBDA(Extended Bios Data Area) 768B
 0x9ff00 -- 0x9ffff: boot device tables 256B

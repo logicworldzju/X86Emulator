@@ -267,7 +267,7 @@ u32 InstructionExecuter::calculateAddress3264BitMode(RegisterFile &registerFile,
 u32 InstructionExecuter::calculateAddressSIB(RegisterFile &registerFile, IFOperand &ifOperand)
 {
     IFOperand::Content::Memory::MemoryMode::Bit3264Mode::SIB& sib=ifOperand.content.memory.memoryMode.bit3264Mode.sib;
-    return registerFile.getGPR64Bits(sib.base)+(1<<sib.scale)*registerFile.getGPR64Bits(sib.index);
+    return registerFile.getGPR64Bits(sib.base)+u64(1<<sib.scale)*registerFile.getGPR64Bits(sib.index);
 }
 void InstructionExecuter::execute(InstructionHighLevelFormat& highFormat, RegisterFile& registerFile,
                     Memory& memory, IOPortList &ioPortList, ExecOperands& operands)

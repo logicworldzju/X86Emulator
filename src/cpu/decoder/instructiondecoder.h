@@ -3,7 +3,7 @@
 #include "../instructionformat.h"
 #include "instructionstream.h"
 
-class OpcodeTableEntry;
+struct OpcodeTableEntry;
 
 class InstructionDecoder
 {

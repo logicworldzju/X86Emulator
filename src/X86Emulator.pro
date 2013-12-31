@@ -4,13 +4,17 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
-CONFIG += console
+QT  += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+CONFIG += console
+
 TARGET = X86Emulator
 TEMPLATE = app
 DESTDIR = ..
 
+DEFINES+=_CRT_SECURE_NO_WARNINGS #disable msvc warning
+INCLUDEPATH +=$$PWD
 
 SOURCES += main.cpp\
         gui/mainwindow.cpp \
@@ -36,8 +40,8 @@ HEADERS  += gui/mainwindow.h \
     memory/memory.h \
     type.h \
     memory/debugmemory.h \
-    cpu/registerfile.h \
-    cpu/gpregister.h \
+    cpu/register/registerfile.h \
+    cpu/register/gpregister.h \
     io/ioport.h \
     io/ioportlist.h \
     interrupt/interrupt.h \
@@ -48,8 +52,8 @@ HEADERS  += gui/mainwindow.h \
     cpu/executer/operand/execgpregisteroperand.h \
     cpu/executer/operand/execsegmentregisteroperand.h \
     cpu/executer/operand/execimmediateoperand.h \
-    cpu/instructionstream.h \
-    cpu/instructionstreamfrommemory.h \
+    cpu/decoder/instructionstream.h \
+    cpu/decoder/instructionstreamfrommemory.h \
     cpu/register/registerfile.h \
     cpu/register/gpregister.h \
     cpu/register/flags.h \

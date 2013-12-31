@@ -1,5 +1,5 @@
-#include "gui/mainwindow.h"
 #include <QApplication>
+#include "gui/mainwindow.h"
 #include "memory/debugmemory.h"
 #include "cpu/debugcpu.h"
 #include "bios/bios.h"
@@ -34,7 +34,6 @@ int main(int argc, char *argv[])
 //    w.show();
     ConsoleWidget w(NULL,memory.getVideoMemoryAddress());
     w.show();
-    //w.getConsoleWidget() this may be used by the Video BIOS function.
 
     //-------------------------------------
     //start cpu execution in another thread.

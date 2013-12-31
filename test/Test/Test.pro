@@ -3,12 +3,19 @@
 # -------------------------------------------------
 QT += testlib
 QT += gui
-TARGET = tst_testtest
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 CONFIG += console
 CONFIG -= app_bundle
+
+TARGET = tst_testtest
 TEMPLATE = app
 DESTDIR = ../..
 INCLUDEPATH += ../../src
+
+DEFINES+=_CRT_SECURE_NO_WARNINGS #disable msvc warning
+DEFINES += SRCDIR=\\\"$$PWD/\\\"
+
 SOURCES += ../../src/memory/memory.cpp \
     ../../src/memory/debugmemory.cpp \
     ../../src/cpu/opcodetable.cpp \
@@ -36,7 +43,7 @@ SOURCES += ../../src/memory/memory.cpp \
     ../../src/gui/charactercode.cpp \
     testcharactercode.cpp \
     testconsolewidget.cpp
-DEFINES += SRCDIR=\\\"$$PWD/\\\"
+
 HEADERS += ../../src/memory/memory.h \
     ../../src/memory/debugmemory.h \
     ../../src/io/ioportlist.h \

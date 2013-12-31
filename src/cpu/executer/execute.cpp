@@ -2563,7 +2563,7 @@ EXECUTE_FUNC(executeRETFAR)
     }
 
 }
-void INT(u8 intNumber,EffectiveSize effectiveAddressSize,Memory& memory,RegisterFile& registerFile)
+void INTERRUPT(u8 intNumber,EffectiveSize effectiveAddressSize,Memory& memory,RegisterFile& registerFile)
 {
     //!@todo only implement 16bit.
     PUSH<u16>(registerFile.getFlags16Bits(),effectiveAddressSize,memory,registerFile);
@@ -2588,14 +2588,14 @@ EXECUTE_FUNC(executeINT3)
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("INT3");
     assert(operatingEnvironment==ENV_16_BITS);
-    INT(3,effectiveAddressSize,memory,registerFile);
+    INTERRUPT(3,effectiveAddressSize,memory,registerFile);
 }
 EXECUTE_FUNC(executeINT)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("INT");
     assert(operatingEnvironment==ENV_16_BITS);
-    INT(dest->getU8(),effectiveAddressSize,memory,registerFile);
+    INTERRUPT(dest->getU8(),effectiveAddressSize,memory,registerFile);
 }
 EXECUTE_FUNC(executeINTO)
 {
@@ -2604,7 +2604,7 @@ EXECUTE_FUNC(executeINTO)
     assert(operatingEnvironment==ENV_16_BITS);
     if(registerFile.getFlagsBits().OF==1)
     {
-        INT(4,effectiveAddressSize,memory,registerFile);
+        INTERRUPT(4,effectiveAddressSize,memory,registerFile);
     }
 
 }
@@ -2945,7 +2945,7 @@ EXECUTE_FUNC(executeINT1)
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
 //    INSTRUCTION_NOT_IMPLEMENT("INT1");
     assert(operatingEnvironment==ENV_16_BITS);
-    INT(1,effectiveAddressSize,memory,registerFile);
+    INTERRUPT(1,effectiveAddressSize,memory,registerFile);
 }
 EXECUTE_FUNC(executeHLT)
 {

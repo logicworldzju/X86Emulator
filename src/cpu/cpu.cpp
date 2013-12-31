@@ -57,11 +57,11 @@ void CPU::run()
         {
             assert(0);//should not happened now.
             _interrupt->clear();
-            INT(intNumber,EFFECTIVE_16_BITS,*_memory,_registerFile);
+            INTERRUPT(intNumber,EFFECTIVE_16_BITS,*_memory,_registerFile);
         }
         else if(_registerFile.getFlagsBits().TF)
         {
-            INT(1,EFFECTIVE_16_BITS,*_memory,_registerFile);
+            INTERRUPT(1,EFFECTIVE_16_BITS,*_memory,_registerFile);
         }
 
         //start a instruction.

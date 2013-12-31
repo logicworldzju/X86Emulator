@@ -62,7 +62,7 @@ void ConsoleImage::readFontFile(const string &asciiFontPath)
         cerr<<"Error:Can't open file "<<asciiFontPath<<endl;
         exit(-1);
     }
-    fin.readsome((char*)_fontFile,FONT_FILE_SIZE);
+    fin.read((char*)_fontFile,FONT_FILE_SIZE);
     if(fin.gcount()!=FONT_FILE_SIZE)
     {
         cerr<<"Error:Can't read enough data from "<<asciiFontPath<<endl;
@@ -145,6 +145,8 @@ QRgb ConsoleImage::getColorFromAttribute(u8 attribute)
     default:
         assert(0);
     }
+    assert(0);
+    return qRgb(0,0,0);
 }
 
 void ConsoleImage::drawCucrsor(const QPoint &cursorPosition)
