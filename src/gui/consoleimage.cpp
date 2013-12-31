@@ -62,7 +62,8 @@ void ConsoleImage::readFontFile(const string &asciiFontPath)
         cerr<<"Error:Can't open file "<<asciiFontPath<<endl;
         exit(-1);
     }
-    if(fin.readsome((char*)_fontFile,FONT_FILE_SIZE)!=FONT_FILE_SIZE)
+    fin.readsome((char*)_fontFile,FONT_FILE_SIZE);
+    if(fin.gcount()!=FONT_FILE_SIZE)
     {
         cerr<<"Error:Can't read enough data from "<<asciiFontPath<<endl;
         exit(-1);

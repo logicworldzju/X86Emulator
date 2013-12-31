@@ -15,7 +15,8 @@ BIOS::BIOS(Memory &memory, const std::string &path)
         ::exit(-1);
     }
     u8 buffer[0x10000];
-    if(fin.readsome((char*)buffer,0x10000)!=0x10000)
+    fin.read((char*)buffer,0x10000);
+    if(fin.gcount()!=0x10000)
     {
         cerr<<"Error:Can't read enough "<<path<<endl;
         ::exit(-1);
