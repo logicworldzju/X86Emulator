@@ -18,3 +18,14 @@ moc_*.cpp
 qrc_*.cpp
 Makefile
 *-build-*
+
+# Build
+*.exe
+*.exe.embed.manifest
+*.exe_manifest.rc
+*.exe_manifest.res
+*.ilk
+*.pdb
+Makefile.Debug
+Makefile.Release
+
