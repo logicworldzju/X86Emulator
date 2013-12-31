@@ -12,7 +12,7 @@ Some features
 How to build it
 ------------
 ### Some requirements
-* Qt 4.x
+* Qt 4.x or 5.x
 * nasm(may not be necessary)
 
 ### Steps
