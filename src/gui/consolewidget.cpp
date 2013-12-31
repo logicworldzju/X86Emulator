@@ -26,6 +26,7 @@ ConsoleWidget::ConsoleWidget(QWidget *parent,const u8 *videoMemory) :
     this->setMinimumHeight(_consoleImage.getImage().height());
     this->setMaximumWidth(_consoleImage.getImage().width());
     this->setMaximumHeight(_consoleImage.getImage().height());
+    this->resize(_consoleImage.getImage().width(),_consoleImage.getImage().height());
 
     this->setWindowTitle("X86Emulator");
     this->setFocus();
