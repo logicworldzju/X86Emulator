@@ -2,12 +2,14 @@
 using namespace std;
 #include <iostream>
 #include <assert.h>
+#include <QDebug>
 
 KeyBoard::KeyBoard(QObject *parent) :
     QObject(parent)
 {
 }
 KeyboardIO::KeyboardIO()
+    :_semaphore(0)
 {
     shiftflagstatus=0x0000;
     isinsert=false;
@@ -128,6 +130,7 @@ void KeyboardIO::enq(u16 data)
         _keyboardBuffer.enqueue(data);
     }
     _semaphore.release();
+//    qDebug()<<_semaphore.available();
 }
 
 u16 KeyboardIO::deqBlock()
@@ -137,6 +140,7 @@ u16 KeyboardIO::deqBlock()
         QMutexLocker locker(&_keyboardBufferLock);
         return _keyboardBuffer.dequeue();
     }
+//    qDebug()<<_semaphore.available();
 }
 
 u16 KeyboardIO::deqNonblock(bool &isGetIt)
@@ -144,37 +148,45 @@ u16 KeyboardIO::deqNonblock(bool &isGetIt)
     if(_semaphore.tryAcquire())
     {
         isGetIt=true;
-        return _keyboardBuffer.dequeue();
+        {
+            QMutexLocker locker(&_keyboardBufferLock);
+            return _keyboardBuffer.dequeue();
+        }
     }
     else
     {
         isGetIt=false;
         return 0;
     }
+//    qDebug()<<_semaphore.available();
 }
 u16 KeyboardIO::getFirstBlock()
 {
     _semaphore.acquire();
     {
+        _semaphore.release();
         QMutexLocker locker(&_keyboardBufferLock);
 //        return keyboardbuffer.dequeue();
-        _semaphore.release();
         return _keyboardBuffer.first();
     }
 }
 
 u16 KeyboardIO::getFirstNonblock(bool &isGetIt)
 {
-    if(_semaphore.tryAcquire())
+    if(_semaphore.available()>=1)
     {
         isGetIt=true;
-        return _keyboardBuffer.first();
+        {
+            QMutexLocker locker(&_keyboardBufferLock);
+            return _keyboardBuffer.first();
+        }
     }
     else
     {
         isGetIt=false;
         return 0;
     }
+//    qDebug()<<_semaphore.available();
 }
 
 
@@ -185,8 +197,7 @@ void KeyBoard::toggleKeyGet(bool isShiftDown,bool isControlDown,bool isAltDown,b
 
 void KeyBoard::keyStatusGet(u16 characterCode, bool isPressed)
 {
-    (void)isPressed;
-    if(characterCode == 0x5200)
+    if(characterCode == 0x5200 && isPressed==false)
     {
         if(keyio.isinsert)
         {

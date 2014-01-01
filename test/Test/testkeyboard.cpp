@@ -31,7 +31,10 @@ void TestKeyboard::test()
     cpu.getRegisterFile().setGPR8BitsHigh(RAX,0x05);
     cpu.getRegisterFile().setGPR16Bits(RCX,0x2C7A);
     ioPortList.write2Port(0x16,0);
-    QCOMPARE(int(ioPortList.readFromPort(0x16)),int(0x2C7A));
+//    QCOMPARE(int(ioPortList.readFromPort(0x16)),int(0x2C7A));
+    bool isGetIt;
+    QCOMPARE(int(key.keyio.getFirstNonblock(isGetIt)),int(0x2C7A));
+
     cpu.getRegisterFile().setGPR8BitsHigh(RAX,0x01);
     ioPortList.write2Port(0x16,0);
     QCOMPARE(int(cpu.getRegisterFile().getGPR16Bits(RAX)),int(0x2C7A));
