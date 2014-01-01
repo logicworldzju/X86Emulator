@@ -15,7 +15,6 @@
 #include "interrupt/interrupt.h"
 #include "io/ioportlist.h"
 #include "memory/debugmemory.h"
-#include "gui/video.h"
 
 #include "testmemory.h"
 
@@ -54,10 +53,6 @@
 #include "testconsolewidget.h"
 //QTEST_MAIN(TestConsoleWidget)
 
-#include "testvideo.h"
-//QTEST_MAIN(TestVideo)
-
 #include "testkeyboard.h"
 QTEST_MAIN(testkeyboard)
-
 //QTEST_

@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     cpu/cpu.cpp \
     gui/consoleimage.cpp \
     gui/consolewidget.cpp \
-    gui/charactercode.cpp
+    gui/charactercode.cpp \
+    io/keyboard.cpp
 
 HEADERS  += gui/mainwindow.h \
     cpu/instructionformat.h \
@@ -73,7 +74,8 @@ HEADERS  += gui/mainwindow.h \
     cpu/cpu.h \
     gui/consoleimage.h \
     gui/consolewidget.h \
-    gui/charactercode.h
+    gui/charactercode.h \
+    io/keyboard.h
 
 FORMS    += gui/mainwindow.ui
 

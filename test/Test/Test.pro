@@ -44,7 +44,9 @@ SOURCES += ../../src/memory/memory.cpp \
     testcharactercode.cpp \
     testconsolewidget.cpp \
     testvideo.cpp \
-    ../../src/gui/video.cpp
+    ../../src/gui/video.cpp \
+    testkeyboard.cpp \
+    ../../src/io/keyboard.cpp
 
 HEADERS += ../../src/memory/memory.h \
     ../../src/memory/debugmemory.h \
@@ -93,4 +95,6 @@ HEADERS += ../../src/memory/memory.h \
     testcharactercode.h \
     testconsolewidget.h \
     testvideo.h \
-    ../../src/gui/video.h
+    ../../src/gui/video.h \
+    testkeyboard.h \
+    ../../src/io/keyboard.h
