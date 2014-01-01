@@ -1,9 +1,11 @@
 #ifndef IOPORT_H
 #define IOPORT_H
 
-#include "../type.h"
-#include "../cpu/register/registerfile.h"
-#include "../memory/memory.h"
+#include "type.h"
+#include "cpu/register/registerfile.h"
+
+#include "memory/memory.h"
+
 
 
 class IOPort
