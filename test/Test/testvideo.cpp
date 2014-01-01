@@ -20,7 +20,7 @@ void TestVideo::test()
 //                            'i',0x08,'j',0x09,'k',0x0a,'l',0x0b,'m',0x0c,'n','o','p','q','r'};
     cpu.getRegisterFile().setGPR8BitsHigh(RAX,0);
     ioPortList.write2Port(0x10,0);
-    QCOMPARE( cpu.getRegisterFile().getGPR8BitsHigh(RAX),0);
+    QCOMPARE((int)cpu.getRegisterFile().getGPR8BitsHigh(RAX),0);
 //    ::memset(videoBuffer,0,sizeof(videoBuffer));
 //        widget.hideCursor();
 //    }

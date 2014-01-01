@@ -30,6 +30,11 @@ Video::Video(Memory &m,RegisterFile &r):memory(m),registerFile(r)
     CursorBottom=12;
 }
 
+Video::~Video()
+{
+
+}
+
 void Video::write2Port(u32 value,Memory& memory,RegisterFile& registerFile)
 {
     this->memory=memory;

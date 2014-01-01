@@ -42,7 +42,9 @@ SOURCES += ../../src/memory/memory.cpp \
     ../../src/gui/consoleimage.cpp \
     ../../src/gui/charactercode.cpp \
     testcharactercode.cpp \
-    testconsolewidget.cpp
+    testconsolewidget.cpp \
+    testvideo.cpp \
+    ../../src/gui/video.cpp
 
 HEADERS += ../../src/memory/memory.h \
     ../../src/memory/debugmemory.h \
@@ -89,4 +91,6 @@ HEADERS += ../../src/memory/memory.h \
     ../../src/gui/consoleimage.h \
     ../../src/gui/charactercode.h \
     testcharactercode.h \
-    testconsolewidget.h
+    testconsolewidget.h \
+    testvideo.h \
+    ../../src/gui/video.h
