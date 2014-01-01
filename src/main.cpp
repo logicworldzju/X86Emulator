@@ -6,6 +6,7 @@
 #include "io/ioportlist.h"
 #include "interrupt/interrupt.h"
 #include "io/keyboard.h"
+#include "gui/video.h"
 
 int main(int argc, char *argv[])
 {
@@ -20,8 +21,8 @@ int main(int argc, char *argv[])
     IOPortList ioPortList(memory,cpu.getRegisterFile());
     Interrupt interrupt;
 
-    KeyBoard key;
-    ioPortList.add2PortList(0x0016,&key.keyio);
+    Keyboard keyboard;
+    ioPortList.add2PortList(0x0016,&keyboard.keyio);
 
     cpu.initHardwareConnection(memory,ioPortList,interrupt);
 
@@ -37,9 +38,12 @@ int main(int argc, char *argv[])
 //    MainWindow w(memory);
 //    w.show();
     ConsoleWidget w(NULL,memory.getVideoMemoryAddress());
-    QObject::connect(&w,SIGNAL(keyStatusChange(u16,bool)),&key,SLOT(keyStatusGet(u16,bool)));
-    QObject::connect(&w,SIGNAL(toggleKeyChange(bool,bool,bool,bool,bool,bool)),&key,SLOT(toggleKeyGet(bool,bool,bool,bool,bool,bool)));
+    QObject::connect(&w,SIGNAL(keyStatusChange(u16,bool)),&keyboard,SLOT(keyStatusGet(u16,bool)));
+    QObject::connect(&w,SIGNAL(toggleKeyChange(bool,bool,bool,bool,bool,bool)),&keyboard,SLOT(toggleKeyGet(bool,bool,bool,bool,bool,bool)));
     w.show();
+
+    Video video(memory,cpu.getRegisterFile(),w);
+
 
     //-------------------------------------
     //start cpu execution in another thread.

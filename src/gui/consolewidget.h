@@ -25,6 +25,7 @@ public:
     {
         _isShowCursor=isShowCursor;
     }
+    bool getShowCursor(){return _isShowCursor;}
 signals:
     void toggleKeyChange(bool isShiftDown,bool isControlDown,bool isAltDown,bool isCapsLock,
                          bool isNumLock,bool isScrollLock);

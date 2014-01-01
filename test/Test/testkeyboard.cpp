@@ -20,7 +20,7 @@ void TestKeyboard::test()
 
 
 
-    KeyBoard key;
+    Keyboard key;
 
     ConsoleWidget w(NULL,memory.getVideoMemoryAddress());
 
@@ -44,20 +44,20 @@ void TestKeyboard::test()
     QCOMPARE(int(cpu.getRegisterFile().getGPR16Bits(RAX)),0x2C7A);
 
 
-    emit w.keyStatusChange(0x3920,true);
-    emit w.keyStatusChange(0x3920,false);
+    key.keyStatusGet(0x3920,true);
+    key.keyStatusGet(0x3920,false);
     cpu.getRegisterFile().setGPR8BitsHigh(RAX,0x10);
     ioPortList.write2Port(0x16,0);
     QCOMPARE(int(cpu.getRegisterFile().getGPR16Bits(RAX)),0x3920);
 
-    emit w.keyStatusChange(0x5200,true);
-    emit w.keyStatusChange(0x5200,false);
+    key.keyStatusGet(0x5200,true);
+    key.keyStatusGet(0x5200,false);
     cpu.getRegisterFile().setGPR8BitsHigh(RAX,0x12);
     ioPortList.write2Port(0x16,0);
     QCOMPARE(int(cpu.getRegisterFile().getGPR16Bits(RAX)),128);
 
-    emit w.keyStatusChange(0x5200,true);
-    emit w.keyStatusChange(0x5200,false);
+    key.keyStatusGet(0x5200,true);
+    key.keyStatusGet(0x5200,false);
     cpu.getRegisterFile().setGPR8BitsHigh(RAX,0x12);
     ioPortList.write2Port(0x16,0);
     QCOMPARE(int(cpu.getRegisterFile().getGPR16Bits(RAX)),0);
@@ -68,7 +68,7 @@ void TestKeyboard::test()
     QCOMPARE(int(cpu.getRegisterFile().getGPR16Bits(RAX)),782);
 
 
-    emit w.toggleKeyChange(0,1,0,1,1,0);
+    key.keyio.getToggleKey(0,1,0,1,1,0);
     cpu.getRegisterFile().setGPR8BitsHigh(RAX,0x12);
     ioPortList.write2Port(0x16,0);
     QCOMPARE(int(cpu.getRegisterFile().getGPR16Bits(RAX)),24932);

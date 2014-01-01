@@ -4,7 +4,7 @@ using namespace std;
 #include <assert.h>
 #include <QDebug>
 
-KeyBoard::KeyBoard(QObject *parent) :
+Keyboard::Keyboard(QObject *parent) :
     QObject(parent)
 {
 }
@@ -22,6 +22,7 @@ void KeyboardIO::getToggleKey(bool shiftdown,bool controldown,bool altdown,bool 
 
 void KeyboardIO::write2Port(u32 value, Memory& _memory, RegisterFile& _registerFile)
 {
+    (void)_memory;(void)value;
     u8 func;
     func = _registerFile.getGPR8BitsHigh(RAX);
     function(func, _registerFile);
@@ -190,12 +191,12 @@ u16 KeyboardIO::getFirstNonblock(bool &isGetIt)
 }
 
 
-void KeyBoard::toggleKeyGet(bool isShiftDown,bool isControlDown,bool isAltDown,bool isCapsLock,bool isNumLock,bool isScrollLock)
+void Keyboard::toggleKeyGet(bool isShiftDown,bool isControlDown,bool isAltDown,bool isCapsLock,bool isNumLock,bool isScrollLock)
 {
     keyio.getToggleKey(isShiftDown,isControlDown,isAltDown,isCapsLock,isNumLock,isScrollLock);
 }
 
-void KeyBoard::keyStatusGet(u16 characterCode, bool isPressed)
+void Keyboard::keyStatusGet(u16 characterCode, bool isPressed)
 {
     if(characterCode == 0x5200 && isPressed==false)
     {

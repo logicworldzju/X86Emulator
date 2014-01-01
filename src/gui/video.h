@@ -4,20 +4,22 @@
 #include "../io/ioport.h"
 #include "../memory/memory.h"
 #include "../cpu/register/registerfile.h"
+#include "gui/consolewidget.h"
 
-#define MAXPAGENUMBER 8
-#define PAGESIZE 80*25*2
-#define COLUMN 80
-#define ROW 25
 
 class Video : public IOPort
 {
+private:
+    const static int MAXPAGENUMBER=8;
+    const static int PAGESIZE=80*25*2;
+    const static int COLUMN_SIZE=80;
+    const static int ROW_SIZE=25;
 public:
     Memory& memory;
     RegisterFile& registerFile;
-    u8* MemoryStart;			                            //虚拟显存的起始地址
-    u8* Start;			                                    //虚拟内存的起始地址
-    u8 CurLine,CurRow,CurPage[MAXPAGENUMBER*2];	            //文本模式下当前的光标位置及各页光标位置
+    u8* VideoMemoryStart;			                            //虚拟显存的起始地址
+    u8* MemoryStart;			                                    //虚拟内存的起始地址
+    u8 CurColumn,CurRow,CurPage[MAXPAGENUMBER*2];	            //文本模式下当前的光标位置及各页光标位置
     bool CurVisible;                                        //光标是否可见
     u8 CurrentPage;                                         //当前页
     u8 CursorTop,CursorBottom;	                            //光标的顶线、底线
@@ -25,7 +27,7 @@ public:
     u8 CurrentMode;                                         //当前显示模式
 
 public:
-    Video(Memory &m,RegisterFile &r);
+    Video(Memory &m,RegisterFile &r,ConsoleWidget& consoleWidget);
     ~Video();
     void write2Port(u32 value,Memory& memory,RegisterFile& registerFile);
     u32 readFromPort(Memory& memory,RegisterFile& registerFile);
@@ -48,6 +50,16 @@ public:
     void WriteTeletypetoActivePage();                       //0Eh
     void ReturnVideoStatus();                               //0Fh
     void WriteString();                                     //13h
+private:
+    void scrollUp(int pageNumber, int rowCount, u8 attribute, int left, int top, int bottom, int right);
+    void scrollUpOneRow(int pageNumber,u8 attribute, int left, int top, int bottom, int right);
+    void scrollDown(int pageNumber, int rowCount, u8 attribute, int left, int top, int bottom, int right);
+    void scrollDownOneRow(int pageNumber,u8 attribute, int left, int top, int bottom, int right);
+    void blankOneRow(int pageNumber,u8 attribute,int row,int left,int right);
+
+    void writeOneCharacter(int pageNumber, u8 attribute, bool shouldWriteAttribute, u8 character);
+private:
+    ConsoleWidget& _consoleWidget;
 };
 
 

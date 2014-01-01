@@ -20,7 +20,7 @@ public:
     void enq(u16 data);
     u16 deqBlock();
     u16 deqNonblock(bool& isGetIt);
-    friend class KeyBoard;
+    friend class Keyboard;
     u16 getFirstBlock();
     u16 getFirstNonblock(bool& isGetIt);
 private:
@@ -33,11 +33,11 @@ private:
 };
 
 
-class KeyBoard : public QObject
+class Keyboard : public QObject
 {
     Q_OBJECT
 public:
-    explicit KeyBoard(QObject *parent = 0);
+    explicit Keyboard(QObject *parent = 0);
     KeyboardIO keyio;
     
 public slots:
