@@ -4,11 +4,11 @@
 #include <QObject>
 #include <QTest>
 
-class testkeyboard : public QObject
+class TestKeyboard : public QObject
 {
     Q_OBJECT
 public:
-    explicit testkeyboard(QObject *parent = 0);
+    explicit TestKeyboard(QObject *parent = 0);
     
 signals:
     

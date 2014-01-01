@@ -58,6 +58,6 @@
 //QTEST_MAIN(TestVideo)
 
 #include "testkeyboard.h"
-QTEST_MAIN(testkeyboard)
+QTEST_MAIN(TestKeyboard)
 
 //QTEST_

@@ -7,12 +7,12 @@
 #include "io/keyboard.h"
 #include "testkeyboard.h"
 
-testkeyboard::testkeyboard(QObject *parent) :
+TestKeyboard::TestKeyboard(QObject *parent) :
     QObject(parent)
 {
 }
 
-void testkeyboard::test()
+void TestKeyboard::test()
 {
     DebugCPU cpu;
     DebugMemory memory;
@@ -69,9 +69,4 @@ void testkeyboard::test()
     cpu.getRegisterFile().setGPR8BitsHigh(RAX,0x12);
     ioPortList.write2Port(0x16,0);
     QCOMPARE(int(cpu.getRegisterFile().getGPR16Bits(RAX)),24932);
-
-
-
-
-
 }
