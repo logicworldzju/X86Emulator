@@ -23,7 +23,8 @@ void Floppy::readSectors(int count, u8 *buffer, u8 trackNumber, u8 headNumber, u
 {
     assert(trackNumber<TRACKS_PER_SIDE);
     assert(headNumber<SIDES_COUNT);
-    assert(sectorNumber<SECTORS_PER_TRACK);
+    assert(sectorNumber<=SECTORS_PER_TRACK);
+    assert(sectorNumber>0);
 
     int lba=getLBAFromCHS(trackNumber,headNumber,sectorNumber);
     ::memcpy(buffer,_fileBuffer+SECTOR_SIZE*lba,SECTOR_SIZE*count);
@@ -33,7 +34,8 @@ void Floppy::writeSectors(int count, const u8 *buffer, u8 trackNumber, u8 headNu
 {
     assert(trackNumber<TRACKS_PER_SIDE);
     assert(headNumber<SIDES_COUNT);
-    assert(sectorNumber<SECTORS_PER_TRACK);
+    assert(sectorNumber<=SECTORS_PER_TRACK);
+    assert(sectorNumber>0);
 
     int lba=getLBAFromCHS(trackNumber,headNumber,sectorNumber);
     ::memcpy(_fileBuffer+SECTOR_SIZE*lba,buffer,SECTOR_SIZE*count);
@@ -61,6 +63,7 @@ int Floppy::getLBAFromCHS(u8 trackNumber, u8 headNumber, u8 sectorNumber)
 {
     assert(trackNumber<TRACKS_PER_SIDE);
     assert(headNumber<SIDES_COUNT);
-    assert(sectorNumber<SECTORS_PER_TRACK);
-    return (trackNumber*SIDES_COUNT+headNumber)*SECTORS_PER_TRACK+sectorNumber;
+    assert(sectorNumber<=SECTORS_PER_TRACK);
+    assert(sectorNumber>0);
+    return (trackNumber*SIDES_COUNT+headNumber)*SECTORS_PER_TRACK+sectorNumber-1;
 }

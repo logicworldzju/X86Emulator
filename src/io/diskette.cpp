@@ -81,7 +81,7 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
         }
         else
         {
-            cerr<<"Error:No such driveNumber"<<driveNumber<<" in int 13h function 03h"<<endl;
+            cerr<<"Error:No such driveNumber"<<(int)driveNumber<<" in int 13h function 03h"<<endl;
             exit(-1);
         }
         registerFile.setGPR8BitsLow(RAX,count);
@@ -164,16 +164,16 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
         }
         else
         {
-            cerr<<"Error:No such driveNumber"<<driveNumber<<" in int 13h function 04h"<<endl;
+            cerr<<"Error:No such driveNumber"<<(int)driveNumber<<" in int 13h function 04h"<<endl;
             exit(-1);
         }
         registerFile.setGPR8BitsLow(RAX,count);
         registerFile.setGPR8BitsHigh(RAX,0);
         registerFile.getFlagsBits().CF=0;
         cout<<"Int 13h function 04h called with "<<
-              "trackNumber:"<<trackNumber<<
-              "sectorNumber:"<<sectorNumber<<
-              "headNumber:"<<headNumber<<endl;
+              "trackNumber:"<<(int)trackNumber<<
+              "sectorNumber:"<<(int)sectorNumber<<
+              "headNumber:"<<(int)headNumber<<endl;
         break;
     }
 //        break;
@@ -196,15 +196,15 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
         }
         else
         {
-            cerr<<"Error:No such driveNumber"<<driveNumber<<" in int 13h function 05h"<<endl;
+            cerr<<"Error:No such driveNumber"<<(int)driveNumber<<" in int 13h function 05h"<<endl;
             exit(-1);
         }
         registerFile.setGPR8BitsLow(RAX,count);
         registerFile.setGPR8BitsHigh(RAX,0);
         registerFile.getFlagsBits().CF=0;
         cout<<"Int 13h function 05h called with "<<
-              "trackNumber:"<<trackNumber<<
-              "headNumber:"<<headNumber<<endl;
+              "trackNumber:"<<(int)trackNumber<<
+              "headNumber:"<<(int)headNumber<<endl;
         break;
     }
     case 8:
@@ -216,7 +216,7 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
             registerFile.setGPR8BitsHigh(RBX,0);//BH
             registerFile.setGPR8BitsLow(RBX,0x4);//BL
             registerFile.setGPR8BitsHigh(RCX,_floppy0.getTracksPerSide()-1);
-            registerFile.setGPR8BitsLow(RCX,_floppy0.getSectorsPerTrack()-1);
+            registerFile.setGPR8BitsLow(RCX,_floppy0.getSectorsPerTrack());
             registerFile.setGPR8BitsHigh(RDX,_floppy0.getSidesCount()-1);
             registerFile.setGPR8BitsLow(RDX,2);//DL
 
@@ -232,7 +232,7 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
             registerFile.setGPR8BitsHigh(RBX,0);//BH
             registerFile.setGPR8BitsLow(RBX,0x4);//BL
             registerFile.setGPR8BitsHigh(RCX,_floppy1.getTracksPerSide()-1);
-            registerFile.setGPR8BitsLow(RCX,_floppy1.getSectorsPerTrack()-1);
+            registerFile.setGPR8BitsLow(RCX,_floppy1.getSectorsPerTrack());
             registerFile.setGPR8BitsHigh(RDX,_floppy1.getSidesCount()-1);
             registerFile.setGPR8BitsLow(RDX,2);//DL
 
@@ -255,7 +255,7 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
             registerFile.getFlagsBits().CF=1;
         }
         cout<<"Int 13h funcion 08h read drive parameters,called with "<<
-              "driveNumber:"<<driveNumber<<endl;
+              "driveNumber:"<<(int)driveNumber<<endl;
         break;
     }
    /*     if (registerFile.getGPR8BitsLow(RDX)<0x80)   //DL
@@ -306,28 +306,28 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
             registerFile.getFlagsBits().CF=0;
         }
         cout<<"Int 13h funcion 15h read drive type,called with "<<
-              "driveNumber:"<<driveNumber<<endl;
+              "driveNumber:"<<(int)driveNumber<<endl;
         break;
     }
     case 0x16:
     {
         u8 driveNumber=registerFile.getGPR8BitsLow(RDX);
         cout<<"Int 13h funcion 16h detect media change,called with "<<
-              "driveNumber:"<<driveNumber<<endl;
+              "driveNumber:"<<(int)driveNumber<<endl;
         break;
     }
     case 0x17:
     {
         u8 driveNumber=registerFile.getGPR8BitsLow(RDX);
         cout<<"Int 13h funcion 17h set diskette type,called with "<<
-              "driveNumber:"<<driveNumber<<endl;
+              "driveNumber:"<<(int)driveNumber<<endl;
         break;
     }
     case 0x18:
     {
         u8 driveNumber=registerFile.getGPR8BitsLow(RDX);
         cout<<"Int 13h funcion 18h set media type for format,called with "<<
-              "driveNumber:"<<driveNumber<<endl;
+              "driveNumber:"<<(int)driveNumber<<endl;
         break;
     }
     default:

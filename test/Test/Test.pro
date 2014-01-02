@@ -50,7 +50,9 @@ SOURCES += ../../src/memory/memory.cpp \
     testtimeofday.cpp \
     ../../src/io/timeofday.cpp \
     ../../src/io/floppy.cpp \
-    ../../src/io/diskette.cpp
+    ../../src/io/diskette.cpp \
+    testfloppy.cpp \
+    testdiskette.cpp
 
 HEADERS += ../../src/memory/memory.h \
     ../../src/memory/debugmemory.h \
@@ -105,4 +107,6 @@ HEADERS += ../../src/memory/memory.h \
     testtimeofday.h \
     ../../src/io/timeofday.h \
     ../../src/io/floppy.h \
-    ../../src/io/diskette.h
+    ../../src/io/diskette.h \
+    testfloppy.h \
+    testdiskette.h

@@ -61,7 +61,12 @@
 //QTEST_MAIN(TestKeyboard)
 
 #include "testtimeofday.h"
-QTEST_MAIN(TestTimeOfDay)
+//QTEST_MAIN(TestTimeOfDay)
 
+#include "testfloppy.h"
+//QTEST_MAIN(TestFloppy)
+
+#include "testdiskette.h"
+QTEST_MAIN(TestDiskette)
 
 //QTEST_
