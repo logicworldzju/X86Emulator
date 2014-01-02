@@ -1,59 +1,66 @@
-#include "Floppy.h"
+#include "floppy.h"
+#include <fstream>
+#include <stdlib.h>
+#include <iostream>
+#include <assert.h>
+#include <string.h>
+using namespace std;
 
-Floppy::Floppy()
+Floppy::Floppy(const std::string &fileName)
 {
-
-	char t[80];
-	DWORD tDword;
-
-	GetCurrentDirectory(sizeof(t),t);
-	strcat(t,"\\easyVM.ini");
-	GetPrivateProfileString("IMG","A","",t,sizeof(t),t);
-	tDword=GetLastError();
-	if (t[0]!=0)
-	{
-		hFloppy[0]=CreateFile(t, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
-		SizeFloppy[0]=GetFileSize(hFloppy[0],&tDword);
-		hMap[0]=CreateFileMapping(hFloppy[0],NULL,PAGE_READWRITE,0,SizeFloppy[0],"FloppyAMapping");
-		pBufFloppy[0]=(char *)MapViewOfFile(hMap[0],FILE_MAP_ALL_ACCESS,0,0,SizeFloppy[0]);
-		FloppyInserted[0]=true;
-	}
-	else
-		FloppyInserted[0]=false;
-
+    readFile(fileName);
 }
 
-void IO_Write_03F0(WORD data)	//参数都是通过栈传递的，所以要用WORD
+Floppy::~Floppy()
 {
-	RegPointer=(BYTE)data;
+    if(_fileBuffer)
+    {
+        delete _fileBuffer;
+    }
 }
 
-void IO_Write_03F1(WORD data)
+void Floppy::readSectors(int count, u8 *buffer, u8 trackNumber, u8 headNumber, u8 sectorNumber)
 {
-	FlpReg[RegPointer]=(BYTE)data;
-	FloppyIOPoint=0;
-	for (int i=0;i<3;i++)
-	{
-		FloppyIOPoint*=FlpCnt[i];
-		FloppyIOPoint+=FlpReg[2-i];
-	}
-	FloppyIOPoint-=1;					//扇区从1开始编号，所以计算偏移的时候要先减1
-	FloppyIOPoint*=512;					//每个扇区512个字节
-	FloppyIOPoint+=(unsigned int)pBufFloppy[FlpReg[3]];
+    assert(trackNumber<TRACKS_PER_SIDE);
+    assert(headNumber<SIDES_COUNT);
+    assert(sectorNumber<SECTORS_PER_TRACK);
+
+    int lba=getLBAFromCHS(trackNumber,headNumber,sectorNumber);
+    ::memcpy(buffer,_fileBuffer+SECTOR_SIZE*lba,SECTOR_SIZE*count);
 }
 
-unsigned int getPoint()
+void Floppy::writeSectors(int count, const u8 *buffer, u8 trackNumber, u8 headNumber, u8 sectorNumber)
 {
-    return FloppyIOPoint;
+    assert(trackNumber<TRACKS_PER_SIDE);
+    assert(headNumber<SIDES_COUNT);
+    assert(sectorNumber<SECTORS_PER_TRACK);
+
+    int lba=getLBAFromCHS(trackNumber,headNumber,sectorNumber);
+    ::memcpy(_fileBuffer+SECTOR_SIZE*lba,buffer,SECTOR_SIZE*count);
 }
 
-void setPoint(unsigned int point)
+bool Floppy::readFile(const std::string &fileName)
 {
-    FloppyIOPoint=point;
+    ifstream fin(fileName.c_str(),ios::binary);
+    if(!fin.is_open())
+    {
+        cerr<<"Error:Can't open "<<fileName<<endl;
+        exit(-1);
+    }
+    _fileBuffer=new u8[FILE_SIZE];
+    fin.read((char*)_fileBuffer,FILE_SIZE);
+    if(fin.gcount()!=FILE_SIZE)
+    {
+        cerr<<"Error:Can't read enough "<<fileName<<endl;
+        exit(-1);
+    }
+    return true;
 }
 
-bool isInsert(int num)
+int Floppy::getLBAFromCHS(u8 trackNumber, u8 headNumber, u8 sectorNumber)
 {
-    return FloppyInserted[num];
+    assert(trackNumber<TRACKS_PER_SIDE);
+    assert(headNumber<SIDES_COUNT);
+    assert(sectorNumber<SECTORS_PER_TRACK);
+    return (trackNumber*SIDES_COUNT+headNumber)*SECTORS_PER_TRACK+sectorNumber;
 }
-

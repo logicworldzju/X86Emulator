@@ -46,7 +46,11 @@ SOURCES += ../../src/memory/memory.cpp \
     testvideo.cpp \
     ../../src/gui/video.cpp \
     testkeyboard.cpp \
-    ../../src/io/keyboard.cpp
+    ../../src/io/keyboard.cpp \
+    testtimeofday.cpp \
+    ../../src/io/timeofday.cpp \
+    ../../src/io/floppy.cpp \
+    ../../src/io/diskette.cpp
 
 HEADERS += ../../src/memory/memory.h \
     ../../src/memory/debugmemory.h \
@@ -97,4 +101,8 @@ HEADERS += ../../src/memory/memory.h \
     testvideo.h \
     ../../src/gui/video.h \
     testkeyboard.h \
-    ../../src/io/keyboard.h
+    ../../src/io/keyboard.h \
+    testtimeofday.h \
+    ../../src/io/timeofday.h \
+    ../../src/io/floppy.h \
+    ../../src/io/diskette.h

@@ -1,28 +1,31 @@
-#ifndef FLOPPY_H_INCLUDED
-#define FLOPPY_H_INCLUDED
+#ifndef FLOPPY_H
+#define FLOPPY_H
 
-class Floppy{
-public
-    void IO_Write_03F0(WORD data);
-    void IO_Write_03F1(WORD data);
-    unsigned int getPoint();
-    void setPoint(unsigned int point);
-    bool isInsert(int num);
+#include "type.h"
+#include <string>
 
-private
-    unsigned int FloppyIOPoint; //当前读写数据的指针
-
-    char FlpReg[4]; //当前读写扇区的指针
-    char FlpCnt[3]={80,2,18};   //1.44MB的软盘有80个柱面，2个盘面（磁头），18个扇区
-    char RegPointer=0;
-
-    HANDLE hFloppy[4];				//一个软盘控制器最多连接4个驱动器
-    HANDLE hMap[4];
-    unsigned int SizeFloppy[4];
-    char *pBufFloppy[4];
-    bool FloppyInserted[4];
+class Floppy
+{
+public:
+    Floppy(const std::string& fileName);
+    ~Floppy();
+    void readSectors(int count,u8* buffer,u8 trackNumber,u8 headNumber,
+                     u8 sectorNumber);
+    void writeSectors(int count,const u8* buffer,u8 trackNumber,u8 headNumber,
+                      u8 sectorNumber);
+    int getTracksPerSide(){return TRACKS_PER_SIDE;}
+    int getSectorsPerTrack(){return SECTORS_PER_TRACK;}
+    int getSidesCount(){return SIDES_COUNT;}
+private:
+    bool readFile(const std::string& fileName);
+    int getLBAFromCHS(u8 trackNumber,u8 headNumber,u8 sectorNumber);
+private:
+    u8* _fileBuffer;
+    const static int FILE_SIZE=0x168000;
+    const static int TRACKS_PER_SIDE=80;
+    const static int SECTORS_PER_TRACK=18;
+    const static int SIDES_COUNT=2;
+    const static int SECTOR_SIZE=512;
 };
 
-
-
-#endif // FLOPPY_H_INCLUDED
+#endif // FLOPPY_H

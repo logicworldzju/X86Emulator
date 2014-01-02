@@ -58,7 +58,10 @@
 //QTEST_MAIN(TestVideo)
 
 #include "testkeyboard.h"
-QTEST_MAIN(TestKeyboard)
+//QTEST_MAIN(TestKeyboard)
+
+#include "testtimeofday.h"
+QTEST_MAIN(TestTimeOfDay)
 
 
 //QTEST_

@@ -33,7 +33,10 @@ SOURCES += main.cpp\
     gui/consoleimage.cpp \
     gui/consolewidget.cpp \
     gui/charactercode.cpp \
-    io/keyboard.cpp
+    io/keyboard.cpp \
+    io/timeofday.cpp \
+    io/diskette.cpp \
+    io/floppy.cpp
 
 HEADERS  += gui/mainwindow.h \
     cpu/instructionformat.h \
@@ -75,7 +78,10 @@ HEADERS  += gui/mainwindow.h \
     gui/consoleimage.h \
     gui/consolewidget.h \
     gui/charactercode.h \
-    io/keyboard.h
+    io/keyboard.h \
+    io/timeofday.h \
+    io/diskette.h \
+    io/floppy.h
 
 FORMS    += gui/mainwindow.ui
 

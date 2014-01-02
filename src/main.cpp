@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
     w.show();
 
     Video video(memory,cpu.getRegisterFile(),w);
+    ioPortList.add2PortList(0x10,&video);
 
 
     //-------------------------------------

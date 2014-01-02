@@ -1,6 +1,14 @@
 org 0xf0000
 
 startOfTheFile:
+;*************************************************************************
+;SYSTEM DATA - DISKETTE PARAMETERS
+DisketteParameters:
+db	0afh,002h,025h,002h,012h,01bh,0ffh,06ch
+db	0f6h,00fh,008h,04fh,000h,004h,000h,000h
+DisketteParametersEnd:
+	
+;*************************************************************************
 int0:
 	out 00h,al
 	iret

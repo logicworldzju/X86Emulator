@@ -1,123 +1,155 @@
 #include "TimeOfDay.h"
+#include <QDateTime>
+#include <iostream>
+using namespace std;
 
+const float TimeOfDay::TICK=54.9255f;
+u8 TimeOfDay::carry[7]={100,60,60,24,31,12,100};
 
-TimeOfDay::TimeOfDay(IOPortList ioPortList)
+TimeOfDay::TimeOfDay()
+    :_ioPort(*this)
 {
-    SYSTEMTIME st;
-    GetLocalTime(&st);
-    rTime[0]=st.wMilliseconds/10;
-	rTime[1]=(unsigned char)st.wSecond;
-	rTime[2]=(unsigned char)st.wMinute;
-	rTime[3]=(unsigned char)st.wHour;
-	rTime[4]=(unsigned char)st.wDay;
-	rTime[5]=(unsigned char)st.wMonth;
-	rTime[6]=st.wYear%100;
-	rTime[7]=st.wYear/100;
-	TranslToBCD();
-	SetTimer(NULL,NULL,TICK,(TIMERPROC)RTCTimerThread);
-	ioPortList.add2PortList(13h,this);
+    RTCTimerThread();
+
+    _timer.setInterval(TICK);
+    connect(&_timer,SIGNAL(timeout()),this,SLOT(RTCTimerThread()));
+    _timer.start();
 }
 
-void TranslToBCD()
+void TimeOfDay::TranslToBCD()
 {
 	for (int i=0;i<8;i++)
 	{
-		BCDTIme[i]=rTime[i]/10;
-		BCDTIme[i]<<=4;
-		BCDTIme[i]+=rTime[i]%10;
-	}
+		_bcdTime[i]=_binaryTime[i]/10;
+		_bcdTime[i]<<=4;
+		_bcdTime[i]+=_binaryTime[i]%10;
+    }
 }
 
-void RTCTimerThread()
+u8 TimeOfDay::bcdToBin(u8 bcd)
 {
-	(*RtcTick)++;
+    return ((bcd>>4)&0xf)*10+(bcd&0xf);
+}
 
-	rTime[7]++;
+void TimeOfDay::RTCTimerThread()
+{
+	(_rtcTick)++;
+
+	/*_binaryTime[7]++;
 	for (int i=0;i<7;i++)
 	{
-		if (rTime[i]>carry[i])
+		if (_binaryTime[i]>carry[i])
 		{
-			rTime[i+1]++;
-			rTime[i]%=carry[i];
+			_binaryTime[i+1]++;
+			_binaryTime[i]%=carry[i];
 		}
 	}
-	switch(rTime[5])		//Month
+	switch(_binaryTime[5])		//Month
 	{
 	case 2:
-		if ((rTime[6]%4==0 && rTime[7]%4) || (rTime[6]==0 && rTime[7]%4==0))
+		if ((_binaryTime[6]%4==0 && _binaryTime[7]%4) || (_binaryTime[6]==0 && _binaryTime[7]%4==0))
 		{
-			rTime[5]+=rTime[4]/29;
-			rTime[4]%=29;
+			_binaryTime[5]+=_binaryTime[4]/29;
+			_binaryTime[4]%=29;
 		}
 		else
 		{
-			rTime[5]+=rTime[4]/28;
-			rTime[4]%=28;
+			_binaryTime[5]+=_binaryTime[4]/28;
+			_binaryTime[4]%=28;
 		}
 		break;
 	case 4:
 	case 6:
 	case 9:
 	case 11:
-		rTime[5]+=rTime[4]/30;
-		rTime[4]%=30;
+		_binaryTime[5]+=_binaryTime[4]/30;
+		_binaryTime[4]%=30;
 		break;
-	}
+	}*/
+    QDateTime dateTime = QDateTime::currentDateTime();
+    _binaryTime[0]=(u8)(dateTime.time().msec()/10);//st.wMilliseconds/10;
+	_binaryTime[1]=u8(dateTime.time().second());//(unsigned char)st.wSecond;
+	_binaryTime[2]=u8(dateTime.time().minute());//unsigned char)st.wMinute;
+	_binaryTime[3]=u8(dateTime.time().hour());//unsigned char)st.wHour;
+	_binaryTime[4]=u8(dateTime.date().day());//unsigned char)st.wDay;
+	_binaryTime[5]=u8(dateTime.date().month());//unsigned char)st.wMonth;
+	_binaryTime[6]=u8(dateTime.date().year()%100);//st.wYear%100;
+	_binaryTime[7]=u8(dateTime.date().year()/100);//st.wYear/100;
+
 	TranslToBCD();
 }
 
-void write2Port(u32 value,Memory& memory,RegisterFile& registerFile)
+void TimeOfDay::write2Port(u32 value,Memory& memory,RegisterFile& registerFile)
 {
+    (void)value;(void)memory;
 	switch(registerFile.getGPR8BitsHigh(RAX))
 	{
 	case 0:
-		registerFile.setGPR16Bits(RDX,((*RtcTick)&0xffff));
-		registerFile.setGPR16Bits(RCX,(((*RtcTick) >> 16) & 0xffff));
-        registerFile.setGPR8BitsLow(RAX,(*RtcTick)/8640000);		//√øÃÏ”–8640000∏ˆTick
+		registerFile.setGPR16Bits(RDX,((_rtcTick)&0xffff));
+		registerFile.setGPR16Bits(RCX,(((_rtcTick) >> 16) & 0xffff));
+        registerFile.setGPR8BitsLow(RAX,(_rtcTick)/8640000);		//ÊØèÂ§©Êúâ8640000‰∏™Tick
 		break;
 	case 1:
-		(*RtcTick)=registerFile.getGPR16Bits(RCX);
-		(*RtcTick)<<=16;
-		(*RtcTick)+=registerFile.getGPR16Bits(RDX);
-		registerFile.setGPR8BitsHigh(RAX,1);
+		(_rtcTick)=registerFile.getGPR16Bits(RCX);
+		(_rtcTick)<<=16;
+		(_rtcTick)+=registerFile.getGPR16Bits(RDX);
+		registerFile.setGPR8BitsHigh(RAX,0);
 		break;
 	case 2:
 	    registerFile.setGPR8BitsHigh(RAX,0);
-	    registerFile.setGPR8BitsLow(RAX,BCDTIme[3]);
-		registerFile.setGPR8BitsHigh(RCX,BCDTIme[3]);
-		registerFile.setGPR8BitsLow(RCX,BCDTIme[2]);
-		registerFile.setGPR8BitsHigh(RDX,BCDTIme[1]);
+	    registerFile.setGPR8BitsLow(RAX,_bcdTime[3]);
+		registerFile.setGPR8BitsHigh(RCX,_bcdTime[3]);
+		registerFile.setGPR8BitsLow(RCX,_bcdTime[2]);
+		registerFile.setGPR8BitsHigh(RDX,_bcdTime[1]);
 		registerFile.setGPR8BitsLow(RDX,0);
+        registerFile.getFlagsBits().CF=0;
 		break;
 	case 3:
-		rTime[3]=BCDtoBin(registerFile.getGPR8BitsHigh(RCX));
-		rTime[2]=BCDtoBin(registerFile.getGPR8BitsLow(RCX));
-		rTime[1]=BCDtoBin(registerFile.getGPR8BitsHigh(RDX));
+		_binaryTime[3]=bcdToBin(registerFile.getGPR8BitsHigh(RCX));
+		_binaryTime[2]=bcdToBin(registerFile.getGPR8BitsLow(RCX));
+		_binaryTime[1]=bcdToBin(registerFile.getGPR8BitsHigh(RDX));
 		registerFile.setGPR8BitsHigh(RAX,0);
+        registerFile.setGPR8BitsLow(RAX,2);
+        registerFile.getFlagsBits().CF=0;
 		break;
 	case 4:
-	    registerFile.setGPR8BitsHigh(RCX,BCDTIme[7]);
-		registerFile.setGPR8BitsLow(RCX,BCDTIme[6]);
-		registerFile.setGPR8BitsHigh(RDX,BCDTIme[5]);
-		registerFile.setGPR8BitsLow(RDX,BCDTIme[4]);
+        registerFile.setGPR8BitsLow(RAX,_bcdTime[7]);
+	    registerFile.setGPR8BitsHigh(RCX,_bcdTime[7]);
+		registerFile.setGPR8BitsLow(RCX,_bcdTime[6]);
+		registerFile.setGPR8BitsHigh(RDX,_bcdTime[5]);
+		registerFile.setGPR8BitsLow(RDX,_bcdTime[4]);
 		registerFile.getFlagsBits().ZF=0;
 		registerFile.getFlagsBits().CF=0;
 		break;
 	case 5:
-		rTime[7]=BCDtoBin(registerFile.getGPR8BitsHigh(RCX));
-		rTime[6]=BCDtoBin(registerFile.getGPR8BitsLow(RCX));
-		rTime[5]=BCDtoBin(registerFile.getGPR8BitsHigh(RDX));
-		rTime[4]=BCDtoBin(registerFile.getGPR8BitsLow(RDX));
-		registerFile.setGPR8BitsLow(RDX,0);
+		_binaryTime[7]=bcdToBin(registerFile.getGPR8BitsHigh(RCX));
+		_binaryTime[6]=bcdToBin(registerFile.getGPR8BitsLow(RCX));
+		_binaryTime[5]=bcdToBin(registerFile.getGPR8BitsHigh(RDX));
+		_binaryTime[4]=bcdToBin(registerFile.getGPR8BitsLow(RDX));
+//		registerFile.setGPR8BitsLow(RDX,0); bug?
+        registerFile.setGPR8BitsHigh(RAX,0);
+        registerFile.setGPR8BitsLow(RAX,2);
 		registerFile.getFlagsBits().CF=0;
 		registerFile.getFlagsBits().ZF=0;
 		break;
 	case 6:
-		registerFile.setGPR8BitsHigh(RAX,0);
-		registerFile.setGPR8BitsLow(RAX,0);
-		registerFile.getFlagsBits().CF=0;
+        cerr<<"Error:int 1ah function 06 set real-time clock alarm not implemented!"<<endl;
+        assert(0);
+//		registerFile.setGPR8BitsHigh(RAX,0);
+//		registerFile.setGPR8BitsLow(RAX,0);
+//		registerFile.getFlagsBits().CF=0;
 		break;
+    case 7:
+        cerr<<"Error:int 1ah function 07 reset real-time clock alarm not implemented!"<<endl;
+        assert(0);
+
 	default:
 		break;
-	}
+    }
+}
+
+u32 TimeOfDay::readFromPort(Memory &memory, RegisterFile &registerFile)
+{
+    (void)memory;(void)registerFile;
+    return 0xcccccccc;
 }

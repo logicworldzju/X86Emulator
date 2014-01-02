@@ -2,28 +2,48 @@
 #define TIMEOFDAY_H_INCLUDED
 
 #include "ioport.h"
-#define TICK 54.9255
+#include <QTimer>
+#include <QObject>
 
-Class TimeOfDay:IOPort
+class TimeOfDay :public QObject
 {
-public
+    Q_OBJECT
+public:
+    TimeOfDay();
+    IOPort& getIOPort(){return _ioPort;}
     void write2Port(u32 value,Memory& memory,RegisterFile& registerFile);
     u32 readFromPort(Memory& memory,RegisterFile& registerFile);
-
-private
-    //ÒÀ´ÎÊÇ ÀåÃë¡¢Ãë¡¢·Ö¡¢Ê±¡¢ÈÕ¡¢ÔÂ¡¢Äê¡¢ÊÀ¼Í
-    unsigned char rTime[8];		//Ê®Áù½øÖÆ´æ·Å£¬·½±ãÔËËã
-    unsigned char BCDTIme[8];	//BDCÂë´æ·Å
-    unsigned int *RtcTick;
-    unsigned char *RtcMidNight;
-    char carry[7]={100,60,60,24,31,12,100};		//°Ë¸ö¼Ä´æÆ÷Ö®¼äµÄ½øÎ»¹ØÏµ
+private:
+    void TranslToBCD();
+    u8 bcdToBin(u8 bcd);
+private slots:
+    void RTCTimerThread();
+private:
+    //ä¾æ¬¡æ˜¯ å˜ç§’ã€ç§’ã€åˆ†ã€æ—¶ã€æ—¥ã€æœˆã€å¹´ã€ä¸–çºª
+    u8 _binaryTime[8];		//åå…­è¿›åˆ¶å­˜æ”¾ï¼Œæ–¹ä¾¿è¿ç®—
+    u8 _bcdTime[8];	//BDCç å­˜æ”¾
+    u32 _rtcTick;
+//    unsigned char *RtcMidNight;
+    static u8 carry[7];		//å…«ä¸ªå¯„å­˜å™¨ä¹‹é—´çš„è¿›ä½å…³ç³»
 
     unsigned int RWpnt;
-   // bool A20Gate;								//A20µØÖ·Ïß£¬Ö»ÊÇÎªÁË92¶Ë¿ÚÓĞ¸ö²Ù×÷£¬ÆäÊµËü×ÜÊÇ´ò¿ªµÄ¡£
+   // bool A20Gate;								//A20åœ°å€çº¿ï¼Œåªæ˜¯ä¸ºäº†92ç«¯å£æœ‰ä¸ªæ“ä½œï¼Œå…¶å®å®ƒæ€»æ˜¯æ‰“å¼€çš„ã€‚
     int t;
-}
+    static const float TICK;
+    QTimer _timer;
 
 
-
+private:
+    class TimeOfDayIOPort:public IOPort
+    {
+    public:
+        TimeOfDayIOPort(TimeOfDay& timeOfDay):_timeOfDay(timeOfDay){}
+        void write2Port(u32 value,Memory& memory,RegisterFile& registerFile){_timeOfDay.write2Port(value,memory,registerFile);}
+        u32 readFromPort(Memory& memory,RegisterFile& registerFile){return _timeOfDay.readFromPort(memory,registerFile);}
+    private:
+        TimeOfDay& _timeOfDay;
+    };
+    TimeOfDayIOPort _ioPort;
+};
 
 #endif // TIMEOFDAY_H_INCLUDED
