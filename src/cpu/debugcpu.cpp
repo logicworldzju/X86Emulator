@@ -39,6 +39,8 @@ DebugCPU::DebugCPU(QObject *parent) :
     _breakPointList.insert(0xffff0);//break when cpu starts.
     _stopAtNextInstruction=false;
     cout.fill('0');
+
+    _instCount=0;
 }
 
 void DebugCPU::run()
@@ -71,7 +73,7 @@ void DebugCPU::help()
 }
 void DebugCPU::tip()
 {
-    cout<<">>>";
+    cout<<dec<<_instCount<<">>>";
 }
 
 u32 DebugCPU::readInt(bool& isInt)
@@ -164,6 +166,18 @@ void DebugCPU::doStartInstruction(u32 addressIP)
 void DebugCPU::doDecodeInstruction(u32 ip, const std::vector<u8> &bin, InstructionLowLevelFormat &lowFormat, InstructionHighLevelFormat &highFormat)
 {
     (void)bin;(void)lowFormat;(void)highFormat;
+
+    _instCount++;
+    cout<<"InstructionCount:"<<dec<<_instCount<<"IP:"<<hex<<ip<<"h"<<endl;
+    if(!highFormat.opcode->execFunc)
+    {
+        cerr<<"Error:highFormat.opcode->execFunc is null"<<endl;
+        cout<<"InstructionCount:"<<dec<<_instCount<<endl;
+        outputInstruction(ip,bin,highFormat);
+        cout<<_registerFile.toString();
+        ::exit(-1);
+    }
+
     if(_breakPointList.find(ip)!=_breakPointList.end() || _stopAtNextInstruction==true)
     {
         _stopAtNextInstruction=false;

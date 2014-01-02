@@ -1,5 +1,7 @@
 org 0xf0000
 
+THIS_SEGMENT equ 0xf000
+
 startOfTheFile:
 ;*************************************************************************
 ;SYSTEM DATA - DISKETTE PARAMETERS
@@ -60,11 +62,13 @@ intf:
 int10:
 	out 10h,al
 	iret
-int11:
-	out 11h,al
+int11: ;equipment check DSR
+	;out 11h,al
+	mov ax,0x40
 	iret
-int12:
-	out 12h,al
+int12: ;get memory size.
+	;out 12h,al
+	mov ax,0x27f
 	iret
 int13:
 	out 13h,al
@@ -73,7 +77,18 @@ int14:
 	out 14h,al
 	iret
 int15:
+	cmp	ah,0c0h
+	je	INT_15h_0C0
 	out 15h,al
+	iret
+INT_15h_0C0:
+	mov	ax,THIS_SEGMENT
+	mov	es,ax
+	mov	bx,INT_15h_Environment
+	mov	ah,0
+	iret
+INT_15h_Environment:
+	db	08h,00h,0fch,00h, 01h,0b4h,40h,00h,00h,00h
 	iret
 int16:
 	out 16h,al
@@ -111,7 +126,7 @@ intnop:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;interrupt vector table.
-THIS_SEGMENT equ 0xf000
+
 startOFIVT:
 dw int0,THIS_SEGMENT
 dw int1,THIS_SEGMENT

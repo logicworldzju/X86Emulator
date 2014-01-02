@@ -44,22 +44,29 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
         u8 driveNumber=registerFile.getGPR8BitsLow(RDX);
         u8* buffer = memory.getMemoryAddress()+registerFile.getSR(ES)*16+
                 registerFile.getGPR16Bits(RBX);
-        if(driveNumber==0)
+        cout<<"Int 13h function 02h called with "<<
+              "trackNumber:"<<(int)trackNumber<<
+              ",sectorNumber:"<<(int)sectorNumber<<
+              ",headNumber:"<<(int)headNumber<<
+              ",driveNumber:"<<(int)driveNumber<<
+              endl;
+        if(driveNumber==0 || driveNumber==0x80)//driveNumber==0x80 may be a bug.
         {
             _floppy0.readSectors(count,buffer,trackNumber,headNumber,sectorNumber);
         }
-        else if(driveNumber==1)
+        else if(driveNumber==1 || driveNumber==0x81)//driveNumber==0x81 may be a bug
         {
             _floppy1.readSectors(count,buffer,trackNumber,headNumber,sectorNumber);
         }
         else
         {
-            cerr<<"Error:No such driveNumber"<<driveNumber<<" in int 13h function 02h"<<endl;
+            cerr<<"Error:No such driveNumber"<<(int)driveNumber<<" in int 13h function 02h"<<endl;
             exit(-1);
         }
         registerFile.setGPR8BitsLow(RAX,count);
         registerFile.setGPR8BitsHigh(RAX,0);
         registerFile.getFlagsBits().CF=0;
+
         break;
     }
     case 3:
@@ -87,6 +94,11 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
         registerFile.setGPR8BitsLow(RAX,count);
         registerFile.setGPR8BitsHigh(RAX,0);
         registerFile.getFlagsBits().CF=0;
+        cout<<"Int 13h function 03h called with "<<
+              "trackNumber:"<<(int)trackNumber<<
+              ",sectorNumber:"<<(int)sectorNumber<<
+              ",headNumber:"<<(int)headNumber<<
+              ",driveNumber:"<<(int)driveNumber<<endl;
         break;
     }
       /*  if (floppy.isInsert(registerFile.getGPR8BitsLow(RDX)])&& registerFile.getGPR8BitsLow(RDX) <0x80 || registerFile.getGPR8BitsLow(RDX) >=0x80)
@@ -172,8 +184,9 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
         registerFile.getFlagsBits().CF=0;
         cout<<"Int 13h function 04h called with "<<
               "trackNumber:"<<(int)trackNumber<<
-              "sectorNumber:"<<(int)sectorNumber<<
-              "headNumber:"<<(int)headNumber<<endl;
+              ",sectorNumber:"<<(int)sectorNumber<<
+              ",headNumber:"<<(int)headNumber<<
+              ",driveNumber:"<<(int)driveNumber<<endl;
         break;
     }
 //        break;
@@ -203,8 +216,9 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
         registerFile.setGPR8BitsHigh(RAX,0);
         registerFile.getFlagsBits().CF=0;
         cout<<"Int 13h function 05h called with "<<
-              "trackNumber:"<<(int)trackNumber<<
-              "headNumber:"<<(int)headNumber<<endl;
+              ",trackNumber:"<<(int)trackNumber<<
+              ",headNumber:"<<(int)headNumber<<
+              ",driveNumber:"<<(int)driveNumber<<endl;
         break;
     }
     case 8:
@@ -218,7 +232,7 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
             registerFile.setGPR8BitsHigh(RCX,_floppy0.getTracksPerSide()-1);
             registerFile.setGPR8BitsLow(RCX,_floppy0.getSectorsPerTrack());
             registerFile.setGPR8BitsHigh(RDX,_floppy0.getSidesCount()-1);
-            registerFile.setGPR8BitsLow(RDX,2);//DL
+            registerFile.setGPR8BitsLow(RDX,1);//DL
 
             registerFile.setSR(ES,0xf000);
             registerFile.setSSR(ES,0xf0000);
@@ -234,7 +248,7 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
             registerFile.setGPR8BitsHigh(RCX,_floppy1.getTracksPerSide()-1);
             registerFile.setGPR8BitsLow(RCX,_floppy1.getSectorsPerTrack());
             registerFile.setGPR8BitsHigh(RDX,_floppy1.getSidesCount()-1);
-            registerFile.setGPR8BitsLow(RDX,2);//DL
+            registerFile.setGPR8BitsLow(RDX,1);//DL
 
             registerFile.setSR(ES,0xf000);
             registerFile.setSSR(ES,0xf0000);
@@ -250,7 +264,7 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
             registerFile.setGPR8BitsHigh(RCX,0);
             registerFile.setGPR8BitsLow(RCX,0);
             registerFile.setGPR8BitsHigh(RDX,0);
-            registerFile.setGPR8BitsLow(RDX,2);//DL
+            registerFile.setGPR8BitsLow(RDX,1);//DL
 
             registerFile.getFlagsBits().CF=1;
         }

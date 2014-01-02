@@ -81,13 +81,17 @@ void TimeOfDay::RTCTimerThread()
 
 void TimeOfDay::write2Port(u32 value,Memory& memory,RegisterFile& registerFile)
 {
+    cout<<"TimeOfDay:ah:"<<hex<<(int)registerFile.getGPR8BitsHigh(RAX)<<"h"<<endl;
     (void)value;(void)memory;
+
 	switch(registerFile.getGPR8BitsHigh(RAX))
 	{
 	case 0:
 		registerFile.setGPR16Bits(RDX,((_rtcTick)&0xffff));
 		registerFile.setGPR16Bits(RCX,(((_rtcTick) >> 16) & 0xffff));
         registerFile.setGPR8BitsLow(RAX,(_rtcTick)/8640000);		//每天有8640000个Tick
+
+        assert(0);
 		break;
 	case 1:
 		(_rtcTick)=registerFile.getGPR16Bits(RCX);

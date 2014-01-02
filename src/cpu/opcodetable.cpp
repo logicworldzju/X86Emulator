@@ -214,7 +214,7 @@ OpcodeTableEntry opcodeTableGroup9_c7[8]=
 };
 OpcodeTableEntry opcodeTableGroup11_c6[8]=
 {
-    OpcodeTableEntry("MOV",(void*)NULL,OT_E,OS_b,OT_I,OS_b),
+    OpcodeTableEntry("MOV",(void*)executeMOVE,OT_E,OS_b,OT_I,OS_b),
 	OpcodeTableEntry("invalid"),
 	OpcodeTableEntry("invalid"),
 	OpcodeTableEntry("invalid"),
@@ -225,7 +225,7 @@ OpcodeTableEntry opcodeTableGroup11_c6[8]=
 };
 OpcodeTableEntry opcodeTableGroup11_c7[8]=
 {
-    OpcodeTableEntry("MOV",(void*)NULL,OT_E,OS_v,OT_I,OS_z),
+    OpcodeTableEntry("MOV",(void*)executeMOVE,OT_E,OS_v,OT_I,OS_z),
 	OpcodeTableEntry("invalid"),
 	OpcodeTableEntry("invalid"),
 	OpcodeTableEntry("invalid"),

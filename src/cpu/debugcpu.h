@@ -32,6 +32,7 @@ protected:
 private:
     std::set<u32> _breakPointList;
     bool _stopAtNextInstruction;
+    u32 _instCount;
 };
 
 #endif // DEBUGCPU_H

@@ -2641,7 +2641,15 @@ EXECUTE_FUNC(executeAAM)
 EXECUTE_FUNC(executeAAD)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("AAD");
+//    INSTRUCTION_NOT_IMPLEMENT("AAD");
+    u8 result=registerFile.getGPR8BitsHigh(RAX)*dest->getU8()+registerFile.getGPR8BitsLow(RAX);
+    registerFile.setGPR8BitsLow(RAX,result);
+    registerFile.setGPR8BitsHigh(RAX,0);
+
+    setParityFlag(registerFile.getFlagsBits(),u8(result&0xff));
+    setZeroFlag(registerFile.getFlagsBits(),result);
+    setSignFlag(registerFile.getFlagsBits(),(result>>7)&1);
+
 }
 
 EXECUTE_FUNC(executeSALC)
