@@ -9,6 +9,7 @@
 #include "../cputype.h"
 #include <string>
 #include <sstream>
+#include <QDebug>
 class RegisterFile
 {
 public:
@@ -98,6 +99,10 @@ public:
     }
     u16 getGPR16Bits(u8 index)
     {
+        if(index>=16)
+        {
+            qDebug()<<"index:"<<index;
+        }
         assert(index<16);
         return _gpRegisters[index].get16Bits();
     }

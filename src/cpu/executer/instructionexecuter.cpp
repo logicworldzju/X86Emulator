@@ -57,6 +57,7 @@ ExecReadWriteOperand* InstructionExecuter::addressingOneOperand(InstructionHighL
 		}
 	case IFOperand::GP_REGISTER:
 		{
+            assert(ifOperand.content.gpregister<16);
 			execOperand = new ExecGPRegisterOperand(registerFile,ifOperand.content.gpregister,
 													ifOperand.finalSize,highFormat.hasRexPrefix);
 			break;
@@ -184,8 +185,8 @@ u32 InstructionExecuter::calculateAddress16BitMode(RegisterFile &registerFile, I
         assert(0);
         break;
     }
-    assert(result<0x10000);
-    return result;
+//    assert(result<0x10000); address at 0x162ee,break the rule.
+    return result&0xffff;
 }
 
 u32 InstructionExecuter::calculateAddress3264BitMode(RegisterFile &registerFile, IFOperand &ifOperand)

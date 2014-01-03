@@ -13,54 +13,258 @@ DisketteParametersEnd:
 ;*************************************************************************
 int0:
 	out 50h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int1:
 	out 51h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int2:
 	out 52h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int3:
 	out 53h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int4:
 	out 54h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int5:
 	out 55h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int6:
 	out 56h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int7:	
 	out 57h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int8:
 	out 58h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int9:
 	out 59h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 inta:
 	out 5ah,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 intb:
 	out 5bh,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 intc:
 	out 5ch,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 intd:
 	out 5dh,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 inte:
 	out 5eh,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 intf:
 	out 5fh,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int10: ;video
 	out 90h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int11: ;equipment check DSR
 	;out 11h,al
@@ -81,14 +285,50 @@ int12: ;get memory size.
 	iret
 int13: ;diskette
 	out 93h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int14: ;Serial
 	out 94h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int15: ;system service
 	cmp	ah,0c0h
 	je	INT_15h_0C0
 	out 95h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 INT_15h_0C0:
 	mov	ax,THIS_SEGMENT
@@ -101,36 +341,168 @@ INT_15h_Environment:
 	iret
 int16: ;keyboard
 	out 96h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int17: ;printer
 	out 97h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int18:
 	out 98h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int19:
 	out 99h,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int1a: ;time of day
 	out 9ah,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int1b:
 	out 9bh,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int1c:
 	out 9ch,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int1d:
 	out 9dh,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int1e:
 	out 9eh,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 int1f:
 	out 9fh,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 intnop:
 	out 0xcd,al
+	;;;;;;;;;;;;;;;;;;;
+	;set flags
+	push ax
+	push bp
+	mov bp,sp
+	and word[bp+4+4],0x0300;TF:8,IF:9
+	pushf
+	pop ax
+	or [bp+4+4],ax
+	pop bp
+	pop ax
+	;;;;;;;;;;;;;;;;;;;
 	iret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

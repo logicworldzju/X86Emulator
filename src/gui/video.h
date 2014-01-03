@@ -61,6 +61,7 @@ private:
     void initVideoTextBuffer();
 private:
     ConsoleWidget& _consoleWidget;
+    const static u8 DEFAULT_ATTRIBUTE=0x7;
 };
 
 

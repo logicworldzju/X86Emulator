@@ -1120,13 +1120,69 @@ EXECUTE_FUNC(executeDEC)
 EXECUTE_FUNC(executePUSHAD)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("PUSHAD");
+//    INSTRUCTION_NOT_IMPLEMENT("PUSHAD");
+    switch(effectiveOperandSize)
+    {
+    case EFFECTIVE_16_BITS:
+    {
+        u16 originalSP=registerFile.getGPR16Bits(RSP);
+        PUSH<u16>(registerFile.getGPR16Bits(RAX),effectiveAddressSize,memory,registerFile);
+        PUSH<u16>(registerFile.getGPR16Bits(RCX),effectiveAddressSize,memory,registerFile);
+        PUSH<u16>(registerFile.getGPR16Bits(RDX),effectiveAddressSize,memory,registerFile);
+        PUSH<u16>(registerFile.getGPR16Bits(RBX),effectiveAddressSize,memory,registerFile);
+        PUSH<u16>(registerFile.getGPR16Bits(originalSP),effectiveAddressSize,memory,registerFile);
+        PUSH<u16>(registerFile.getGPR16Bits(RBP),effectiveAddressSize,memory,registerFile);
+        PUSH<u16>(registerFile.getGPR16Bits(RSI),effectiveAddressSize,memory,registerFile);
+        PUSH<u16>(registerFile.getGPR16Bits(RDI),effectiveAddressSize,memory,registerFile);
+        break;
+    }
+    case EFFECTIVE_32_BITS:
+    case EFFECTIVE_64_BITS:
+        assert(0);
+        break;
+    }
 }
 
 EXECUTE_FUNC(executePOPAD)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("POPAD");
+//    INSTRUCTION_NOT_IMPLEMENT("POPAD");
+    switch(effectiveOperandSize)
+    {
+    case EFFECTIVE_16_BITS:
+    {
+        u16 ax;
+        u16 cx;
+        u16 dx;
+        u16 bx;
+        u16 sp;//discard
+        u16 bp;
+        u16 si;
+        u16 di;
+        POP<u16>(di,effectiveAddressSize,memory,registerFile);
+        POP<u16>(si,effectiveAddressSize,memory,registerFile);
+        POP<u16>(bp,effectiveAddressSize,memory,registerFile);
+        POP<u16>(sp,effectiveAddressSize,memory,registerFile);
+        POP<u16>(bx,effectiveAddressSize,memory,registerFile);
+        POP<u16>(dx,effectiveAddressSize,memory,registerFile);
+        POP<u16>(cx,effectiveAddressSize,memory,registerFile);
+        POP<u16>(ax,effectiveAddressSize,memory,registerFile);
+
+        registerFile.setGPR16Bits(RDI,di);
+        registerFile.setGPR16Bits(RSI,si);
+        registerFile.setGPR16Bits(RBP,bp);
+//        registerFile.setGPR16Bits(RDI,di);
+        registerFile.setGPR16Bits(RBX,bx);
+        registerFile.setGPR16Bits(RDX,dx);
+        registerFile.setGPR16Bits(RCX,cx);
+        registerFile.setGPR16Bits(RAX,ax);
+        break;
+    }
+    case EFFECTIVE_32_BITS:
+    case EFFECTIVE_64_BITS:
+        assert(0);
+        break;
+    }
 }
 
 EXECUTE_FUNC(executeBOUND)
@@ -2597,11 +2653,11 @@ EXECUTE_FUNC(executeINT)
 //    INSTRUCTION_NOT_IMPLEMENT("INT");
     assert(operatingEnvironment==ENV_16_BITS);
     INTERRUPT(dest->getU8(),effectiveAddressSize,memory,registerFile);
-    if(dest->getU8()==0x21)
-    {
-        qDebug()<<"Int 21:";
-        qDebug()<<registerFile.toString().c_str();
-    }
+//    if(dest->getU8()==0x21)
+//    {
+//        qDebug()<<"Int 21:";
+//        qDebug()<<registerFile.toString().c_str();
+//    }
 }
 EXECUTE_FUNC(executeINTO)
 {

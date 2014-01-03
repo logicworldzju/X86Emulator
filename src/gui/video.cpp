@@ -47,6 +47,7 @@ void Video::write2Port(u32 value,Memory& memory,RegisterFile& registerFile)
     (void)value;
 //    this->memory=memory; that is a bug;
 //    this->registerFile=registerFile; that is a bug;
+    qDebug("Video:function %xh",registerFile.getGPR8BitsHigh(RAX));
     VideoMemoryStart=memory.getVideoTextMemoryAddress();
     MemoryStart=memory.getMemoryAddress();
     switch(registerFile.getGPR8BitsHigh(RAX))
@@ -270,6 +271,7 @@ void Video::WriteTeletypetoActivePage()  //0Eh
     }
     return ;*/
     writeOneCharacter(pageNumber,0,false,character);
+    qDebug("%c %xh",character,character);
 }
 
 void Video::ReturnVideoStatus()  //0Fh
@@ -542,7 +544,7 @@ void Video::writeOneCharacter(int pageNumber, u8 attribute,bool shouldWriteAttri
     {
         if(row==ROW_SIZE-1)
         {
-            scrollUp(pageNumber,1,0,0,0,ROW_SIZE-1,COLUMN_SIZE-1);
+            scrollUp(pageNumber,1,DEFAULT_ATTRIBUTE,0,0,ROW_SIZE-1,COLUMN_SIZE-1);
         }
         else
         {
@@ -565,7 +567,7 @@ void Video::writeOneCharacter(int pageNumber, u8 attribute,bool shouldWriteAttri
         {
             column=0;
             row=row;
-            scrollUp(pageNumber,1,0,0,0,ROW_SIZE-1,COLUMN_SIZE-1);
+            scrollUp(pageNumber,1,DEFAULT_ATTRIBUTE,0,0,ROW_SIZE-1,COLUMN_SIZE-1);
         }
         else if(column==COLUMN_SIZE-1)
         {
@@ -595,7 +597,7 @@ void Video::initVideoTextBuffer()
         for(int i=0; i<PAGESIZE/2; i++)
         {
             pageBase[i*2+0]=' ';
-            pageBase[i*2+1]=0xf;
+            pageBase[i*2+1]=DEFAULT_ATTRIBUTE;
         }
     }
 }

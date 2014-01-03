@@ -459,7 +459,8 @@ OpcodeTableEntry opcodeTableOneByte[256]=
     OpcodeTableEntry("CMPSW/D/Q",(void*)executeCMPS,OT_X,OS_v,OT_Y,OS_v),//0xa7
     OpcodeTableEntry("TEST",(void*)executeTEST,OT_RAX,OS_b,OT_I,OS_b),//0xa8
     OpcodeTableEntry("TEST",(void*)executeTEST,OT_RAX,OS_z,OT_I,OS_z),//0xa9
-    OpcodeTableEntry("STOSB",(void*)executeSTOS,OT_Y,OS_v,OT_RAX,OS_b),//0xaa
+//    OpcodeTableEntry("STOSB",(void*)executeSTOS,OT_Y,OS_v,OT_RAX,OS_b),//0xaa
+    OpcodeTableEntry("STOSB",(void*)executeSTOS,OT_Y,OS_b,OT_RAX,OS_b),//0xaa
     OpcodeTableEntry("STOSW/D/Q",(void*)executeSTOS,OT_Y,OS_v,OT_RAX,OS_v),//0xab
     OpcodeTableEntry("LODSB",(void*)executeLODS,OT_RAX,OS_b,OT_X,OS_b),//0xac
     OpcodeTableEntry("LODSW/D/Q",(void*)executeLODS,OT_RAX,OS_v,OT_X,OS_v),//0xad

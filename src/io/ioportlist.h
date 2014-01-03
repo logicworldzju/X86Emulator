@@ -32,6 +32,10 @@ public:
     {
         qDebug("IOPortList:portNumber:%xh",portNumber);//<<"IOPortList:"<<"portNumber:"<<QDebug::hex<<portNumber<<"h";
         qDebug()<<_registerFile.toString().c_str();
+        if(portNumber==0x2f2 || portNumber==0x2f3 || portNumber==0x2f4 || portNumber==0x2f5|| portNumber==0x2f6|| portNumber==0x2f7)
+        {
+            return;
+        }
         if(_ioPortList[portNumber])
             _ioPortList[portNumber]->write2Port(value,_memory,
                                            _registerFile);

@@ -3,6 +3,7 @@
 
 #include "execreadwriteoperand.h"
 #include "../../register/registerfile.h"
+#include <assert.h>
 
 class ExecGPRegisterOperand :public ExecReadWriteOperand
 {
@@ -11,6 +12,7 @@ public:
                           bool hasREXPrefix)
         :_file(file),_gpRegister(gpRegister),_hasREXPrefix(hasREXPrefix)
     {
+        assert(gpRegister<16);
         _size=size;
     }
     virtual void prepareReadSigned()
