@@ -16,7 +16,7 @@ void TestVideo::test()
     DebugCPU cpu;
     DebugMemory memory;
     IOPortList ioPortList(memory,cpu.getRegisterFile());
-    ConsoleWidget consoleWidget(0,memory.getVideoMemoryAddress());
+    ConsoleWidget consoleWidget(0,memory.getVideoTextMemoryAddress());
     Video video(memory,cpu.getRegisterFile(),consoleWidget);
     ioPortList.add2PortList(0x10,&video);
     //-------------------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ void TestVideo::test()
     QCOMPARE(int(video.CurRow),int(0x33));
     //void ScrollCurrentPageUp();                             //06h
     {
-        u8* videoBase = memory.getVideoMemoryAddress()+video.CurrentPage*80*25*2;
+        u8* videoBase = memory.getVideoTextMemoryAddress()+video.CurrentPage*80*25*2;
         (videoBase+80*2*10+5*2)[0]=0xc1;
         (videoBase+80*2*10+5*2)[1]=0x1c;
         cpu.getRegisterFile().setGPR8BitsLow(RAX,2);
@@ -88,7 +88,7 @@ void TestVideo::test()
         QCOMPARE(int((videoBase+80*2*(12)+13*2)[1]),int(0));
     }
     {
-        u8* videoBase = memory.getVideoMemoryAddress()+video.CurrentPage*80*25*2;
+        u8* videoBase = memory.getVideoTextMemoryAddress()+video.CurrentPage*80*25*2;
         (videoBase+80*2*10+5*2)[0]=0xc1;
         (videoBase+80*2*10+5*2)[1]=0x1c;
         cpu.getRegisterFile().setGPR8BitsLow(RAX,0);
@@ -118,7 +118,7 @@ void TestVideo::test()
     }
     //void ScrollCurrentPageDown();                           //07h
     {
-        u8* videoBase = memory.getVideoMemoryAddress()+video.CurrentPage*80*25*2;
+        u8* videoBase = memory.getVideoTextMemoryAddress()+video.CurrentPage*80*25*2;
         (videoBase+80*2*10+5*2)[0]=0xc2;
         (videoBase+80*2*10+5*2)[1]=0x2c;
         cpu.getRegisterFile().setGPR8BitsLow(RAX,2);
@@ -142,7 +142,7 @@ void TestVideo::test()
         QCOMPARE(int((videoBase+80*2*(12)+13*2)[1]),int(0));
     }
     {
-        u8* videoBase = memory.getVideoMemoryAddress()+video.CurrentPage*80*25*2;
+        u8* videoBase = memory.getVideoTextMemoryAddress()+video.CurrentPage*80*25*2;
         (videoBase+80*2*10+5*2)[0]=0xc1;
         (videoBase+80*2*10+5*2)[1]=0x1c;
         cpu.getRegisterFile().setGPR8BitsLow(RAX,0);
@@ -172,7 +172,7 @@ void TestVideo::test()
     }
     //void ReadCharacter_AttributefromScreen();               //08h
     {
-        u8* videoBase = memory.getVideoMemoryAddress()+video.CurrentPage*80*25*2;
+        u8* videoBase = memory.getVideoTextMemoryAddress()+video.CurrentPage*80*25*2;
         (videoBase+80*2*10+5*2)[0]=0xc1;
         (videoBase+80*2*10+5*2)[1]=0x1c;
         cpu.getRegisterFile().setGPR8BitsHigh(RBX,1);
@@ -256,7 +256,7 @@ void TestVideo::test()
 
         QCOMPARE(int(video.CurPage[1*2+0]),0xa);
         QCOMPARE(int(video.CurPage[1*2+1]),0x4f);
-        u8* videoBase = memory.getVideoMemoryAddress()+1*80*25*2;
+        u8* videoBase = memory.getVideoTextMemoryAddress()+1*80*25*2;
         QCOMPARE(int((videoBase+0xa*80*2+0x4e*2)[0]),int('a'));
     }
     {
@@ -272,7 +272,7 @@ void TestVideo::test()
 
         QCOMPARE(int(video.CurPage[1*2+0]),0xb);
         QCOMPARE(int(video.CurPage[1*2+1]),0x0);
-        u8* videoBase = memory.getVideoMemoryAddress()+1*80*25*2;
+        u8* videoBase = memory.getVideoTextMemoryAddress()+1*80*25*2;
         QCOMPARE(int((videoBase+0xa*80*2+0x4f*2)[0]),int('a'));
     }
     {
@@ -288,7 +288,7 @@ void TestVideo::test()
 
         QCOMPARE(int(video.CurPage[1*2+0]),0x18);
         QCOMPARE(int(video.CurPage[1*2+1]),0x0);
-        u8* videoBase = memory.getVideoMemoryAddress()+1*80*25*2;
+        u8* videoBase = memory.getVideoTextMemoryAddress()+1*80*25*2;
         QCOMPARE(int((videoBase+0x17*80*2+0x4f*2)[0]),int('a'));
     }
     {

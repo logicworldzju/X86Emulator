@@ -22,7 +22,7 @@ void TestKeyboard::test()
 
     Keyboard key;
 
-    ConsoleWidget w(NULL,memory.getVideoMemoryAddress());
+    ConsoleWidget w(NULL,memory.getVideoTextMemoryAddress());
 
     QObject::connect(&w,SIGNAL(keyStatusChange(u16,bool)),&key,SLOT(keyStatusGet(u16,bool)));
     QObject::connect(&w,SIGNAL(toggleKeyChange(bool,bool,bool,bool,bool,bool)),&key,SLOT(toggleKeyGet(bool,bool,bool,bool,bool,bool)));

@@ -31,6 +31,10 @@ Video::Video(Memory &m, RegisterFile &r, ConsoleWidget &consoleWidget)
     CurrentPage=0;
     CursorTop=11;
     CursorBottom=12;
+
+    CurrentMode=0x3;
+
+    initVideoTextBuffer();
 }
 
 Video::~Video()
@@ -43,7 +47,7 @@ void Video::write2Port(u32 value,Memory& memory,RegisterFile& registerFile)
     (void)value;
 //    this->memory=memory; that is a bug;
 //    this->registerFile=registerFile; that is a bug;
-    VideoMemoryStart=memory.getVideoMemoryAddress();
+    VideoMemoryStart=memory.getVideoTextMemoryAddress();
     MemoryStart=memory.getMemoryAddress();
     switch(registerFile.getGPR8BitsHigh(RAX))
     {
@@ -142,7 +146,7 @@ void Video::SelectNewVideoPage()  //05h
     CurColumn=CurPage[2*CurrentPage+1];
 
     _consoleWidget.setCursorPosition(QPoint(CurColumn,CurRow));
-    _consoleWidget.setVideoMemoryAddress(PAGESIZE*CurrentPage+memory.getVideoMemoryAddress());
+    _consoleWidget.setVideoMemoryAddress(PAGESIZE*CurrentPage+memory.getVideoTextMemoryAddress());
 }
 
 void Video::ScrollCurrentPageUp()  //06h
@@ -444,7 +448,7 @@ void Video::scrollUpOneRow(int pageNumber, u8 attribute, int left, int top, int 
     assert(top>=0 && top<ROW_SIZE);
     assert(bottom>=0 && bottom<ROW_SIZE);
 
-    u8* pageBase=memory.getVideoMemoryAddress()+PAGESIZE*pageNumber;
+    u8* pageBase=memory.getVideoTextMemoryAddress()+PAGESIZE*pageNumber;
     for(int i=top; i<bottom; i++)
     {
         for(int j=left; j<=right; j++)
@@ -488,7 +492,7 @@ void Video::scrollDownOneRow(int pageNumber, u8 attribute, int left, int top, in
     assert(top>=0 && top<ROW_SIZE);
     assert(bottom>=0 && bottom<ROW_SIZE);
 
-    u8* pageBase=memory.getVideoMemoryAddress()+PAGESIZE*pageNumber;
+    u8* pageBase=memory.getVideoTextMemoryAddress()+PAGESIZE*pageNumber;
 
     for(int i=bottom; i>=top+1; i--)
     {
@@ -508,7 +512,7 @@ void Video::blankOneRow(int pageNumber, u8 attribute, int row, int left, int rig
     assert(right>=0 && right<COLUMN_SIZE);
     assert(row>=0 && row<ROW_SIZE);
 
-    u8* pageBase=memory.getVideoMemoryAddress()+PAGESIZE*pageNumber;
+    u8* pageBase=memory.getVideoTextMemoryAddress()+PAGESIZE*pageNumber;
 
     int i=row;
     for(int j=left; j<=right; j++)
@@ -522,7 +526,7 @@ void Video::writeOneCharacter(int pageNumber, u8 attribute,bool shouldWriteAttri
 {
     assert(pageNumber>=0 && pageNumber<MAXPAGENUMBER);
 
-    u8* pageBase=memory.getVideoMemoryAddress()+PAGESIZE*pageNumber;
+    u8* pageBase=memory.getVideoTextMemoryAddress()+PAGESIZE*pageNumber;
 
     int row=CurPage[pageNumber*2],column=CurPage[pageNumber*2+1];
 
@@ -580,5 +584,18 @@ void Video::writeOneCharacter(int pageNumber, u8 attribute,bool shouldWriteAttri
         CurColumn=column;
         CurRow=row;
         _consoleWidget.setCursorPosition(QPoint(CurColumn,CurRow));
+    }
+}
+
+void Video::initVideoTextBuffer()
+{
+    for(int page=0;page<MAXPAGENUMBER;page++)
+    {
+        u8* pageBase = memory.getVideoTextMemoryAddress()+PAGESIZE*page;
+        for(int i=0; i<PAGESIZE/2; i++)
+        {
+            pageBase[i*2+0]=' ';
+            pageBase[i*2+1]=0xf;
+        }
     }
 }

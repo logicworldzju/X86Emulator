@@ -4,6 +4,7 @@
 #include "cpu.h"
 #include <vector>
 #include <set>
+#include <string>
 
 class DebugCPU : public CPU
 {
@@ -17,7 +18,7 @@ private:
     void help();
     void tip();
     u32 readInt(bool &isInt);
-    static void outputInstruction(u32 ip, const std::vector<u8> &bin,InstructionHighLevelFormat &highFormat);
+    static std::string outputInstruction(u32 ip, const std::vector<u8> &bin,InstructionHighLevelFormat &highFormat);
     void showDisasm(u32 address,u32 length);
     void showData(u32 address,u32 length);
 protected:

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include "operand/execmemoryoperand.h"
+#include <QDebug>
 //---------------------------Set Flags Function----------------------------------
 inline u8 getCarryFlag(u8 msbOpt1,u8 msbOpt2,bool isPlus,u8 msbResult)
 {
@@ -2596,6 +2597,11 @@ EXECUTE_FUNC(executeINT)
 //    INSTRUCTION_NOT_IMPLEMENT("INT");
     assert(operatingEnvironment==ENV_16_BITS);
     INTERRUPT(dest->getU8(),effectiveAddressSize,memory,registerFile);
+    if(dest->getU8()==0x21)
+    {
+        qDebug()<<"Int 21:";
+        qDebug()<<registerFile.toString().c_str();
+    }
 }
 EXECUTE_FUNC(executeINTO)
 {

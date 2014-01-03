@@ -12,74 +12,83 @@ DisketteParametersEnd:
 	
 ;*************************************************************************
 int0:
-	out 00h,al
+	out 50h,al
 	iret
 int1:
-	out 01h,al
+	out 51h,al
 	iret
 int2:
-	out 02h,al
+	out 52h,al
 	iret
 int3:
-	out 03h,al
+	out 53h,al
 	iret
 int4:
-	out 04h,al
+	out 54h,al
 	iret
 int5:
-	out 05h,al
+	out 55h,al
 	iret
 int6:
-	out 06h,al
+	out 56h,al
 	iret
 int7:	
-	out 07h,al
+	out 57h,al
 	iret
 int8:
-	out 08h,al
+	out 58h,al
 	iret
 int9:
-	out 09h,al
+	out 59h,al
 	iret
 inta:
-	out 0ah,al
+	out 5ah,al
 	iret
 intb:
-	out 0bh,al
+	out 5bh,al
 	iret
 intc:
-	out 0ch,al
+	out 5ch,al
 	iret
 intd:
-	out 0dh,al
+	out 5dh,al
 	iret
 inte:
-	out 0eh,al
+	out 5eh,al
 	iret
 intf:
-	out 0fh,al
+	out 5fh,al
 	iret
-int10:
-	out 10h,al
+int10: ;video
+	out 90h,al
 	iret
 int11: ;equipment check DSR
 	;out 11h,al
-	mov ax,0x40
+	;mov ax,0x6742
+	;iret
+	push	ds
+	push	bx
+	mov	ax,0040h
+	mov	ds,ax
+	mov	bx,0010h	;BIOS Data Area Device Info.
+	mov	ax,[bx]
+	pop	bx
+	pop	ds
 	iret
 int12: ;get memory size.
 	;out 12h,al
 	mov ax,0x27f
 	iret
-int13:
-	out 13h,al
+int13: ;diskette
+	out 93h,al
 	iret
-int14:
-	out 14h,al
+int14: ;Serial
+	out 94h,al
 	iret
-int15:
+int15: ;system service
 	cmp	ah,0c0h
 	je	INT_15h_0C0
-	out 15h,al
+	out 95h,al
 	iret
 INT_15h_0C0:
 	mov	ax,THIS_SEGMENT
@@ -90,38 +99,38 @@ INT_15h_0C0:
 INT_15h_Environment:
 	db	08h,00h,0fch,00h, 01h,0b4h,40h,00h,00h,00h
 	iret
-int16:
-	out 16h,al
+int16: ;keyboard
+	out 96h,al
 	iret
-int17:
-	out 17h,al
+int17: ;printer
+	out 97h,al
 	iret
 int18:
-	out 18h,al
+	out 98h,al
 	iret
 int19:
-	out 19h,al
+	out 99h,al
 	iret
-int1a:
-	out 1ah,al
+int1a: ;time of day
+	out 9ah,al
 	iret
 int1b:
-	out 1bh,al
+	out 9bh,al
 	iret
 int1c:
-	out 1ch,al
+	out 9ch,al
 	iret
 int1d:
-	out 1dh,al
+	out 9dh,al
 	iret
 int1e:
-	out 1eh,al
+	out 9eh,al
 	iret
 int1f:
-	out 1fh,al
+	out 9fh,al
 	iret
 intnop:
-	out 20h,al
+	out 0xcd,al
 	iret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -158,7 +167,7 @@ dw int1a,THIS_SEGMENT
 dw int1b,THIS_SEGMENT
 dw int1c,THIS_SEGMENT
 dw int1d,THIS_SEGMENT
-dw int1e,THIS_SEGMENT
+dw DisketteParameters,THIS_SEGMENT
 dw int1f,THIS_SEGMENT
 times 0x100-0x20 dw intnop,THIS_SEGMENT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

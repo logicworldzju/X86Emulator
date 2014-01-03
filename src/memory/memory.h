@@ -30,7 +30,9 @@ the layout and contents of the first Meg of memory[1][2]:
 0xffff5 : ASCII Date ROM was built - 8 characters in MM/DD/YY
 0xffffe : System Model ID
 */
-#define VIDEO_MEMORY_ADDRESS 0xc0000
+//#define VIDEO_MEMORY_ADDRESS 0xc0000
+#define VIDEO_MEMORY_ADDRESS 0xa0000
+#define VIDEO_TEXT_MEMORY_ADDRESS 0xB8000
 
 class Memory
 {
@@ -41,9 +43,9 @@ public:
     {
         return _memory;
     }
-    u8* getVideoMemoryAddress()
+    u8* getVideoTextMemoryAddress()
     {
-        return _memory+VIDEO_MEMORY_ADDRESS;
+        return _memory+VIDEO_TEXT_MEMORY_ADDRESS;
     }
     u32 getMemorySize()
     {

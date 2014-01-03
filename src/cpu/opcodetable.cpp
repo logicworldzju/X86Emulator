@@ -14,14 +14,23 @@ OpcodeTableEntry opcodeTableGroup1_80[8]=
 };
 OpcodeTableEntry opcodeTableGroup1_81[8]=
 {
-    OpcodeTableEntry("ADD",(void*)executeADD,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=000
-    OpcodeTableEntry("OR",(void*)executeOR,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=001
-    OpcodeTableEntry("ADC",(void*)executeADC,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=010
-    OpcodeTableEntry("SBB",(void*)executeSBB,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=011
-    OpcodeTableEntry("AND",(void*)executeAND,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=100
-    OpcodeTableEntry("SUB",(void*)executeSUB,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=101
-    OpcodeTableEntry("XOR",(void*)executeXOR,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=110
-    OpcodeTableEntry("CMP",(void*)executeCMP,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=111
+    //big bug here.
+//    OpcodeTableEntry("ADD",(void*)executeADD,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=000
+//    OpcodeTableEntry("OR",(void*)executeOR,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=001
+//    OpcodeTableEntry("ADC",(void*)executeADC,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=010
+//    OpcodeTableEntry("SBB",(void*)executeSBB,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=011
+//    OpcodeTableEntry("AND",(void*)executeAND,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=100
+//    OpcodeTableEntry("SUB",(void*)executeSUB,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=101
+//    OpcodeTableEntry("XOR",(void*)executeXOR,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=110
+//    OpcodeTableEntry("CMP",(void*)executeCMP,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=111
+    OpcodeTableEntry("ADD",(void*)executeADD,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=000
+    OpcodeTableEntry("OR",(void*)executeOR,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=001
+    OpcodeTableEntry("ADC",(void*)executeADC,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=010
+    OpcodeTableEntry("SBB",(void*)executeSBB,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=011
+    OpcodeTableEntry("AND",(void*)executeAND,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=100
+    OpcodeTableEntry("SUB",(void*)executeSUB,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=101
+    OpcodeTableEntry("XOR",(void*)executeXOR,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=110
+    OpcodeTableEntry("CMP",(void*)executeCMP,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=111
 };
 OpcodeTableEntry opcodeTableGroup1_82[8]=
 {

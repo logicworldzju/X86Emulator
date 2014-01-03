@@ -3,10 +3,13 @@
 #include <string>
 #include <stdio.h>
 #include <string.h>
+#include <sstream>
 #include "cpu/tostring/instructiontostring.h"
 #include "cpu/decoder/instructionstreamfrommemory.h"
 #include "cpu/decoder/instructiondecoder.h"
 using namespace std;
+#include <QDebug>
+#include "cpu/encoder/instructionencoder.h"
 
 static void hex2Ascii(const std::vector<u8>& hex,std::string& ascii)
 {
@@ -100,19 +103,22 @@ u32 DebugCPU::readInt(bool& isInt)
     return value;
 }
 
-void DebugCPU::outputInstruction(u32 ip, const std::vector<u8> &bin, InstructionHighLevelFormat &highFormat)
+string DebugCPU::outputInstruction(u32 ip, const std::vector<u8> &bin, InstructionHighLevelFormat &highFormat)
 {
-    cout.width(8);
-    cout<<hex<<ip<<"h    ";
+    ostringstream sout;
+    sout.width(8);
+    sout<<hex<<ip<<"h    ";
 
     string ascii;
     ::hex2Ascii(bin,ascii);
-    cout<<ascii<<"    ";
+    sout<<ascii<<"    ";
 
     InstructionToString instructionToString;
     string instString;
     instructionToString.toString(highFormat,instString);
-    cout<<instString<<endl;
+    sout<<instString;
+
+    return sout.str();
 }
 
 void DebugCPU::showDisasm(u32 address, u32 length)
@@ -128,7 +134,7 @@ void DebugCPU::showDisasm(u32 address, u32 length)
         InstructionDecoder::decode(stream,ENV_16_BITS,lowFormat,highFormat);
         stream.endReadOneInstruction();
 
-        outputInstruction(stream.getIP(),stream.readLastInstruction(),highFormat);
+        cout<<outputInstruction(stream.getIP(),stream.readLastInstruction(),highFormat)<<endl;
     }
 }
 
@@ -168,12 +174,35 @@ void DebugCPU::doDecodeInstruction(u32 ip, const std::vector<u8> &bin, Instructi
     (void)bin;(void)lowFormat;(void)highFormat;
 
     _instCount++;
-    cout<<"InstructionCount:"<<dec<<_instCount<<"IP:"<<hex<<ip<<"h"<<endl;
+//    qDebug()<<"InstructionCount:"<<dec<<_instCount<<outputInstruction(ip,bin,highFormat).c_str();
+    std::vector<u8> instCreated;
+    InstructionEncoder::encode(lowFormat,instCreated);
+    for(int i=0; i<instCreated.size(); i++)
+    {
+        if(instCreated[i]!=bin[i])
+        {
+            cerr<<"InstructionCount:"<<dec<<_instCount<<outputInstruction(ip,bin,highFormat).c_str();
+            {
+                std::string ascii;
+                hex2Ascii(bin,ascii);
+//                fout<<"OriginalBinary:"<<ascii<<std::endl;
+                cerr<<"OriginalBinary:"<<ascii<<std::endl;;
+            }
+            {
+                std::string ascii;
+                hex2Ascii(instCreated,ascii);
+//                fout<<"OriginalCreated:"<<ascii<<std::endl;
+                cerr<<"CreatedBinary:"<<ascii<<std::endl;
+            }
+            assert(0);
+        }
+    }
+
     if(!highFormat.opcode->execFunc)
     {
         cerr<<"Error:highFormat.opcode->execFunc is null"<<endl;
         cout<<"InstructionCount:"<<dec<<_instCount<<endl;
-        outputInstruction(ip,bin,highFormat);
+        cout<<outputInstruction(ip,bin,highFormat)<<endl;
         cout<<_registerFile.toString();
         ::exit(-1);
     }
@@ -182,7 +211,7 @@ void DebugCPU::doDecodeInstruction(u32 ip, const std::vector<u8> &bin, Instructi
     {
         _stopAtNextInstruction=false;
 
-        outputInstruction(ip,bin,highFormat);
+        cout<<outputInstruction(ip,bin,highFormat)<<endl;
 
         while(true)
         {

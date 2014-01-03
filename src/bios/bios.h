@@ -6,7 +6,7 @@
 class BIOS
 {
 public:
-    BIOS(Memory& memory,const std::string& path);
+    BIOS(Memory& memory, const std::string& biosPath, const std::string &biosDataPath);
 };
 
 #endif // BIOS_H
