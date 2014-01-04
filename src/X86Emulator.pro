@@ -41,7 +41,8 @@ SOURCES += main.cpp\
     io/serial.cpp \
     io/cmosram.cpp \
     io/systemservice.cpp \
-    io/pic.cpp
+    io/pic.cpp \
+    cpu/register/registerfile.cpp
 
 HEADERS  += gui/mainwindow.h \
     cpu/instructionformat.h \

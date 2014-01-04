@@ -36,19 +36,60 @@ public:
         {
             return;
         }
+        if(portNumber==0x61)
+        {
+            return ;
+        }
+        if(portNumber==0x40)
+        {
+            return ;
+        }
+        if(portNumber==0x3d4)//Video CRTC index register
+        {
+            return;
+        }
+        if(portNumber==0x3d5)//Other video CRTC registers
+        {
+            return ;
+        }
+        if(portNumber==0x3d8)//CGA mode control register
+        {
+            return ;
+        }
+        if(portNumber==0x3d9)//CGA palette register
+        {
+            return;
+        }
         if(_ioPortList[portNumber])
             _ioPortList[portNumber]->write2Port(value,_memory,
                                            _registerFile);
         else
         {
-            std::cerr<<"Error:"<<"Didn't implement port:"<<portNumber
-                    <<" try to write value:"<<value<<std::endl;
+            std::cerr<<"Error:"<<"Didn't implement port:"<<std::hex<<portNumber
+                    <<"h try to write value:"<<std::hex<<value<<"h"<<std::endl;
             std::cerr<<_registerFile.toString();
             ::exit(-1);
         }
     }
     u32 readFromPort(u16 portNumber)
     {
+        if(portNumber==0x21)
+        {
+            return 0xcccccccc;
+        }
+        if(portNumber==0x61)
+        {
+            return 0xcccccccc;
+        }
+        if(portNumber==0x3d5)//Other video CRTC registers
+        {
+            return 0xcccccccc;
+        }
+        if(portNumber==0x3da)
+        {
+            return 0xcccccccc;
+        }
+
         if(_ioPortList[portNumber])
             return _ioPortList[portNumber]->readFromPort(_memory,
                                                     _registerFile);

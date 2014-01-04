@@ -134,9 +134,21 @@ void KeyboardIO::function(u8 func, RegisterFile& _registerFile)
         _registerFile.setGPR16Bits(RAX,shiftflagstatus);
         break;\
     }
+    case 0x55:
+    {
+        if(_registerFile.getGPR8BitsLow(RAX)==0xfe)
+        {
+            _registerFile.setGPR16Bits(RAX,0);
+            break;
+        }
+        else
+        {
+            assert(0);
+        }
+    }
     default:
     {
-        cout<<"Can't use INT16h Function "<<hex<<func<<"h!"<<endl;
+        cout<<"Can't use INT16h Function "<<hex<<(int)func<<"h!"<<endl;
         assert(0);
     }
     }

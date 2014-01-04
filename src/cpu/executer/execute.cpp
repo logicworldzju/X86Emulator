@@ -1130,7 +1130,7 @@ EXECUTE_FUNC(executePUSHAD)
         PUSH<u16>(registerFile.getGPR16Bits(RCX),effectiveAddressSize,memory,registerFile);
         PUSH<u16>(registerFile.getGPR16Bits(RDX),effectiveAddressSize,memory,registerFile);
         PUSH<u16>(registerFile.getGPR16Bits(RBX),effectiveAddressSize,memory,registerFile);
-        PUSH<u16>(registerFile.getGPR16Bits(originalSP),effectiveAddressSize,memory,registerFile);
+        PUSH<u16>(originalSP,effectiveAddressSize,memory,registerFile);
         PUSH<u16>(registerFile.getGPR16Bits(RBP),effectiveAddressSize,memory,registerFile);
         PUSH<u16>(registerFile.getGPR16Bits(RSI),effectiveAddressSize,memory,registerFile);
         PUSH<u16>(registerFile.getGPR16Bits(RDI),effectiveAddressSize,memory,registerFile);
@@ -1249,10 +1249,86 @@ EXECUTE_FUNC(executeIMUL3) //IMUL with 3 operands.
     }
 }
 
+void INCDECrSIrDI(DataSize dataSize,RegisterFile& registerFile,EffectiveSize effectiveAddressSize,
+                  bool isrDI=true,bool isrSI=true)
+{
+    s64 offset=0;
+    switch(dataSize)
+    {
+    case DATA_SIZE_BYTE:
+    {
+        offset=1;
+        break;
+    }
+    case DATA_SIZE_WORD:
+    {
+        offset=2;
+        break;
+    }
+    case DATA_SIZE_DWORD:
+    {
+        offset=4;
+        break;
+    }
+    case DATA_SIZE_QWORD:
+    {
+        offset=8;
+        break;
+    }
+    default:
+        assert(0);
+    }
+    if(registerFile.getFlagsBits().DF==1)
+        offset=-offset;
+
+    switch(effectiveAddressSize)
+    {
+    case EFFECTIVE_16_BITS:
+    {
+        if(isrSI)
+            registerFile.setGPR16Bits(RSI,registerFile.getGPR16Bits(RSI)+offset);
+        if(isrDI)
+            registerFile.setGPR16Bits(RDI,registerFile.getGPR16Bits(RDI)+offset);
+        break;
+    }
+    case EFFECTIVE_32_BITS:
+    {
+        if(isrSI)
+            registerFile.setGPR32Bits(RSI,registerFile.getGPR32Bits(RSI)+offset);
+        if(isrDI)
+            registerFile.setGPR32Bits(RDI,registerFile.getGPR32Bits(RDI)+offset);
+        break;
+    }
+    case EFFECTIVE_64_BITS:
+    {
+        if(isrSI)
+            registerFile.setGPR64Bits(RSI,registerFile.getGPR64Bits(RSI)+offset);
+        if(isrDI)
+            registerFile.setGPR64Bits(RDI,registerFile.getGPR64Bits(RDI)+offset);
+        break;
+    }
+    }
+}
+
 EXECUTE_FUNC(executeINS)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
-    INSTRUCTION_NOT_IMPLEMENT("INSB");
+//    INSTRUCTION_NOT_IMPLEMENT("INSB");
+    switch(dest->getSize())
+    {
+    case DATA_SIZE_BYTE:
+        dest->setU8(ioPortList.readFromPort(src->getU16()));
+        break;
+    case DATA_SIZE_WORD:
+        dest->setU16(ioPortList.readFromPort(src->getU16()));
+        break;
+    case DATA_SIZE_DWORD:
+        dest->setU32(ioPortList.readFromPort(src->getU16()));
+        break;
+    default:
+        assert(0);
+    }
+    INCDECrSIrDI(dest->getSize(),registerFile,effectiveAddressSize,true,false);
 }
 
 //EXECUTE_FUNC(executeINSWD)
@@ -1265,6 +1341,8 @@ EXECUTE_FUNC(executeOUTS)
 {
     (void)operatingEnvironment;(void)effectiveAddressSize;(void)effectiveOperandSize;(void)effectiveSegmentRegister;(void)dest;(void)src;(void)src2;(void)memory;(void)registerFile;(void)ioPortList;
     INSTRUCTION_NOT_IMPLEMENT("OUTB");
+    ioPortList.write2Port(dest->getU16(),src->getU32());
+    INCDECrSIrDI(dest->getSize(),registerFile,effectiveAddressSize,false,true);
 }
 
 //EXECUTE_FUNC(executeOUTSWD)
@@ -1776,66 +1854,7 @@ EXECUTE_FUNC(executeLAHF)
 
 //0xa
 
-void INCDECrSIrDI(DataSize dataSize,RegisterFile& registerFile,EffectiveSize effectiveAddressSize,
-                  bool isrDI=true,bool isrSI=true)
-{
-    s64 offset=0;
-    switch(dataSize)
-    {
-    case DATA_SIZE_BYTE:
-    {
-        offset=1;
-        break;
-    }
-    case DATA_SIZE_WORD:
-    {
-        offset=2;
-        break;
-    }
-    case DATA_SIZE_DWORD:
-    {
-        offset=4;
-        break;
-    }
-    case DATA_SIZE_QWORD:
-    {
-        offset=8;
-        break;
-    }
-    default:
-        assert(0);
-    }
-    if(registerFile.getFlagsBits().DF==1)
-        offset=-offset;
 
-    switch(effectiveAddressSize)
-    {
-    case EFFECTIVE_16_BITS:
-    {
-        if(isrSI)
-            registerFile.setGPR16Bits(RSI,registerFile.getGPR16Bits(RSI)+offset);
-        if(isrDI)
-            registerFile.setGPR16Bits(RDI,registerFile.getGPR16Bits(RDI)+offset);
-        break;
-    }
-    case EFFECTIVE_32_BITS:
-    {
-        if(isrSI)
-            registerFile.setGPR32Bits(RSI,registerFile.getGPR32Bits(RSI)+offset);
-        if(isrDI)
-            registerFile.setGPR32Bits(RDI,registerFile.getGPR32Bits(RDI)+offset);
-        break;
-    }
-    case EFFECTIVE_64_BITS:
-    {
-        if(isrSI)
-            registerFile.setGPR64Bits(RSI,registerFile.getGPR64Bits(RSI)+offset);
-        if(isrDI)
-            registerFile.setGPR64Bits(RDI,registerFile.getGPR64Bits(RDI)+offset);
-        break;
-    }
-    }
-}
 
 //void MOVS(ExecReadWriteOperand* dest,ExecReadWriteOperand* src,RegisterFile& registerFile,
 //          EffectiveSize effectiveAddressSize)

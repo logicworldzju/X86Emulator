@@ -55,7 +55,7 @@ void SystemService::write2Port(u32 value, Memory &memory, RegisterFile &register
         registerFile.getFlagsBits().CF=1;
         break;
     default:
-        qDebug()<<"int 15h function "<<(int)registerFile.getGPR8BitsHigh(RAX)<<" called.";
+        qDebug()<<"int 15h function "<<hex<<(int)registerFile.getGPR8BitsHigh(RAX)<<"h called.";
         assert(0);
     }
 }

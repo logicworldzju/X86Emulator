@@ -12,13 +12,13 @@ class DebugCPU : public CPU
 public:
     explicit DebugCPU(QObject *parent = 0);
     virtual void run();
+    static std::string outputInstruction(u32 ip, const std::vector<u8> &bin,InstructionHighLevelFormat &highFormat);
 private:
     void head();
     void tail();
     void help();
     void tip();
     u32 readInt(bool &isInt);
-    static std::string outputInstruction(u32 ip, const std::vector<u8> &bin,InstructionHighLevelFormat &highFormat);
     void showDisasm(u32 address,u32 length);
     void showData(u32 address,u32 length);
 protected:

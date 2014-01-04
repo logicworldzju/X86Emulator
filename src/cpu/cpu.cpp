@@ -5,6 +5,8 @@
 #include "cpu/executer/instructionexecuter.h"
 #include "cpu/executer/execute.h"
 
+#include "cpu/debugcpu.h"
+
 CPU::CPU(QObject *parent) :
     QThread(parent)
 {
@@ -174,8 +176,13 @@ void CPU::run()
                     _registerFile.setIP(_registerFile.getIP()-(instructionStream.getIP()-ip));
                 }
             }
+            else if(execFunc==(void*)executeMOVS)//I don't know why there is such instruction in the edit.A bug in my CPU?
+            {
+                _registerFile.setIP(_registerFile.getIP()-(instructionStream.getIP()-ip));
+            }
             else
             {
+                qDebug()<<DebugCPU::outputInstruction(ip,instructionStream.readLastInstruction(),highFormat).c_str();
                 assert(0);
             }
         }
