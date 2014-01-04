@@ -14,14 +14,23 @@ OpcodeTableEntry opcodeTableGroup1_80[8]=
 };
 OpcodeTableEntry opcodeTableGroup1_81[8]=
 {
-    OpcodeTableEntry("ADD",(void*)executeADD,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=000
-    OpcodeTableEntry("OR",(void*)executeOR,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=001
-    OpcodeTableEntry("ADC",(void*)executeADC,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=010
-    OpcodeTableEntry("SBB",(void*)executeSBB,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=011
-    OpcodeTableEntry("AND",(void*)executeAND,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=100
-    OpcodeTableEntry("SUB",(void*)executeSUB,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=101
-    OpcodeTableEntry("XOR",(void*)executeXOR,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=110
-    OpcodeTableEntry("CMP",(void*)executeCMP,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=111
+    //big bug here.
+//    OpcodeTableEntry("ADD",(void*)executeADD,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=000
+//    OpcodeTableEntry("OR",(void*)executeOR,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=001
+//    OpcodeTableEntry("ADC",(void*)executeADC,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=010
+//    OpcodeTableEntry("SBB",(void*)executeSBB,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=011
+//    OpcodeTableEntry("AND",(void*)executeAND,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=100
+//    OpcodeTableEntry("SUB",(void*)executeSUB,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=101
+//    OpcodeTableEntry("XOR",(void*)executeXOR,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=110
+//    OpcodeTableEntry("CMP",(void*)executeCMP,OT_E,OS_b,OT_I,OS_z),//ModRM.reg=111
+    OpcodeTableEntry("ADD",(void*)executeADD,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=000
+    OpcodeTableEntry("OR",(void*)executeOR,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=001
+    OpcodeTableEntry("ADC",(void*)executeADC,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=010
+    OpcodeTableEntry("SBB",(void*)executeSBB,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=011
+    OpcodeTableEntry("AND",(void*)executeAND,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=100
+    OpcodeTableEntry("SUB",(void*)executeSUB,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=101
+    OpcodeTableEntry("XOR",(void*)executeXOR,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=110
+    OpcodeTableEntry("CMP",(void*)executeCMP,OT_E,OS_v,OT_I,OS_z),//ModRM.reg=111
 };
 OpcodeTableEntry opcodeTableGroup1_82[8]=
 {
@@ -450,7 +459,8 @@ OpcodeTableEntry opcodeTableOneByte[256]=
     OpcodeTableEntry("CMPSW/D/Q",(void*)executeCMPS,OT_X,OS_v,OT_Y,OS_v),//0xa7
     OpcodeTableEntry("TEST",(void*)executeTEST,OT_RAX,OS_b,OT_I,OS_b),//0xa8
     OpcodeTableEntry("TEST",(void*)executeTEST,OT_RAX,OS_z,OT_I,OS_z),//0xa9
-    OpcodeTableEntry("STOSB",(void*)executeSTOS,OT_Y,OS_v,OT_RAX,OS_b),//0xaa
+//    OpcodeTableEntry("STOSB",(void*)executeSTOS,OT_Y,OS_v,OT_RAX,OS_b),//0xaa
+    OpcodeTableEntry("STOSB",(void*)executeSTOS,OT_Y,OS_b,OT_RAX,OS_b),//0xaa
     OpcodeTableEntry("STOSW/D/Q",(void*)executeSTOS,OT_Y,OS_v,OT_RAX,OS_v),//0xab
     OpcodeTableEntry("LODSB",(void*)executeLODS,OT_RAX,OS_b,OT_X,OS_b),//0xac
     OpcodeTableEntry("LODSW/D/Q",(void*)executeLODS,OT_RAX,OS_v,OT_X,OS_v),//0xad

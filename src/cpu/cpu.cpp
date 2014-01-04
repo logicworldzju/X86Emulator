@@ -5,6 +5,8 @@
 #include "cpu/executer/instructionexecuter.h"
 #include "cpu/executer/execute.h"
 
+#include "cpu/debugcpu.h"
+
 CPU::CPU(QObject *parent) :
     QThread(parent)
 {
@@ -20,16 +22,40 @@ static inline bool decRCX(RegisterFile& registerFile,EffectiveSize effectiveOper
     switch(effectiveOperandSize)
     {
     case EFFECTIVE_16_BITS:
-        registerFile.setGPR16Bits(RCX,registerFile.getGPR16Bits(RCX)-1);
-        return registerFile.getGPR16Bits(RCX)==0;
+        if(registerFile.getGPR16Bits(RCX)==0)
+        {
+            return true;
+        }
+        else
+        {
+            registerFile.setGPR16Bits(RCX,registerFile.getGPR16Bits(RCX)-1);
+            return false;
+        }
+//        return registerFile.getGPR16Bits(RCX)==0;
         break;
     case EFFECTIVE_32_BITS:
-        registerFile.setGPR32Bits(RCX,registerFile.getGPR32Bits(RCX)-1);
-        return registerFile.getGPR32Bits(RCX)==0;
+        if(registerFile.getGPR32Bits(RCX)==0)
+        {
+            return true;
+        }
+        else
+        {
+            registerFile.setGPR32Bits(RCX,registerFile.getGPR32Bits(RCX)-1);
+            return false;
+        }
+//        return registerFile.getGPR32Bits(RCX)==0;
         break;
     case EFFECTIVE_64_BITS:
-        registerFile.setGPR64Bits(RCX,registerFile.getGPR64Bits(RCX)-1);
-        return registerFile.getGPR64Bits(RCX)==0;
+        if(registerFile.getGPR64Bits(RCX)==0)
+        {
+            return true;
+        }
+        else
+        {
+            registerFile.setGPR64Bits(RCX,registerFile.getGPR64Bits(RCX)-1);
+            return false;
+        }
+//            return registerFile.getGPR64Bits(RCX)==0;
         break;
     }
     assert(0);
@@ -79,6 +105,16 @@ void CPU::run()
         assert(nextIP<0x10000);
         _registerFile.setIP(nextIP&0xffff);
 
+        //deal with rep repz repnz.
+        void* execFunc=highFormat.opcode->execFunc;
+        if(highFormat.legacyPrefix.rep_repz || highFormat.legacyPrefix.repnz)
+        {
+            if(decRCX(_registerFile,highFormat.effectiveOperandSize))
+            {
+                continue;
+            }
+        }
+
         //instruction addressing.
         ExecOperands operands;
         InstructionExecuter::addressing(highFormat,_registerFile,*_memory,operands);
@@ -89,7 +125,6 @@ void CPU::run()
         doExecuteInstruction();
 
         //deal with rep repz repnz.
-        void* execFunc=highFormat.opcode->execFunc;
         if(highFormat.legacyPrefix.rep_repz)
         {
             if(execFunc==(void*)executeLODS || execFunc==(void*)executeMOVS ||
@@ -97,7 +132,11 @@ void CPU::run()
                     execFunc==(void*)executeOUTS)
             {
                 //rep
-                if(!decRCX(_registerFile,highFormat.effectiveOperandSize))
+//                if(decRCX(_registerFile,highFormat.effectiveOperandSize))
+//                {
+//                    continue;
+//                }
+//                else
                 {
                     _registerFile.setIP(_registerFile.getIP()-(instructionStream.getIP()-ip));
                 }
@@ -106,8 +145,12 @@ void CPU::run()
             else if(execFunc==(void*)executeCMPS || execFunc==(void*)executeSCAS)
             {
                 //repz or repe
-                if(!(decRCX(_registerFile,highFormat.effectiveOperandSize)||
+                if((/*decRCX(_registerFile,highFormat.effectiveOperandSize)||*/
                      _registerFile.getFlagsBits().ZF==0))
+                {
+                    continue;
+                }
+                else
                 {
                     _registerFile.setIP(_registerFile.getIP()-(instructionStream.getIP()-ip));
                 }
@@ -123,16 +166,26 @@ void CPU::run()
             {
                 //repnz or repne
 
-                if(!(decRCX(_registerFile,highFormat.effectiveOperandSize)||
+                if((/*decRCX(_registerFile,highFormat.effectiveOperandSize)||*/
                      _registerFile.getFlagsBits().ZF==1))
+                {
+                    continue;
+                }
+                else
                 {
                     _registerFile.setIP(_registerFile.getIP()-(instructionStream.getIP()-ip));
                 }
             }
+            else if(execFunc==(void*)executeMOVS)//I don't know why there is such instruction in the edit.A bug in my CPU?
+            {
+                _registerFile.setIP(_registerFile.getIP()-(instructionStream.getIP()-ip));
+            }
             else
             {
+                qDebug()<<DebugCPU::outputInstruction(ip,instructionStream.readLastInstruction(),highFormat).c_str();
                 assert(0);
             }
         }
+
     }
 }

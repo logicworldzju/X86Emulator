@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <iostream>
 #include <stdlib.h>
+#include <QDebug>
 
 class IOPortList
 {
@@ -14,6 +15,8 @@ public:
     {
         _ioPortList = new IOPort*[1<<16];
         ::memset(_ioPortList,0,sizeof(IOPort*)*(1<<16));
+
+//        int70Written=0;
     }
     ~IOPortList()
     {
@@ -27,29 +30,33 @@ public:
 public:
     void write2Port(u16 portNumber,u32 value)
     {
-        std::cout<<"IOPortList:"<<"portNumber:"<<std::hex<<portNumber<<"h"<<std::endl;
-        if(portNumber==0x20)
+        qDebug("IOPortList:portNumber:%xh",portNumber);//<<"IOPortList:"<<"portNumber:"<<QDebug::hex<<portNumber<<"h";
+        qDebug()<<_registerFile.toString().c_str();
+        if(portNumber==0x2f2 || portNumber==0x2f3 || portNumber==0x2f4 || portNumber==0x2f5|| portNumber==0x2f6|| portNumber==0x2f7)
         {
             return;
         }
-        if(portNumber==0x14)//serial
+        if(portNumber==0x61)
+        {
+            return ;
+        }
+        if(portNumber==0x40)
+        {
+            return ;
+        }
+        if(portNumber==0x3d4)//Video CRTC index register
         {
             return;
         }
-        if(portNumber==0x17)//parallel
+        if(portNumber==0x3d5)//Other video CRTC registers
         {
-            return;
+            return ;
         }
-        if(portNumber==0x70)//RAM DATA
+        if(portNumber==0x3d8)//CGA mode control register
         {
-            int70Written=(u8)(value&0x7f);
-            return;
+            return ;
         }
-        if(portNumber==0x71)//RAM DATA
-        {
-            return;
-        }
-        if(portNumber==0x15)//system
+        if(portNumber==0x3d9)//CGA palette register
         {
             return;
         }
@@ -58,29 +65,31 @@ public:
                                            _registerFile);
         else
         {
-            std::cerr<<"Error:"<<"Didn't implement port:"<<portNumber
-                    <<" try to write value:"<<value<<std::endl;
+            std::cerr<<"Error:"<<"Didn't implement port:"<<std::hex<<portNumber
+                    <<"h try to write value:"<<std::hex<<value<<"h"<<std::endl;
             std::cerr<<_registerFile.toString();
             ::exit(-1);
         }
     }
     u32 readFromPort(u16 portNumber)
     {
-        if(portNumber==0x71)//RAM DATA
+        if(portNumber==0x21)
         {
-            switch(int70Written)
-            {
-            case 0xb:
-                return 0x2;
-                break;
-            case 0xf:
-                return 0;
-                break;
-            default:
-                return 0;
-                break;
-            }
+            return 0xcccccccc;
         }
+        if(portNumber==0x61)
+        {
+            return 0xcccccccc;
+        }
+        if(portNumber==0x3d5)//Other video CRTC registers
+        {
+            return 0xcccccccc;
+        }
+        if(portNumber==0x3da)
+        {
+            return 0xcccccccc;
+        }
+
         if(_ioPortList[portNumber])
             return _ioPortList[portNumber]->readFromPort(_memory,
                                                     _registerFile);
@@ -96,8 +105,8 @@ protected:
     IOPort** _ioPortList;
     Memory& _memory;
     RegisterFile& _registerFile;
-private:
-    u8 int70Written;
+//private:
+//    u8 int70Written;
 };
 
 #endif // IOPORTLIST_H

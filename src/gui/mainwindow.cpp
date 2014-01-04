@@ -59,7 +59,7 @@ MainWindow::MainWindow(Memory& memory,QWidget *parent) :
     connect(capsAction, SIGNAL(triggered()), this, SLOT(showStatus1()));
     connect(numlockAction, SIGNAL(triggered()), this, SLOT(showStatus2()));
 
-    ui->centralWidget->setVideoMemoryAddress(memory.getVideoMemoryAddress());
+    ui->centralWidget->setVideoMemoryAddress(memory.getVideoTextMemoryAddress());
 }
 
 MainWindow::~MainWindow()

@@ -31,6 +31,10 @@ Video::Video(Memory &m, RegisterFile &r, ConsoleWidget &consoleWidget)
     CurrentPage=0;
     CursorTop=11;
     CursorBottom=12;
+
+    CurrentMode=0x3;
+
+    initVideoTextBuffer();
 }
 
 Video::~Video()
@@ -43,7 +47,8 @@ void Video::write2Port(u32 value,Memory& memory,RegisterFile& registerFile)
     (void)value;
 //    this->memory=memory; that is a bug;
 //    this->registerFile=registerFile; that is a bug;
-    VideoMemoryStart=memory.getVideoMemoryAddress();
+    qDebug("Video:function %xh",registerFile.getGPR8BitsHigh(RAX));
+    VideoMemoryStart=memory.getVideoTextMemoryAddress();
     MemoryStart=memory.getMemoryAddress();
     switch(registerFile.getGPR8BitsHigh(RAX))
     {
@@ -63,9 +68,100 @@ void Video::write2Port(u32 value,Memory& memory,RegisterFile& registerFile)
     case 0xD:ReadPixel();break;
     case 0xE:WriteTeletypetoActivePage();break;
     case 0xF:ReturnVideoStatus();break;
+    case 0x10:
+        registerFile.setGPR8BitsLow(RAX,0);
+        break;
+    case 0x11:
+//		switch(eCPU.al)
+        switch(registerFile.getGPR8BitsLow(RAX))
+		{
+		case 0x30:
+//			switch(eCPU.bh)
+            switch(registerFile.getGPR8BitsHigh(RBX))
+			{
+			case 0x00:
+//				eCPU.es=*(unsigned short *)(MemoryStart+0x1f*4+2);
+                registerFile.setSR(ES,0xf000);
+                registerFile.setSSR(ES,0xf0000);
+//				eCPU.bp=*(unsigned short *)(MemoryStart+0x1f*4);
+                registerFile.setGPR16Bits(RBP,0xf000);
+				break;
+            default:
+                assert(0);
+			}
+//			eCPU.cx=0x10;			//从Bochs跟出来的，不知具体意思
+            registerFile.setGPR16Bits(RCX,0x10);
+//			eCPU.dl=TextSolutionY-1;
+            registerFile.setGPR8BitsLow(RDX,ROW_SIZE-1);
+			break;
+        default:
+            assert(0);
+		}
+		break;
+	case 0x12:
+//		switch(eCPU.bl)
+        switch(registerFile.getGPR8BitsLow(RBX))
+		{
+		case 0x10:
+//			eCPU.bh=0;
+//			eCPU.bl=3;
+//			eCPU.cl=7;
+            registerFile.setGPR8BitsHigh(RBX,0);
+            registerFile.setGPR8BitsLow(RBX,3);
+            registerFile.setGPR8BitsLow(RCX,7);
+			break;
+        default:
+            assert(0);
+		}
+		break;
     case 0x13:WriteString();break;
+    case 0x1a:
+//		switch(eCPU.al)
+        switch(registerFile.getGPR8BitsLow(RAX))
+		{
+		case 00:
+//			eCPU.al=0x1a;
+//			eCPU.bl=DispCombinCode;
+//			eCPU.bh=0;
+            registerFile.setGPR8BitsLow(RAX,0x1a);
+            registerFile.setGPR8BitsLow(RBX,0x8);
+            registerFile.setGPR8BitsHigh(RBX,0);
+			break;
+		case 01:
+			break;
+        default:
+            assert(0);
+		}
+		break;
+    case 0x1b:
+        registerFile.setGPR8BitsLow(RAX,0);
+        break;
+    case 0xef:
+        /*
+         *Return:
+            DL = video adapter type
+            00h original Hercules
+            01h Hercules Plus    (port 03BAh reads x001xxxxx)
+            02h Hercules InColor (port 03BAh reads x101xxxxx)
+            FFh not a Hercules-compatible card (port 03BAh bit 7 not pulsing)
+            DH = memory mode byte
+            00h "half" mode
+            01h "full" mode
+            FFh not a Hercules-compatible card
+         */
+        registerFile.setGPR8BitsLow(RDX,0xff);
+        registerFile.setGPR8BitsHigh(RDX,0x00);
+        break;
+    case 0xfa:
+        /*Return:
+        AX = 00FAh if installed ES = segment of resident code
+
+        Program: FASTBUFF.COM is a keyboard speedup/screen blanking utility by David Steiner
+        */
+        registerFile.setGPR16Bits(RAX,0x0);
+        break;
     default:
-        cerr<<"Int 10h function called,no such function code."<<registerFile.getGPR8BitsHigh(RAX)<<endl;
+        cerr<<"Int 10h function called,no such function code."<<hex<<(int)registerFile.getGPR8BitsHigh(RAX)<<"h"<<endl;
         exit(-1);
         break;
     }
@@ -86,6 +182,7 @@ void Video::InitializeCurPage()                                //初始化各页
 void Video::DispModeChanged()  //00h
 {
     cout<<"Int 10h function 00h called."<<endl;
+    assert(0);
     return ;
 }
 
@@ -142,7 +239,7 @@ void Video::SelectNewVideoPage()  //05h
     CurColumn=CurPage[2*CurrentPage+1];
 
     _consoleWidget.setCursorPosition(QPoint(CurColumn,CurRow));
-    _consoleWidget.setVideoMemoryAddress(PAGESIZE*CurrentPage+memory.getVideoMemoryAddress());
+    _consoleWidget.setVideoMemoryAddress(PAGESIZE*CurrentPage+memory.getVideoTextMemoryAddress());
 }
 
 void Video::ScrollCurrentPageUp()  //06h
@@ -266,6 +363,7 @@ void Video::WriteTeletypetoActivePage()  //0Eh
     }
     return ;*/
     writeOneCharacter(pageNumber,0,false,character);
+    qDebug("%c %xh",character,character);
 }
 
 void Video::ReturnVideoStatus()  //0Fh
@@ -444,7 +542,7 @@ void Video::scrollUpOneRow(int pageNumber, u8 attribute, int left, int top, int 
     assert(top>=0 && top<ROW_SIZE);
     assert(bottom>=0 && bottom<ROW_SIZE);
 
-    u8* pageBase=memory.getVideoMemoryAddress()+PAGESIZE*pageNumber;
+    u8* pageBase=memory.getVideoTextMemoryAddress()+PAGESIZE*pageNumber;
     for(int i=top; i<bottom; i++)
     {
         for(int j=left; j<=right; j++)
@@ -488,7 +586,7 @@ void Video::scrollDownOneRow(int pageNumber, u8 attribute, int left, int top, in
     assert(top>=0 && top<ROW_SIZE);
     assert(bottom>=0 && bottom<ROW_SIZE);
 
-    u8* pageBase=memory.getVideoMemoryAddress()+PAGESIZE*pageNumber;
+    u8* pageBase=memory.getVideoTextMemoryAddress()+PAGESIZE*pageNumber;
 
     for(int i=bottom; i>=top+1; i--)
     {
@@ -508,7 +606,7 @@ void Video::blankOneRow(int pageNumber, u8 attribute, int row, int left, int rig
     assert(right>=0 && right<COLUMN_SIZE);
     assert(row>=0 && row<ROW_SIZE);
 
-    u8* pageBase=memory.getVideoMemoryAddress()+PAGESIZE*pageNumber;
+    u8* pageBase=memory.getVideoTextMemoryAddress()+PAGESIZE*pageNumber;
 
     int i=row;
     for(int j=left; j<=right; j++)
@@ -522,7 +620,7 @@ void Video::writeOneCharacter(int pageNumber, u8 attribute,bool shouldWriteAttri
 {
     assert(pageNumber>=0 && pageNumber<MAXPAGENUMBER);
 
-    u8* pageBase=memory.getVideoMemoryAddress()+PAGESIZE*pageNumber;
+    u8* pageBase=memory.getVideoTextMemoryAddress()+PAGESIZE*pageNumber;
 
     int row=CurPage[pageNumber*2],column=CurPage[pageNumber*2+1];
 
@@ -538,7 +636,7 @@ void Video::writeOneCharacter(int pageNumber, u8 attribute,bool shouldWriteAttri
     {
         if(row==ROW_SIZE-1)
         {
-            scrollUp(pageNumber,1,0,0,0,ROW_SIZE-1,COLUMN_SIZE-1);
+            scrollUp(pageNumber,1,DEFAULT_ATTRIBUTE,0,0,ROW_SIZE-1,COLUMN_SIZE-1);
         }
         else
         {
@@ -561,7 +659,7 @@ void Video::writeOneCharacter(int pageNumber, u8 attribute,bool shouldWriteAttri
         {
             column=0;
             row=row;
-            scrollUp(pageNumber,1,0,0,0,ROW_SIZE-1,COLUMN_SIZE-1);
+            scrollUp(pageNumber,1,DEFAULT_ATTRIBUTE,0,0,ROW_SIZE-1,COLUMN_SIZE-1);
         }
         else if(column==COLUMN_SIZE-1)
         {
@@ -580,5 +678,18 @@ void Video::writeOneCharacter(int pageNumber, u8 attribute,bool shouldWriteAttri
         CurColumn=column;
         CurRow=row;
         _consoleWidget.setCursorPosition(QPoint(CurColumn,CurRow));
+    }
+}
+
+void Video::initVideoTextBuffer()
+{
+    for(int page=0;page<MAXPAGENUMBER;page++)
+    {
+        u8* pageBase = memory.getVideoTextMemoryAddress()+PAGESIZE*page;
+        for(int i=0; i<PAGESIZE/2; i++)
+        {
+            pageBase[i*2+0]=' ';
+            pageBase[i*2+1]=DEFAULT_ATTRIBUTE;
+        }
     }
 }

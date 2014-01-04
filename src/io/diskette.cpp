@@ -2,6 +2,7 @@
 #include <iostream>
 using namespace std;
 #include <stdlib.h>
+#include <QDebug>
 
 Diskette::Diskette(const string &floppyFileName0, const string &floppyFileName1)
     :_ioPort(*this),_floppy0(floppyFileName0),_floppy1(floppyFileName1)
@@ -24,16 +25,22 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
 //        (*(unsigned short*)((t=registerFile.getSR(SS),t<<=4)+registerFile.getGPR16Bits(RSP)+4+memory.getMemoryAddress())) &= ~CF;
         registerFile.getFlagsBits().CF=0;
         registerFile.setGPR8BitsHigh(RAX,0);     //AH=0;
-        cout<<"int 13h function 00h--reset diskette system called"<<endl;
+        qDebug()<<"int 13h function 00h--reset diskette system called"<<endl;
         break;
     case 1:
-//        if (registerFile.getGPR8BitsLow(RDX)<0x80)   //DL
-//            registerFile.setGPR8BitsHigh(RAX,0);    //AH=0;
-//        else
-//            registerFile.setGPR8BitsHigh(RAX,0x80); //AH=0x80;
-        registerFile.getFlagsBits().CF=0;
-        registerFile.setGPR8BitsHigh(RAX,0);     //AH=0;
-        cout<<"int 13h function 01h--read diskette status called"<<endl;
+        if (registerFile.getGPR8BitsLow(RDX)<0x80)   //DL
+        {
+            registerFile.setGPR8BitsHigh(RAX,0);    //AH=0;
+            registerFile.getFlagsBits().CF=0;
+        }
+        else
+        {
+            registerFile.setGPR8BitsHigh(RAX,0x80); //AH=0x80;
+            registerFile.getFlagsBits().CF=1;
+        }
+//        registerFile.getFlagsBits().CF=0;
+//        registerFile.setGPR8BitsHigh(RAX,0);     //AH=0;
+        qDebug()<<"int 13h function 01h--read diskette status called"<<endl;
         break;
     case 2:
     {
@@ -44,20 +51,27 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
         u8 driveNumber=registerFile.getGPR8BitsLow(RDX);
         u8* buffer = memory.getMemoryAddress()+registerFile.getSR(ES)*16+
                 registerFile.getGPR16Bits(RBX);
-        cout<<"Int 13h function 02h called with "<<
+        qDebug()<<"Int 13h function 02h called with "<<
               "trackNumber:"<<(int)trackNumber<<
               ",sectorNumber:"<<(int)sectorNumber<<
               ",headNumber:"<<(int)headNumber<<
               ",driveNumber:"<<(int)driveNumber<<
               endl;
-        if(driveNumber==0 || driveNumber==0x80)//driveNumber==0x80 may be a bug.
+        if(driveNumber==0 /*|| driveNumber==0x80*/)//driveNumber==0x80 may be a bug.
         {
             _floppy0.readSectors(count,buffer,trackNumber,headNumber,sectorNumber);
         }
-        else if(driveNumber==1 || driveNumber==0x81)//driveNumber==0x81 may be a bug
+        else if(driveNumber==1 /*|| driveNumber==0x81*/)//driveNumber==0x81 may be a bug
         {
             _floppy1.readSectors(count,buffer,trackNumber,headNumber,sectorNumber);
         }
+//        else if(driveNumber==0x80 || driveNumber==0x81)
+//        {
+//            registerFile.setGPR8BitsLow(RAX,count);
+//            registerFile.setGPR8BitsHigh(RAX,0x0c);
+//            registerFile.getFlagsBits().CF=1;
+//            break;
+//        }
         else
         {
             cerr<<"Error:No such driveNumber"<<(int)driveNumber<<" in int 13h function 02h"<<endl;
@@ -94,7 +108,7 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
         registerFile.setGPR8BitsLow(RAX,count);
         registerFile.setGPR8BitsHigh(RAX,0);
         registerFile.getFlagsBits().CF=0;
-        cout<<"Int 13h function 03h called with "<<
+        qDebug()<<"Int 13h function 03h called with "<<
               "trackNumber:"<<(int)trackNumber<<
               ",sectorNumber:"<<(int)sectorNumber<<
               ",headNumber:"<<(int)headNumber<<
@@ -182,7 +196,7 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
         registerFile.setGPR8BitsLow(RAX,count);
         registerFile.setGPR8BitsHigh(RAX,0);
         registerFile.getFlagsBits().CF=0;
-        cout<<"Int 13h function 04h called with "<<
+        qDebug()<<"Int 13h function 04h called with "<<
               "trackNumber:"<<(int)trackNumber<<
               ",sectorNumber:"<<(int)sectorNumber<<
               ",headNumber:"<<(int)headNumber<<
@@ -215,7 +229,7 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
         registerFile.setGPR8BitsLow(RAX,count);
         registerFile.setGPR8BitsHigh(RAX,0);
         registerFile.getFlagsBits().CF=0;
-        cout<<"Int 13h function 05h called with "<<
+        qDebug()<<"Int 13h function 05h called with "<<
               ",trackNumber:"<<(int)trackNumber<<
               ",headNumber:"<<(int)headNumber<<
               ",driveNumber:"<<(int)driveNumber<<endl;
@@ -232,7 +246,7 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
             registerFile.setGPR8BitsHigh(RCX,_floppy0.getTracksPerSide()-1);
             registerFile.setGPR8BitsLow(RCX,_floppy0.getSectorsPerTrack());
             registerFile.setGPR8BitsHigh(RDX,_floppy0.getSidesCount()-1);
-            registerFile.setGPR8BitsLow(RDX,1);//DL
+            registerFile.setGPR8BitsLow(RDX,2);//DL
 
             registerFile.setSR(ES,0xf000);
             registerFile.setSSR(ES,0xf0000);
@@ -248,7 +262,7 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
             registerFile.setGPR8BitsHigh(RCX,_floppy1.getTracksPerSide()-1);
             registerFile.setGPR8BitsLow(RCX,_floppy1.getSectorsPerTrack());
             registerFile.setGPR8BitsHigh(RDX,_floppy1.getSidesCount()-1);
-            registerFile.setGPR8BitsLow(RDX,1);//DL
+            registerFile.setGPR8BitsLow(RDX,2);//DL
 
             registerFile.setSR(ES,0xf000);
             registerFile.setSSR(ES,0xf0000);
@@ -258,17 +272,17 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
         }
         else
         {
-            registerFile.setGPR16Bits(RAX,0);//AX
+            registerFile.setGPR16Bits(RAX,0x0100);//AX
             registerFile.setGPR8BitsHigh(RBX,0);//BH
             registerFile.setGPR8BitsLow(RBX,0x0);//BL
             registerFile.setGPR8BitsHigh(RCX,0);
             registerFile.setGPR8BitsLow(RCX,0);
             registerFile.setGPR8BitsHigh(RDX,0);
-            registerFile.setGPR8BitsLow(RDX,1);//DL
+            registerFile.setGPR8BitsLow(RDX,0);//DL
 
             registerFile.getFlagsBits().CF=1;
         }
-        cout<<"Int 13h funcion 08h read drive parameters,called with "<<
+        qDebug()<<"Int 13h funcion 08h read drive parameters,called with "<<
               "driveNumber:"<<(int)driveNumber<<endl;
         break;
     }
@@ -319,28 +333,28 @@ void Diskette::write2Port(u32 value, Memory &memory, RegisterFile &registerFile)
             registerFile.setGPR8BitsHigh(RAX,0);  //AH
             registerFile.getFlagsBits().CF=0;
         }
-        cout<<"Int 13h funcion 15h read drive type,called with "<<
+        qDebug()<<"Int 13h funcion 15h read drive type,called with "<<
               "driveNumber:"<<(int)driveNumber<<endl;
         break;
     }
     case 0x16:
     {
         u8 driveNumber=registerFile.getGPR8BitsLow(RDX);
-        cout<<"Int 13h funcion 16h detect media change,called with "<<
+        qDebug()<<"Int 13h funcion 16h detect media change,called with "<<
               "driveNumber:"<<(int)driveNumber<<endl;
         break;
     }
     case 0x17:
     {
         u8 driveNumber=registerFile.getGPR8BitsLow(RDX);
-        cout<<"Int 13h funcion 17h set diskette type,called with "<<
+        qDebug()<<"Int 13h funcion 17h set diskette type,called with "<<
               "driveNumber:"<<(int)driveNumber<<endl;
         break;
     }
     case 0x18:
     {
         u8 driveNumber=registerFile.getGPR8BitsLow(RDX);
-        cout<<"Int 13h funcion 18h set media type for format,called with "<<
+        qDebug()<<"Int 13h funcion 18h set media type for format,called with "<<
               "driveNumber:"<<(int)driveNumber<<endl;
         break;
     }

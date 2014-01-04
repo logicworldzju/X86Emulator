@@ -42,21 +42,23 @@ void KeyboardIO::function(u8 func, RegisterFile& _registerFile)
     switch(func)
     {
     case 0x00:
+    {
         //temp=keyboardbuffer.dequeue();
         temp=deqBlock();
         _registerFile.setGPR16Bits(RAX,temp);
         break;
+    }
     case 0x01:
     {
-//        if(!_keyboardBuffer.isEmpty()){
-//            temp=_keyboardBuffer[0];
-//            _registerFile.setGPR16Bits(RAX,temp);
-//            _registerFile.getFlagsBits().ZF=0;
-//        }
-//        else{
-//            _registerFile.setGPR16Bits(RAX,0x0000);
-//            _registerFile.getFlagsBits().ZF=1;
-//        }
+        //        if(!_keyboardBuffer.isEmpty()){
+        //            temp=_keyboardBuffer[0];
+        //            _registerFile.setGPR16Bits(RAX,temp);
+        //            _registerFile.getFlagsBits().ZF=0;
+        //        }
+        //        else{
+        //            _registerFile.setGPR16Bits(RAX,0x0000);
+        //            _registerFile.getFlagsBits().ZF=1;
+        //        }
         bool isGetIt;
         temp = getFirstNonblock(isGetIt);
         if(isGetIt)
@@ -72,55 +74,83 @@ void KeyboardIO::function(u8 func, RegisterFile& _registerFile)
         break;
     }
     case 0x02:
+    {
         _registerFile.setGPR8BitsLow(RAX,shiftflagstatus);
         break;
+    }
     case 0x03:
+    {
         cout<<"This is INT 16h Function 03h!"<<endl;
         break;
+    }
     case 0x05:
+    {
         temp=_registerFile.getGPR16Bits(RCX);
-//        _keyboardBuffer.enqueue(temp);
+        //        _keyboardBuffer.enqueue(temp);
         enq(temp);
         _registerFile.setGPR8BitsLow(RAX,0x000);
         _registerFile.getFlagsBits().CF=0;
         break;
-
+    }
     case 0x10:
-//        temp=_keyboardBuffer.dequeue();
-//        _registerFile.setGPR16Bits(RAX,temp);
+    {
+        //        temp=_keyboardBuffer.dequeue();
+        //        _registerFile.setGPR16Bits(RAX,temp);
         temp=deqBlock();
         _registerFile.setGPR16Bits(RAX,temp);
         cout<<"This is INT16h Function 10h, not Function 00h!"<<endl;
         break;
+    }
     case 0x11:
-//        if(!_keyboardBuffer.isEmpty()){
-//            temp=_keyboardBuffer[0];
-//            _registerFile.setGPR16Bits(RAX,temp);
-//            _registerFile.getFlagsBits().ZF=0;
-//        }
-//        else{
-//            _registerFile.setGPR16Bits(RAX,0x0000);
-//            _registerFile.getFlagsBits().ZF=1;
-//        }
+        //        if(!_keyboardBuffer.isEmpty()){
+        //            temp=_keyboardBuffer[0];
+        //            _registerFile.setGPR16Bits(RAX,temp);
+        //            _registerFile.getFlagsBits().ZF=0;
+        //        }
+        //        else{
+        //            _registerFile.setGPR16Bits(RAX,0x0000);
+        //            _registerFile.getFlagsBits().ZF=1;
+        //        }
+    {
         bool isGetIt;
         temp = getFirstNonblock(isGetIt);
         if(isGetIt)
         {
             _registerFile.setGPR16Bits(RAX,temp);
             _registerFile.getFlagsBits().ZF=0;
+//            qDebug("Keyboard:get one key by funciton11h %xh",temp);
+//            cout<<"This is INT16h Function 11h, not Function 01h!"<<endl;
         }
         else
         {
-            _registerFile.setGPR16Bits(RAX,0x0000);
+            //            _registerFile.setGPR16Bits(RAX,0x0000);
             _registerFile.getFlagsBits().ZF=1;
         }
         cout<<"This is INT16h Function 11h, not Function 01h!"<<endl;
         break;
+    }
     case 0x12:
+    {
         _registerFile.setGPR16Bits(RAX,shiftflagstatus);
         break;\
+    }
+    case 0x55:
+    {
+        if(_registerFile.getGPR8BitsLow(RAX)==0xfe)
+        {
+            _registerFile.setGPR16Bits(RAX,0);
+            break;
+        }
+        else
+        {
+            assert(0);
+        }
+    }
     default:
-        cout<<"Can't use INT16h Function "<<hex<<func<<"h!"<<endl;
+    {
+        cout<<"Can't use INT16h Function "<<hex<<(int)func<<"h!"<<endl;
+        assert(0);
+    }
     }
 }
 
@@ -132,6 +162,8 @@ void KeyboardIO::enq(u16 data)
     }
     _semaphore.release();
 //    qDebug()<<_semaphore.available();
+    qDebug("Keyboard:insert one key %xh",data);
+//    assert(0);
 }
 
 u16 KeyboardIO::deqBlock()
@@ -188,6 +220,7 @@ u16 KeyboardIO::getFirstNonblock(bool &isGetIt)
         return 0;
     }
 //    qDebug()<<_semaphore.available();
+//    assert(0);
 }
 
 
@@ -198,7 +231,8 @@ void Keyboard::toggleKeyGet(bool isShiftDown,bool isControlDown,bool isAltDown,b
 
 void Keyboard::keyStatusGet(u16 characterCode, bool isPressed)
 {
-    if(characterCode == 0x5200 && isPressed==false)
+    if(!isPressed) return;
+    if(characterCode == 0x5200 && isPressed==true)
     {
         if(keyio.isinsert)
         {

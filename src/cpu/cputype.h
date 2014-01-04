@@ -4,11 +4,11 @@
 //------------------------------------Register--------------------------------------------
 enum SegmentRegister
 {
-    ES=0,CS,SS,DS,FS,GS
+    ES=0,CS=1,SS=2,DS=3,FS=4,GS=5
 };
 enum GPRegister
 {
-    RAX=0,RCX,RDX,RBX,RSP,RBP,RSI,RDI,R8,R9,R10,R11,R12,R13,R14,R15
+    RAX=0,RCX=1,RDX=2,RBX=3,RSP=4,RBP=5,RSI=6,RDI=7,R8=8,R9=9,R10=10,R11=11,R12=12,R13=13,R14=14,R15=15
 };
 enum ControlRegister
 {

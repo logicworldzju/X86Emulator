@@ -58,8 +58,10 @@ private:
     void blankOneRow(int pageNumber,u8 attribute,int row,int left,int right);
 
     void writeOneCharacter(int pageNumber, u8 attribute, bool shouldWriteAttribute, u8 character);
+    void initVideoTextBuffer();
 private:
     ConsoleWidget& _consoleWidget;
+    const static u8 DEFAULT_ATTRIBUTE=0x7;
 };
 
 

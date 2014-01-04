@@ -36,7 +36,13 @@ SOURCES += main.cpp\
     io/keyboard.cpp \
     io/timeofday.cpp \
     io/diskette.cpp \
-    io/floppy.cpp
+    io/floppy.cpp \
+    io/printer.cpp \
+    io/serial.cpp \
+    io/cmosram.cpp \
+    io/systemservice.cpp \
+    io/pic.cpp \
+    cpu/register/registerfile.cpp
 
 HEADERS  += gui/mainwindow.h \
     cpu/instructionformat.h \
@@ -82,7 +88,11 @@ HEADERS  += gui/mainwindow.h \
     io/timeofday.h \
     io/diskette.h \
     io/floppy.h \
-    io/floppy.h
+    io/printer.h \
+    io/serial.h \
+    io/cmosram.h \
+    io/systemservice.h \
+    io/pic.h
 
 FORMS    += gui/mainwindow.ui
 
