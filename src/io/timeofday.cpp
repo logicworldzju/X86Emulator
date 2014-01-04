@@ -1,4 +1,4 @@
-#include "TimeOfDay.h"
+#include "timeofday.h"
 #include <QDateTime>
 #include <iostream>
 using namespace std;
@@ -91,7 +91,7 @@ void TimeOfDay::write2Port(u32 value,Memory& memory,RegisterFile& registerFile)
 		registerFile.setGPR16Bits(RCX,(((_rtcTick) >> 16) & 0xffff));
         registerFile.setGPR8BitsLow(RAX,(_rtcTick)/8640000);		//每天有8640000个Tick
 
-        assert(0);
+//        assert(0);
 		break;
 	case 1:
 		(_rtcTick)=registerFile.getGPR16Bits(RCX);

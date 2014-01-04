@@ -81,6 +81,7 @@ HEADERS  += gui/mainwindow.h \
     io/keyboard.h \
     io/timeofday.h \
     io/diskette.h \
+    io/floppy.h \
     io/floppy.h
 
 FORMS    += gui/mainwindow.ui
